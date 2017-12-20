@@ -1,0 +1,7 @@
+,,down,left,left,,
+,,down,,up,,
+down,left,downLeft,left,upLeft,left,left
+down,,down,,up,,up
+right,right,downRight,right,upRight,right,up
+,,down,,up,,
+,,right,right,up,,

@@ -1,0 +1,7 @@
+,,cardLoss,regen,gamble,,
+,,monster,,draw,,
+gamble,monster,levelDown,draw,home2,draw,boss
+shrine,,monster,,monster,,shrine
+boss,draw,home1,draw,levelDown,monster,gamble
+,,draw,,monster,,
+,,gamble,regen,cardLoss,,
