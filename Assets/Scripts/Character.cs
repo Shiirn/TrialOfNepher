@@ -8,6 +8,7 @@ public class Character {
     public int boardY;
     public GameObject character;
     public GameObject currentPanel;
+    public bool isMoving = false;
 
     public Character(GameObject _character, GameObject _homePanel)
     {

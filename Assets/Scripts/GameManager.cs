@@ -24,16 +24,18 @@ public class GameManager : MonoBehaviour {
         boardMap = board.GetComponent<BoardMap>();
         GetHomePanels();
         SpawnCharacters();
-	}
-	
-	void Update () {
 
-        MoveCharacter();
+        //Temporarily moving the character in Start
+        RollForMovement();
 
         if (activePlayer == 0)
             activePlayer++;
         else
             activePlayer--;
+    }
+	
+	void Update () {
+        
     }
 
     void GetHomePanels()
@@ -50,53 +52,64 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    void MoveCharacter()
+    void RollForMovement()
     {
-        int diceRoll = 1;
+        int diceRoll = 5;
         for (int i = 0; i < diceRoll; i++)
         {
             Panel currentPanel = boardMap.GetPanel(characters[activePlayer].boardX, 
                                                    characters[activePlayer].boardY);
+            characters[activePlayer].isMoving = true;
 
-            switch(currentPanel.direction)
+            switch (currentPanel.direction)
             {
                 case "right":
                     characters[activePlayer].boardX--;
-                    characters[activePlayer].character.transform.Translate(-1,0,0);
+                    MoveCharacterX(-1);
                     break;
                 case "downRight":
                     //goes right
                     characters[activePlayer].boardX--;
-                    characters[activePlayer].character.transform.Translate(-1, 0, 0);
+                    MoveCharacterX(-1);
                     break;
                 case "down":
                     characters[activePlayer].boardY++;
-                    characters[activePlayer].character.transform.Translate(0, 0, 1);
+                    MoveCharacterY(1);
                     break;
                 case "up":
                     characters[activePlayer].boardY--;
-                    characters[activePlayer].character.transform.Translate(0, 0, -1);
+                    MoveCharacterY(-1);
                     break;
                 case "upRight":
                     //goes up
                     characters[activePlayer].boardY--;
-                    characters[activePlayer].character.transform.Translate(0, 0, -1);
+                    MoveCharacterY(-1);
                     break;
                 case "upLeft":
                     //goes left
                     characters[activePlayer].boardX++;
-                    characters[activePlayer].character.transform.Translate(1, 0, 0);
+                    MoveCharacterX(1);
                     break;
                 case "left":
                     characters[activePlayer].boardX++;
-                    characters[activePlayer].character.transform.Translate(1, 0, 0);
+                    MoveCharacterX(1);
                     break;
                 case "downLeft":
                     //goes down
                     characters[activePlayer].boardY++;
-                    characters[activePlayer].character.transform.Translate(0, 0, 1);
+                    MoveCharacterY(1);
                     break;
             }
         }
+    }
+
+    void MoveCharacterX(int movement)
+    {
+        characters[activePlayer].character.transform.Translate(movement, 0, 0);
+    }
+
+    void MoveCharacterY(int movement)
+    {
+        characters[activePlayer].character.transform.Translate(0, 0, movement);
     }
 }

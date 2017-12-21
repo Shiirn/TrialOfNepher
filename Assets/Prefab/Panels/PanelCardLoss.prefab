@@ -19,6 +19,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4787601914362194}
+  - component: {fileID: 65010515179671322}
   m_Layer: 0
   m_Name: PanelCardLoss
   m_TagString: Untagged
@@ -35,7 +36,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4274369332624596}
   - component: {fileID: 33668021891247242}
-  - component: {fileID: 64213179579445788}
   - component: {fileID: 23548049599198312}
   m_Layer: 0
   m_Name: Quad
@@ -53,7 +53,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4384191297222798}
   - component: {fileID: 33570236713387950}
-  - component: {fileID: 65579446215115238}
   - component: {fileID: 23709085576921696}
   - component: {fileID: 54416371800724874}
   m_Layer: 0
@@ -197,26 +196,12 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 126
   m_CollisionDetection: 0
---- !u!64 &64213179579445788
-MeshCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1744367535214000}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Convex: 1
-  m_InflateMesh: 0
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
---- !u!65 &65579446215115238
+--- !u!65 &65010515179671322
 BoxCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1942374312356750}
+  m_GameObject: {fileID: 1305662652535290}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1

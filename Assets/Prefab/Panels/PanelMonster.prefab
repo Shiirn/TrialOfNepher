@@ -20,7 +20,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4031878689732376}
   - component: {fileID: 33102969160238228}
-  - component: {fileID: 64444665988785740}
   - component: {fileID: 23822979448408814}
   m_Layer: 0
   m_Name: Quad
@@ -38,7 +37,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4404261455025204}
   - component: {fileID: 33124033331513926}
-  - component: {fileID: 65447574056607266}
   - component: {fileID: 23858215425129340}
   - component: {fileID: 54353935099224822}
   m_Layer: 0
@@ -56,6 +54,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4713768624509778}
+  - component: {fileID: 65862738580221832}
   m_Layer: 0
   m_Name: PanelMonster
   m_TagString: Untagged
@@ -197,26 +196,12 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 126
   m_CollisionDetection: 0
---- !u!64 &64444665988785740
-MeshCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1225893468477910}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Convex: 1
-  m_InflateMesh: 0
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
---- !u!65 &65447574056607266
+--- !u!65 &65862738580221832
 BoxCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1427983717121078}
+  m_GameObject: {fileID: 1899518353364614}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1

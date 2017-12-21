@@ -20,7 +20,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4941956523592242}
   - component: {fileID: 33255908049115624}
-  - component: {fileID: 65457063883026382}
   - component: {fileID: 23997572523808798}
   - component: {fileID: 54671961871415536}
   m_Layer: 0
@@ -38,6 +37,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4657395487516300}
+  - component: {fileID: 65156517543945462}
   m_Layer: 0
   m_Name: PanelBoss
   m_TagString: Untagged
@@ -54,7 +54,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4483538153955446}
   - component: {fileID: 33149366006706488}
-  - component: {fileID: 64103875899649006}
   - component: {fileID: 23967503357657548}
   m_Layer: 0
   m_Name: Quad
@@ -197,26 +196,12 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 126
   m_CollisionDetection: 0
---- !u!64 &64103875899649006
-MeshCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1416351911154500}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Convex: 1
-  m_InflateMesh: 0
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
---- !u!65 &65457063883026382
+--- !u!65 &65156517543945462
 BoxCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1133198619821990}
+  m_GameObject: {fileID: 1347358791831218}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
