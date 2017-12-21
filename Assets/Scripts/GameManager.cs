@@ -53,7 +53,6 @@ public class GameManager : MonoBehaviour {
     void MoveCharacter()
     {
         int diceRoll = 1;
-        Debug.Log(diceRoll);
         for (int i = 0; i < diceRoll; i++)
         {
             Panel currentPanel = boardMap.GetPanel(characters[activePlayer].boardX, 
