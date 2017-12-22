@@ -8,6 +8,8 @@ public class Character : MonoBehaviour {
     public int boardY;
     public GameObject currentPanel;
     public bool isMoving = false;
+    public GameObject board;
+    public CharacterCard card;
 
     void Start()
     {
@@ -17,5 +19,10 @@ public class Character : MonoBehaviour {
     public void Update()
     {
         
+    }
+
+    public void SetCurrentPanel(GameObject _currentPanel)
+    {
+        currentPanel = _currentPanel;
     }
 }

@@ -160,6 +160,7 @@ MonoBehaviour:
   - {fileID: 1780075081872368, guid: 815a63b8487847f408f01f1f4893bd63, type: 2}
   - {fileID: 1345546765276230, guid: 6c1ac1e6c7c83e541acba183cb66495a, type: 2}
   board: {fileID: 1225306294}
+  raycaster: {fileID: 1357240166}
 --- !u!1 &271049720
 GameObject:
   m_ObjectHideFlags: 0
@@ -223,8 +224,58 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!1001 &311430950
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4657395487516300, guid: b1fc3374aa2af054f8ce00f824e6fbc1, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: -999
+      objectReference: {fileID: 0}
+    - target: {fileID: 4657395487516300, guid: b1fc3374aa2af054f8ce00f824e6fbc1, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: -999
+      objectReference: {fileID: 0}
+    - target: {fileID: 4657395487516300, guid: b1fc3374aa2af054f8ce00f824e6fbc1, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: -999
+      objectReference: {fileID: 0}
+    - target: {fileID: 4657395487516300, guid: b1fc3374aa2af054f8ce00f824e6fbc1, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4657395487516300, guid: b1fc3374aa2af054f8ce00f824e6fbc1, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4657395487516300, guid: b1fc3374aa2af054f8ce00f824e6fbc1, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4657395487516300, guid: b1fc3374aa2af054f8ce00f824e6fbc1, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4657395487516300, guid: b1fc3374aa2af054f8ce00f824e6fbc1, type: 2}
+      propertyPath: m_RootOrder
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1347358791831218, guid: b1fc3374aa2af054f8ce00f824e6fbc1, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1347358791831218, guid: b1fc3374aa2af054f8ce00f824e6fbc1, type: 2}
+      propertyPath: m_Name
+      value: TemporaryPanel
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: b1fc3374aa2af054f8ce00f824e6fbc1, type: 2}
+  m_IsPrefabParent: 0
 --- !u!1001 &622196031
 Prefab:
   m_ObjectHideFlags: 0
@@ -721,13 +772,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1285574895}
-  m_LocalRotation: {x: -0.00000007165881, y: -0.92387956, z: 0.38268343, w: -0.00000017299969}
-  m_LocalPosition: {x: -3.25, y: 5.8, z: 9}
+  m_LocalRotation: {x: -0.000000051283315, y: -0.8737277, z: 0.48641545, w: -0.00000018009412}
+  m_LocalPosition: {x: -3.25, y: 6.87, z: 7.28}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 45, y: -180.00002, z: 0}
+  m_LocalEulerAnglesHint: {x: 58.210003, y: -179.99998, z: 0}
 --- !u!1 &1357240166
 GameObject:
   m_ObjectHideFlags: 0
@@ -757,6 +808,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   camera: {fileID: 1285574899}
   panelMarker: {fileID: 271049720}
+  selectedPanelPrefab: {fileID: 1651710399}
+  selectedPanel: {fileID: 0}
 --- !u!4 &1357240168
 Transform:
   m_ObjectHideFlags: 0
@@ -768,8 +821,13 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1651710399 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1347358791831218, guid: b1fc3374aa2af054f8ce00f824e6fbc1,
+    type: 2}
+  m_PrefabInternal: {fileID: 311430950}
 --- !u!1 &2037714372
 GameObject:
   m_ObjectHideFlags: 0

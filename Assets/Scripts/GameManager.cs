@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour {
     //Manager Variables
     int turn;
     int activePlayer = 0;
+    bool waitingForMovement = false;
+    int diceRoll;
 
     //Characters Objects
     public GameObject[] characterPrefabs;
@@ -16,6 +18,9 @@ public class GameManager : MonoBehaviour {
     public GameObject board;
     List<GameObject> homePanels = new List<GameObject>();
 
+    //Raycast Objects
+    public GameObject raycaster;
+
     //Character Scripts
     Character characterScript;
     HomePanelIdentifier homePanelIdentifier;
@@ -23,21 +28,30 @@ public class GameManager : MonoBehaviour {
     //Board Scripts
     BoardMap boardMap;
     Panel panelScript;
+
+    //Raycast Scripts
+    RaycastFromCamera raycastScript;
+    Panel panelScriptFromRaycast;
+
     
     void Start ()
     {
         boardMap = board.GetComponent<BoardMap>();
-        GetHomePanels();
-        SpawnCharacters();
-        RollForMovement(150);
-        
+        raycastScript = raycaster.GetComponent<RaycastFromCamera>();
 
         //Temporarily moving the character in Start
+        GetHomePanels();
+        SpawnCharacters();
+        diceRoll = 1000;
+        RollForMovement();
 
     }
 	
 	void Update () {
-        
+        if(waitingForMovement)
+        {
+            StartCoroutine(ChooseDirection());
+        }
     }
 
     void GetHomePanels()
@@ -63,62 +77,96 @@ public class GameManager : MonoBehaviour {
                     characterScript.boardY = panelScript.boardY;
                     characters[i].transform.position = new Vector3(
                         characterScript.boardX, 0.9f, characterScript.boardY);
+
+                    characterScript.SetCurrentPanel(panel);
                 }
             }
         }
     }
 
-    void RollForMovement(int diceRoll)
+    void RollForMovement()
     {
         characterScript = characters[activePlayer].GetComponent<Character>();
 
-        GameObject currentPanel = boardMap.GetPanel(characterScript.boardX,
-                                                characterScript.boardY);
+        characterScript.SetCurrentPanel(boardMap.GetPanel(characterScript.boardX,
+                                                characterScript.boardY));
 
-        panelScript = currentPanel.GetComponent<Panel>();
+        panelScript = characterScript.currentPanel.GetComponent<Panel>();
             
         switch (panelScript.direction)
         {
             case "right":
                 characterScript.boardX--;
-                StartCoroutine(Move(-1, 0, diceRoll));
+                StartCoroutine(Move(-1, 0));
                 break;
             case "downRight":
-                //goes right
-                characterScript.boardX--;
-                StartCoroutine(Move(-1, 0, diceRoll));
+                waitingForMovement = true;
                 break;
             case "down":
                 characterScript.boardY++;
-                StartCoroutine(Move(0, +1, diceRoll));
+                StartCoroutine(Move(0, +1));
                 break;
             case "up":
                 characterScript.boardY--;
-                StartCoroutine(Move(0, -1, diceRoll));
+                StartCoroutine(Move(0, -1));
                 break;
             case "upRight":
-                //goes up
-                characterScript.boardY--;
-                StartCoroutine(Move(0, -1, diceRoll));
+                waitingForMovement = true;
                 break;
             case "upLeft":
-                //goes left
-                characterScript.boardX++;
-                StartCoroutine(Move(+1, 0, diceRoll));
+                waitingForMovement = true;
                 break;
             case "left":
                 characterScript.boardX++;
-                StartCoroutine(Move(+1, 0, diceRoll));
+                StartCoroutine(Move(+1, 0));
                 break;
             case "downLeft":
-                //goes down
-                characterScript.boardY++;
-                StartCoroutine(Move(0, +1, diceRoll));
+                waitingForMovement = true;
                 break;
-        }        
+        }
+
+        characterScript.SetCurrentPanel(boardMap.GetPanel(characterScript.boardX,
+                                                characterScript.boardY));
     }
 
-    IEnumerator Move(int x, int y, int _diceRoll)
+    IEnumerator ChooseDirection()
+    {
+        while(waitingForMovement)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                //Gets the Panel script from the panel selected by the raycaster
+                panelScriptFromRaycast = raycastScript.selectedPanel.GetComponent<Panel>();
+
+                //Gets the Panel the character is standing on
+                panelScript = characterScript.currentPanel.GetComponent<Panel>();
+
+                switch(panelScript.direction)
+                {
+                    case "downRight":
+                        PickDirectionRight();
+                        PickDirectionDown();
+                        break;
+                    case "downLeft":
+                        PickDirectionDown();
+                        PickDirectionLeft();
+                        break;
+                    case "upRight":
+                        PickDirectionUp();
+                        PickDirectionRight();
+                        break;
+                    case "upLeft":
+                        PickDirectionUp();
+                        PickDirectionLeft();
+                        break;
+                }
+            }
+            yield return null;
+        }
+
+    }
+
+    IEnumerator Move(int x, int y)
     {
         characterScript.isMoving = true;
 
@@ -170,13 +218,54 @@ public class GameManager : MonoBehaviour {
         }
         characterScript.transform.position = target;
 
-        if (_diceRoll > 1)
+        if (diceRoll > 1)
         {
-            RollForMovement(_diceRoll - 1);
+            diceRoll--;
+            RollForMovement();
         }
         else
         {
             characterScript.isMoving = false;
+        }
+    }
+
+    void PickDirectionRight()
+    {
+        if (panelScriptFromRaycast.boardX == characterScript.boardX - 1 && panelScriptFromRaycast.boardY == characterScript.boardY)
+        {
+            waitingForMovement = false;
+            characterScript.boardX--;
+            StartCoroutine(Move(-1, 0));
+        }
+    }
+
+    void PickDirectionUp()
+    {
+        if (panelScriptFromRaycast.boardX == characterScript.boardX && panelScriptFromRaycast.boardY == characterScript.boardY - 1)
+        {
+            waitingForMovement = false;
+            characterScript.boardY--;
+            StartCoroutine(Move(0, -1));
+        }
+    }
+
+    void PickDirectionDown()
+    {
+        if (panelScriptFromRaycast.boardX == characterScript.boardX && panelScriptFromRaycast.boardY == characterScript.boardY + 1)
+        {
+            waitingForMovement = false;
+            characterScript.boardY++;
+            StartCoroutine(Move(0, +1));
+        }
+    }
+
+    void PickDirectionLeft()
+    {
+        if (panelScriptFromRaycast.boardX == characterScript.boardX + 1 && panelScriptFromRaycast.boardY == characterScript.boardY)
+        {
+            waitingForMovement = false;
+            characterScript.boardX++;
+            StartCoroutine(Move(+1, 0));
         }
     }
 }

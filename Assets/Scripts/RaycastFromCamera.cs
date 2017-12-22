@@ -7,13 +7,19 @@ public class RaycastFromCamera : MonoBehaviour
 
     public Camera camera;
     public GameObject panelMarker;
+    public GameObject selectedPanelPrefab;
+    public GameObject selectedPanel;
 
     private void Start()
     {
+
     }
+
     // Update is called once per frame
     void Update()
     {
+        selectedPanel = selectedPanelPrefab;
+
         RaycastHit hit;
         Ray ray = camera.ScreenPointToRay(Input.mousePosition);
 
@@ -26,6 +32,11 @@ public class RaycastFromCamera : MonoBehaviour
                 panelMarker.transform.position = (new Vector3(objectHit.transform.position.x,
                                                             panelMarker.transform.position.y,
                                                             objectHit.transform.position.z));
+            }
+
+            if(Input.GetMouseButtonDown(0))
+            {
+                selectedPanel = objectHit;
             }
 
         }
