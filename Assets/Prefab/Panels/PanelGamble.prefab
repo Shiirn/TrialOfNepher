@@ -20,6 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4509926070484866}
   - component: {fileID: 65710100640282818}
+  - component: {fileID: 114364500650526712}
   m_Layer: 0
   m_Name: PanelGamble
   m_TagString: Untagged
@@ -208,3 +209,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114364500650526712
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1009673727145180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c611ca0078fb4e47af68a1b17d60db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boardX: 0
+  boardY: 0
+  direction: 

@@ -55,6 +55,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4664621114378484}
   - component: {fileID: 65232010464381710}
+  - component: {fileID: 114375656441178232}
   m_Layer: 0
   m_Name: PanelShrine
   m_TagString: Untagged
@@ -208,3 +209,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114375656441178232
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1968942033727800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b4f7f29776f9724489b04bbda5e9449, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boardX: 0
+  boardY: 0
+  direction: 

@@ -55,6 +55,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4877944977440522}
   - component: {fileID: 65168975306313318}
+  - component: {fileID: 114288400787738118}
   m_Layer: 0
   m_Name: PanelHome2
   m_TagString: Untagged
@@ -208,3 +209,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114288400787738118
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1946377238582530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fff38c818b06ed544a9d984851b23a2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boardX: 0
+  boardY: 0
+  direction: 

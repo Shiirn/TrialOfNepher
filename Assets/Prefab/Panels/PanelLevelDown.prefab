@@ -55,6 +55,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4891105527895816}
   - component: {fileID: 65088137854838458}
+  - component: {fileID: 114517407562596022}
   m_Layer: 0
   m_Name: PanelLevelDown
   m_TagString: Untagged
@@ -208,3 +209,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114517407562596022
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1668894972740574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 767b628075e59b44b95d6f90602690dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boardX: 0
+  boardY: 0
+  direction: 

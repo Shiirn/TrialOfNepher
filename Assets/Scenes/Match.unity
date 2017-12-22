@@ -619,6 +619,18 @@ Prefab:
       propertyPath: parsingPanels.Array.data[9].text
       value: shrine
       objectReference: {fileID: 0}
+    - target: {fileID: 114555526061598678, guid: 6f1e577dce02ec54e83dfe223f6ea16e,
+        type: 2}
+      propertyPath: arrow
+      value: 
+      objectReference: {fileID: 1507742069384606, guid: b7ca0c5aa04b7ac41bc3b10e0ddd8f12,
+        type: 2}
+    - target: {fileID: 114555526061598678, guid: 6f1e577dce02ec54e83dfe223f6ea16e,
+        type: 2}
+      propertyPath: arrowPrefab
+      value: 
+      objectReference: {fileID: 1507742069384606, guid: b7ca0c5aa04b7ac41bc3b10e0ddd8f12,
+        type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 6f1e577dce02ec54e83dfe223f6ea16e, type: 2}
   m_IsPrefabParent: 0
@@ -745,7 +757,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   camera: {fileID: 1285574899}
   panelMarker: {fileID: 271049720}
-  board: {fileID: 1225306294}
 --- !u!4 &1357240168
 Transform:
   m_ObjectHideFlags: 0

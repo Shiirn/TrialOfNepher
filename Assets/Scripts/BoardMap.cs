@@ -10,15 +10,18 @@ public class BoardMap : MonoBehaviour
     public TextAsset boardCsv;
     public TextAsset boardDirectionsCsv;
     public TextToPanel[] parsingPanels;
-    public List<Panel> board = new List<Panel>();
-
+    public GameObject arrowPrefab;
+    public List<GameObject> board = new List<GameObject>();
+    public List<GameObject> arrows = new List<GameObject>();
+    Panel panelScript;
 
     private void Awake()
     {
-        FillList();
+        SpawnPanels();
+        SpawnArrows();
     }
 
-    void FillList()
+    void SpawnPanels()
     {
         string[] stringSeparator = new string[] { "\r\n" };
         string[] strings = boardCsv.text.Split(stringSeparator, System.StringSplitOptions.None);
@@ -33,48 +36,119 @@ public class BoardMap : MonoBehaviour
             {
                 foreach(TextToPanel parsingPanel in parsingPanels)
                 {
-                    if(subStrings[x] == parsingPanel.text)
+                    if (subStrings[x] == parsingPanel.text)
                     {
-                        board.Add(new Panel(x, y, 
-                            (GameObject)Instantiate(parsingPanel.prefab, 
-                                    new Vector3(-x, Random.Range(0.0f, 0.1f), y), 
-                                    Quaternion.identity, transform), subDirectionStrings[x]));
-                    }
+                        board.Add(Instantiate(parsingPanel.prefab,
+                                        new Vector3(-x, Random.Range(0.0f, 0.1f), y),
+                                        Quaternion.identity,
+                                        transform));
+                        panelScript = board[board.Count - 1].GetComponent<Panel>();
+                        panelScript.direction = subDirectionStrings[x];
+                    }                    
                 }
             }
         }
     }
 
-    private void Update()
+    void SpawnArrows()
     {
-        foreach(Panel panel in board)
+        foreach (GameObject panel in board)
         {
-            panel.Update();
+            panelScript = panel.GetComponent<Panel>();
+            if (panelScript.direction == "downRight")
+            {
+                //Spawning arrow to the right
+                SpawnArrowRight(panel);
+                SpawnArrowDown(panel);
+            }
+            else if (panelScript.direction == "downLeft")
+            {
+                SpawnArrowLeft(panel);
+                SpawnArrowDown(panel);
+            }
+            else if (panelScript.direction == "upLeft")
+            {
+                SpawnArrowLeft(panel);
+                SpawnArrowUp(panel);
+            }
+            else if (panelScript.direction == "upRight")
+            {
+                SpawnArrowUp(panel);
+                SpawnArrowRight(panel);
+            }
         }
     }
 
+    void SpawnArrowRight(GameObject panel)
+    {
+        arrows.Add(Instantiate(arrowPrefab, new Vector3(panel.transform.position.x,
+                                                        0.4f,
+                                                        panel.transform.position.z),
+                                                        Quaternion.identity));
+
+        arrows[arrows.Count - 1].transform.Translate(-0.9f, 0, 0);
+        arrows[arrows.Count - 1].transform.Rotate(Vector3.right * 90);
+        arrows[arrows.Count - 1].transform.Rotate(Vector3.forward * 180);
+    }
+
+    void SpawnArrowDown(GameObject panel)
+    {
+        arrows.Add(Instantiate(arrowPrefab, new Vector3(panel.transform.position.x,
+                                                        0.4f,
+                                                        panel.transform.position.z),
+                                                        Quaternion.identity));
+
+        arrows[arrows.Count - 1].transform.Translate(0, 0, +0.9f);
+        arrows[arrows.Count - 1].transform.Rotate(Vector3.right * 90);
+        arrows[arrows.Count - 1].transform.Rotate(Vector3.forward * 90);
+    }
+
+    void SpawnArrowLeft(GameObject panel)
+    {
+        arrows.Add(Instantiate(arrowPrefab, new Vector3(panel.transform.position.x,
+                                                        0.4f,
+                                                        panel.transform.position.z),
+                                                        Quaternion.identity));
+
+        arrows[arrows.Count - 1].transform.Translate(+0.9f, 0, 0);
+        arrows[arrows.Count - 1].transform.Rotate(Vector3.right * 90);
+    }
+
+    void SpawnArrowUp(GameObject panel)
+    {
+        arrows.Add(Instantiate(arrowPrefab, new Vector3(panel.transform.position.x,
+                                                        0.4f,
+                                                        panel.transform.position.z),
+                                                        Quaternion.identity));
+
+        arrows[arrows.Count - 1].transform.Translate(0, 0, -0.9f);
+        arrows[arrows.Count - 1].transform.Rotate(Vector3.right * 90);
+        arrows[arrows.Count - 1].transform.Rotate(Vector3.forward * -90);
+    }
 
     public GameObject GetPanel(string name)
     {
-        foreach (Panel panel in board)
+        foreach (GameObject panel in board)
         {
-            if (name == panel.panel.name)
+            if (name == panel.name)
             {
-                return panel.panel;
+                return panel;
             }
         }
         return null;
     }
 
-    public Panel GetPanel(int x, int y)
+    public GameObject GetPanel(int x, int y)
     {
         //Debug.Log("From " + x + " " + y);
-        foreach (Panel panel in board)
+        foreach (GameObject panel in board)
         {
-            
-            if (x == -panel.boardX && y == panel.boardY)
+            panelScript = panel.GetComponent<Panel>();
+            //Debug.Log(panelScript.boardX + " " + panelScript.boardY);
+
+            if (x == panelScript.boardX && y == panelScript.boardY)
             {
-                //Debug.Log("found at " + (-panel.boardX) + " " + panel.boardY);
+                //Debug.Log("found at " + (panelScript.boardX) + " " + panelScript.boardY);
                 return panel;
             }
         }

@@ -36,6 +36,8 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4613024136634326}
+  - component: {fileID: 114178477555375244}
+  - component: {fileID: 114110688317313458}
   m_Layer: 0
   m_Name: obj_Char0
   m_TagString: Untagged
@@ -85,6 +87,33 @@ Animation:
   m_PlayAutomatically: 1
   m_AnimatePhysics: 0
   m_CullingType: 0
+--- !u!114 &114110688317313458
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1780075081872368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07b5772f48cab104a863f5271670acf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  homePanel: {fileID: 1092824430448638, guid: 22342cce52aa16d4297b4a046816e490, type: 2}
+--- !u!114 &114178477555375244
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1780075081872368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9bc84fbd223dff42a8c4305b1f604cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boardX: 0
+  boardY: 0
+  currentPanel: {fileID: 0}
+  isMoving: 0
 --- !u!212 &212336760101056576
 SpriteRenderer:
   m_ObjectHideFlags: 1

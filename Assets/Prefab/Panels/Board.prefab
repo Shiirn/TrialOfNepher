@@ -54,3 +54,4 @@ MonoBehaviour:
   boardCsv: {fileID: 4900000, guid: ea8b0dbc65cdde84b8c65ddd60d430af, type: 3}
   boardDirectionsCsv: {fileID: 0}
   parsingPanels: []
+  board: []
