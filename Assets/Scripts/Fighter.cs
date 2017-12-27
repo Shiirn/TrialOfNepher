@@ -2,35 +2,39 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-struct Stats
+public struct Stats
 {
     public int attack;
     public int defense;
     public int evasion;
-    public int hp;
+    public int maxHp;
 }
 
-public class FighterCard : MonoBehaviour {
+[System.Serializable]
+public class FighterCard {
         
-    enum Nature { Character, Defender, Evader, Special }
+    public enum Nature { Character, Defender, Evader, Special }
 
-    Stats stats;
-    string fighterName;
-    string type;
-    Nature nature;
-    string description;
-    string cardImgPath;
-    bool isAlive;
+    public Stats stats;
+    protected int hp;
+    protected int id;
+    public string fighterName;
+    public string type;
+    public Nature nature;
+    public string description;
+    public Texture2D cardImg;
+    public bool isAlive;
 
     void GetDamaged(int damage)
     {
-        stats.hp -= damage;
+        hp -= damage;
 
-        if (stats.hp <= 0)
+        if (hp <= 0)
             isAlive = false;
     }    
 }
 
+[System.Serializable]
 public class CharacterCard : FighterCard
 {
     int level;
@@ -94,6 +98,34 @@ public class CharacterCard : FighterCard
 
     }
 
+    public CharacterCard(int _id)
+    {
+        id = _id;
+
+        switch(id)
+        {
+            case 0:
+                fighterName = "White Hood";
+                break;
+            case 1:
+                fighterName = "Black Hood";
+                break;
+        }
+
+        nature = Nature.Character;
+        description = "This is you.";
+        isAlive = true;
+        stats.attack = 0;
+        stats.defense = 0;
+        stats.evasion = 0;
+        stats.maxHp = 5;
+    }
+
+    public string ToString()
+    {
+        return fighterName + " " + id + " " + nature + " " + description + " " + isAlive + " " + stats.attack + " " + stats.maxHp;
+    }
+
     void Buff(Stats buff)
     {
         buffCounters.attack += buff.attack;
@@ -102,7 +134,7 @@ public class CharacterCard : FighterCard
     }
 }
 
+[System.Serializable]
 public class MonsterCard : FighterCard
 {
-    int id;
 }

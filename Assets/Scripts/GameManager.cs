@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour {
     //Raycast Scripts
     RaycastFromCamera raycastScript;
     Panel panelScriptFromRaycast;
+    
 
     
     void Start ()
@@ -68,7 +69,7 @@ public class GameManager : MonoBehaviour {
             homePanelIdentifier = characters[i].GetComponent<HomePanelIdentifier>();
             characterScript = characters[i].GetComponent<Character>();
 
-            foreach(GameObject panel in boardMap.board)
+            foreach (GameObject panel in boardMap.board)
             {
                 if (panel.name.Contains(homePanelIdentifier.homePanel.name))
                 {
@@ -79,6 +80,7 @@ public class GameManager : MonoBehaviour {
                         characterScript.boardX, 0.9f, characterScript.boardY);
 
                     characterScript.SetCurrentPanel(panel);
+                    characterScript.card = new CharacterCard(i);
                 }
             }
         }
