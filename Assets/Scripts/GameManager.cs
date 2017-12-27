@@ -9,6 +9,20 @@ public class GameManager : MonoBehaviour {
     int activePlayer = 0;
     bool waitingForMovement = false;
     int diceRoll;
+    TurnPhases currentPhase;
+    bool wasDiceRolled = false;
+    bool isChoosingToFightOpponent = false;
+    bool hasMovementStarted = false;
+    bool canRollDice = true;
+
+    enum TurnPhases
+    {
+        INITIAL,
+        MOVEMENT,
+        PANEL,
+        BATTLE,
+        END
+    }
 
     //Characters Objects
     public GameObject[] characterPrefabs;
@@ -33,8 +47,6 @@ public class GameManager : MonoBehaviour {
     RaycastFromCamera raycastScript;
     Panel panelScriptFromRaycast;
     
-
-    
     void Start ()
     {
         boardMap = board.GetComponent<BoardMap>();
@@ -43,16 +55,41 @@ public class GameManager : MonoBehaviour {
         //Temporarily moving the character in Start
         GetHomePanels();
         SpawnCharacters();
-        diceRoll = 1000;
-        RollForMovement();
 
+        currentPhase = TurnPhases.INITIAL;
     }
 	
 	void Update () {
-        if(waitingForMovement)
+        switch(currentPhase)
         {
-            StartCoroutine(ChooseDirection());
-        }
+            case TurnPhases.INITIAL:
+                StartCoroutine(InitialPhase());
+                break;
+            case TurnPhases.MOVEMENT:
+                StartCoroutine(MovementPhase());
+                if (waitingForMovement)
+                {
+                    StartCoroutine(ChooseDirection());
+                }
+                else if(isChoosingToFightOpponent)
+                {
+                    StartCoroutine(FightOpponentChoice());
+                }
+                break;
+            case TurnPhases.PANEL:
+                //TEMPORARY
+                Debug.Log("PANEL PHASE AHEHAEHHA");
+                currentPhase = TurnPhases.END;
+                break;
+            case TurnPhases.BATTLE:
+                //TEMPORARY
+                Debug.Log("BATTLE PHASE AHEHAEHHA");
+                currentPhase = TurnPhases.END;
+                break;
+            case TurnPhases.END:
+                StartCoroutine(EndPhase());
+                break;
+        }        
     }
 
     void GetHomePanels()
@@ -86,6 +123,55 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    IEnumerator InitialPhase()
+    {
+        activePlayer = turn % characters.Count;
+
+        //TODO: Set conditions to exit the initial phase
+        if (!Input.GetMouseButtonDown(1))
+        {
+            yield return null;
+        }
+        else
+        {
+            canRollDice = true;
+            Debug.Log("Moving on to the Movement Phase");
+            currentPhase++;
+        }
+    }
+
+    IEnumerator MovementPhase()
+    {
+        if(wasDiceRolled)
+        {
+            RollForMovement();
+            wasDiceRolled = false;
+        }
+        yield return null;
+    }
+
+    IEnumerator EndPhase()
+    {
+        hasMovementStarted = false;
+        wasDiceRolled = false;
+        isChoosingToFightOpponent = false;
+        turn++;
+        currentPhase = TurnPhases.INITIAL;
+        Debug.Log("Moving on to the Initial Phase");
+        yield return null;
+    }
+
+    private void OnGUI()
+    {
+        if(GUILayout.Button("Roll") && canRollDice && currentPhase == TurnPhases.MOVEMENT)
+        {
+            canRollDice = false;
+            wasDiceRolled = true;
+            diceRoll = Random.Range(1, 7);
+            Debug.Log(diceRoll);
+        }
+    }
+
     void RollForMovement()
     {
         characterScript = characters[activePlayer].GetComponent<Character>();
@@ -94,22 +180,19 @@ public class GameManager : MonoBehaviour {
                                                 characterScript.boardY));
 
         panelScript = characterScript.currentPanel.GetComponent<Panel>();
-            
+        
         switch (panelScript.direction)
         {
             case "right":
-                characterScript.boardX--;
                 StartCoroutine(Move(-1, 0));
                 break;
             case "downRight":
                 waitingForMovement = true;
                 break;
             case "down":
-                characterScript.boardY++;
                 StartCoroutine(Move(0, +1));
                 break;
             case "up":
-                characterScript.boardY--;
                 StartCoroutine(Move(0, -1));
                 break;
             case "upRight":
@@ -119,7 +202,6 @@ public class GameManager : MonoBehaviour {
                 waitingForMovement = true;
                 break;
             case "left":
-                characterScript.boardX++;
                 StartCoroutine(Move(+1, 0));
                 break;
             case "downLeft":
@@ -128,7 +210,7 @@ public class GameManager : MonoBehaviour {
         }
 
         characterScript.SetCurrentPanel(boardMap.GetPanel(characterScript.boardX,
-                                                characterScript.boardY));
+                                                    characterScript.boardY));
     }
 
     IEnumerator ChooseDirection()
@@ -171,6 +253,7 @@ public class GameManager : MonoBehaviour {
     IEnumerator Move(int x, int y)
     {
         characterScript.isMoving = true;
+        hasMovementStarted = true;
 
         Vector3 target = new Vector3(
                 characterScript.gameObject.transform.position.x + x,
@@ -219,15 +302,62 @@ public class GameManager : MonoBehaviour {
                 }
         }
         characterScript.transform.position = target;
+        characterScript.boardX = (int)characterScript.gameObject.transform.position.x;
+        characterScript.boardY = (int)characterScript.gameObject.transform.position.z;
 
-        if (diceRoll > 1)
+        foreach (GameObject character in characters)
+        {
+            if (characters[activePlayer].name != character.name)
+            {
+                if (characters[activePlayer].transform.position.x == character.transform.position.x &&
+                   characters[activePlayer].transform.position.z == character.transform.position.z)
+                {
+                    Debug.Log("SKREEEE");
+                    isChoosingToFightOpponent = true;
+                }
+            }
+        }
+
+        if (diceRoll > 1 && !isChoosingToFightOpponent)
         {
             diceRoll--;
             RollForMovement();
         }
+        else if (!isChoosingToFightOpponent)
+        {
+            currentPhase = TurnPhases.END;
+            characterScript.isMoving = false;
+        }
+    }
+
+    IEnumerator FightOpponentChoice()
+    {
+        if(Input.GetMouseButtonDown(2))
+        {
+            Debug.Log("yes");
+            isChoosingToFightOpponent = false;
+            diceRoll = 0;
+            wasDiceRolled = false;
+            currentPhase = TurnPhases.BATTLE;
+
+        }
+        else if (Input.GetMouseButtonDown(1))
+        {
+            Debug.Log("noooo");
+            isChoosingToFightOpponent = false;
+            diceRoll--;
+            if (diceRoll > 0)
+            {
+                RollForMovement();
+            }
+            else
+            {
+                currentPhase = TurnPhases.PANEL;
+            }
+        }
         else
         {
-            characterScript.isMoving = false;
+            yield return null;
         }
     }
 
@@ -236,8 +366,8 @@ public class GameManager : MonoBehaviour {
         if (panelScriptFromRaycast.boardX == characterScript.boardX - 1 && panelScriptFromRaycast.boardY == characterScript.boardY)
         {
             waitingForMovement = false;
-            characterScript.boardX--;
-            StartCoroutine(Move(-1, 0));
+            if(diceRoll > 0)
+                StartCoroutine(Move(-1, 0));
         }
     }
 
@@ -246,8 +376,8 @@ public class GameManager : MonoBehaviour {
         if (panelScriptFromRaycast.boardX == characterScript.boardX && panelScriptFromRaycast.boardY == characterScript.boardY - 1)
         {
             waitingForMovement = false;
-            characterScript.boardY--;
-            StartCoroutine(Move(0, -1));
+            if (diceRoll > 0)
+                StartCoroutine(Move(0, -1));
         }
     }
 
@@ -256,8 +386,8 @@ public class GameManager : MonoBehaviour {
         if (panelScriptFromRaycast.boardX == characterScript.boardX && panelScriptFromRaycast.boardY == characterScript.boardY + 1)
         {
             waitingForMovement = false;
-            characterScript.boardY++;
-            StartCoroutine(Move(0, +1));
+            if (diceRoll > 0)
+                StartCoroutine(Move(0, +1));
         }
     }
 
@@ -266,8 +396,8 @@ public class GameManager : MonoBehaviour {
         if (panelScriptFromRaycast.boardX == characterScript.boardX + 1 && panelScriptFromRaycast.boardY == characterScript.boardY)
         {
             waitingForMovement = false;
-            characterScript.boardX++;
-            StartCoroutine(Move(+1, 0));
+            if (diceRoll > 0)
+                StartCoroutine(Move(+1, 0));
         }
     }
 }
