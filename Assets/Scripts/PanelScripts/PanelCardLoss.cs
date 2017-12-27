@@ -8,5 +8,8 @@ public class PanelCardLoss : Panel {
     {
         GameObject manager = GameObject.Find("Manager");
         Debug.Log("If you had at least a card, now you lost one");
+
+        Debug.Log("Moving on to the End Phase");
+        manager.GetComponent<GameManager>().currentPhase = GameManager.TurnPhases.END;
     }
 }

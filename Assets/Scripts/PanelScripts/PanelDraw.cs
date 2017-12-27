@@ -8,6 +8,9 @@ public class PanelDraw : Panel {
     {
         GameObject manager = GameObject.Find("Manager");
         Debug.Log("You draw a card.");
+
+        Debug.Log("Moving on to the End Phase");
+        manager.GetComponent<GameManager>().currentPhase = GameManager.TurnPhases.END;
     }
 
 }

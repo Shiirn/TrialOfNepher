@@ -9,11 +9,18 @@ public class PanelHome : Panel {
         GameObject manager = GameObject.Find("Manager");
         GameManager managerScript = manager.GetComponent<GameManager>();
 
-        CharacterCard activeCharacterCard = managerScript.characters[managerScript.activePlayer].GetComponent<Character>().GetComponent<CharacterCard>();
+        Character activeCharacter = managerScript.characters[managerScript.activePlayer].GetComponent<Character>();
 
-        activeCharacterCard.hp += 2;
-        if (activeCharacterCard.hp > activeCharacterCard.stats.maxHp)
-            activeCharacterCard.hp = activeCharacterCard.stats.maxHp;
+        activeCharacter.card.hp += 2;
+        if (activeCharacter.card.hp > activeCharacter.card.stats.maxHp)
+            activeCharacter.card.hp = activeCharacter.card.stats.maxHp;
+
+
+        //DEBUGGYYYY
+        Debug.Log("HP + 2! Current HP: " + activeCharacter.card.hp);
+
+        Debug.Log("Moving on to the End Phase");
+        manager.GetComponent<GameManager>().currentPhase = GameManager.TurnPhases.END;
     }
 
 }

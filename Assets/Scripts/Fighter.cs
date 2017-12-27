@@ -35,12 +35,12 @@ public class FighterCard {
 
 public class CharacterCard : FighterCard
 {
-    int level;
-    Stats artifactCounters;
-    Stats buffCounters;
+    public int level;
+    public Stats artifactCounters;
+    public Stats buffCounters;
     Stats levelCounters;
 
-    void LevelUp(int count) //count is how many times you leveled up in a single go
+    public void LevelUp(int count) //count is how many times you leveled up in a single go
     {
         for (int i = 0; i < count; i++)
         {
@@ -63,7 +63,7 @@ public class CharacterCard : FighterCard
         }
     }
 
-    void LevelDown(int count)
+    public void LevelDown(int count)
     {
         for (int i = 0; i < count; i++)
         {
@@ -117,6 +117,7 @@ public class CharacterCard : FighterCard
         stats.defense = 0;
         stats.evasion = 0;
         stats.maxHp = 5;
+        hp = stats.maxHp;
     }
 
     public string ToString()
@@ -124,11 +125,18 @@ public class CharacterCard : FighterCard
         return fighterName + " " + id + " " + nature + " " + description + " " + isAlive + " " + stats.attack + " " + stats.maxHp;
     }
 
-    void Buff(Stats buff)
+    public void Buff(Stats buff)
     {
         buffCounters.attack += buff.attack;
         buffCounters.defense += buff.defense;
         buffCounters.evasion += buff.evasion;
+    }
+
+    public void ResetBuffs()
+    {
+        buffCounters.attack = 0;
+        buffCounters.defense = 0;
+        buffCounters.evasion = 0;
     }
 }
 

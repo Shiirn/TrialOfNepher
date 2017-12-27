@@ -8,6 +8,9 @@ public class PanelGamble : Panel {
     {
         GameObject manager = GameObject.Find("Manager");
         Debug.Log("You'll roll a dice, if you roll 1 you lose an artifact, or if you roll 6 you get one.");
+
+        Debug.Log("Moving on to the End Phase");
+        manager.GetComponent<GameManager>().currentPhase = GameManager.TurnPhases.END;
     }
 
 }

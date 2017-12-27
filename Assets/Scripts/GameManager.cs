@@ -154,9 +154,7 @@ public class GameManager : MonoBehaviour {
 
     IEnumerator PanelPhase()
     {
-        Debug.Log("I'm doing the job of " + characterScript.currentPanel);
-        currentPhase = TurnPhases.END;
-        Debug.Log("Moving on to the End Phase");
+        characterScript.currentPanel.GetComponent<Panel>().PanelEffect();
         yield return null;
     }
 
