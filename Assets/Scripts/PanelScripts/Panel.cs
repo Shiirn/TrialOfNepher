@@ -36,5 +36,10 @@ public class Panel : MonoBehaviour {
                 ascending = true;
         }
     }
+
+    public virtual void PanelEffect()
+    {
+
+    }
 }
 

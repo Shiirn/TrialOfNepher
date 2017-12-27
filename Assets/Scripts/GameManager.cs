@@ -5,17 +5,17 @@ using UnityEngine;
 public class GameManager : MonoBehaviour {
 
     //Manager Variables
-    int turn;
-    int activePlayer = 0;
-    bool waitingForMovement = false;
-    int diceRoll;
-    TurnPhases currentPhase;
-    bool wasDiceRolled = false;
-    bool isChoosingToFightOpponent = false;
-    bool hasMovementStarted = false;
-    bool canRollDice = true;
+    public int turn;
+    public int activePlayer = 0;
+    public bool waitingForMovement = false;
+    public int diceRoll;
+    public bool wasDiceRolled = false;
+    public bool isChoosingToFightOpponent = false;
+    public bool hasMovementStarted = false;
+    public bool canRollDice = true;
 
-    enum TurnPhases
+    public TurnPhases currentPhase;
+    public enum TurnPhases
     {
         INITIAL,
         MOVEMENT,
@@ -26,11 +26,11 @@ public class GameManager : MonoBehaviour {
 
     //Characters Objects
     public GameObject[] characterPrefabs;
-    List<GameObject> characters = new List<GameObject>();
+    public List<GameObject> characters = new List<GameObject>();
 
     //Board Objects
     public GameObject board;
-    List<GameObject> homePanels = new List<GameObject>();
+    public List<GameObject> homePanels = new List<GameObject>();
 
     //Raycast Objects
     public GameObject raycaster;
@@ -65,6 +65,7 @@ public class GameManager : MonoBehaviour {
             case TurnPhases.INITIAL:
                 StartCoroutine(InitialPhase());
                 break;
+
             case TurnPhases.MOVEMENT:
                 StartCoroutine(MovementPhase());
                 if (waitingForMovement)
@@ -76,16 +77,17 @@ public class GameManager : MonoBehaviour {
                     StartCoroutine(FightOpponentChoice());
                 }
                 break;
+
             case TurnPhases.PANEL:
-                //TEMPORARY
-                Debug.Log("PANEL PHASE AHEHAEHHA");
-                currentPhase = TurnPhases.END;
+                StartCoroutine(PanelPhase());
                 break;
+
             case TurnPhases.BATTLE:
                 //TEMPORARY
                 Debug.Log("BATTLE PHASE AHEHAEHHA");
                 currentPhase = TurnPhases.END;
                 break;
+
             case TurnPhases.END:
                 StartCoroutine(EndPhase());
                 break;
@@ -150,6 +152,14 @@ public class GameManager : MonoBehaviour {
         yield return null;
     }
 
+    IEnumerator PanelPhase()
+    {
+        Debug.Log("I'm doing the job of " + characterScript.currentPanel);
+        currentPhase = TurnPhases.END;
+        Debug.Log("Moving on to the End Phase");
+        yield return null;
+    }
+
     IEnumerator EndPhase()
     {
         hasMovementStarted = false;
@@ -208,9 +218,6 @@ public class GameManager : MonoBehaviour {
                 waitingForMovement = true;
                 break;
         }
-
-        characterScript.SetCurrentPanel(boardMap.GetPanel(characterScript.boardX,
-                                                    characterScript.boardY));
     }
 
     IEnumerator ChooseDirection()
@@ -305,6 +312,9 @@ public class GameManager : MonoBehaviour {
         characterScript.boardX = (int)characterScript.gameObject.transform.position.x;
         characterScript.boardY = (int)characterScript.gameObject.transform.position.z;
 
+        characterScript.SetCurrentPanel(boardMap.GetPanel(characterScript.boardX,
+                                                            characterScript.boardY));
+
         foreach (GameObject character in characters)
         {
             if (characters[activePlayer].name != character.name)
@@ -312,10 +322,16 @@ public class GameManager : MonoBehaviour {
                 if (characters[activePlayer].transform.position.x == character.transform.position.x &&
                    characters[activePlayer].transform.position.z == character.transform.position.z)
                 {
-                    Debug.Log("SKREEEE");
+                    Debug.Log("Press Mouse Wheel to fight opponent, Right click to ignore");
                     isChoosingToFightOpponent = true;
                 }
             }
+        }
+        
+        if(characterScript.currentPanel.name.Contains("Boss"))
+        { 
+            Debug.Log("Press Mouse Wheel to fight a boss monster, Right click to ignore");
+            isChoosingToFightOpponent = true;
         }
 
         if (diceRoll > 1 && !isChoosingToFightOpponent)
@@ -325,7 +341,7 @@ public class GameManager : MonoBehaviour {
         }
         else if (!isChoosingToFightOpponent)
         {
-            currentPhase = TurnPhases.END;
+            currentPhase = TurnPhases.PANEL;
             characterScript.isMoving = false;
         }
     }

@@ -10,14 +10,13 @@ public struct Stats
     public int maxHp;
 }
 
-[System.Serializable]
 public class FighterCard {
         
     public enum Nature { Character, Defender, Evader, Special }
 
     public Stats stats;
-    protected int hp;
-    protected int id;
+    public int hp;
+    public int id;
     public string fighterName;
     public string type;
     public Nature nature;
@@ -34,7 +33,6 @@ public class FighterCard {
     }    
 }
 
-[System.Serializable]
 public class CharacterCard : FighterCard
 {
     int level;
@@ -134,7 +132,6 @@ public class CharacterCard : FighterCard
     }
 }
 
-[System.Serializable]
 public class MonsterCard : FighterCard
 {
 }
