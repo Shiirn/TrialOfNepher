@@ -5,7 +5,7 @@ using UnityEngine;
 public class RaycastFromCamera : MonoBehaviour
 {
 
-    public Camera camera;
+    new public Camera camera;
     public GameObject panelMarker;
     public GameObject selectedPanelPrefab;
     public GameObject selectedPanel;

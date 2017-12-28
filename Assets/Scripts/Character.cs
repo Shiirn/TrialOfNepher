@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Character : MonoBehaviour {
+public class Character : Fighter {
 
     public int boardX;
     public int boardY;
     public GameObject currentPanel;
     public bool isMoving = false;
     public GameObject board;
-    public CharacterCard card;
+    new public CharacterCard card;
 
     void Start()
     {
