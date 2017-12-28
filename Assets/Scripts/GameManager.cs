@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
@@ -15,6 +16,7 @@ public class GameManager : MonoBehaviour {
     public bool canRollDice = true;
 
     public TurnPhases currentPhase;
+    public BattlePhases currentBattlePhase;
     public enum TurnPhases
     {
         INITIAL,
@@ -22,6 +24,15 @@ public class GameManager : MonoBehaviour {
         PANEL,
         BATTLE,
         END
+    }
+
+    public enum BattlePhases
+    {
+        PLAYERATTACK,
+        WAITFORTARGET,
+        OPPONENTATTACK,
+        WAITFORTARGET2,
+        ENDOFBATTLE
     }
 
     //Characters Objects
@@ -37,6 +48,7 @@ public class GameManager : MonoBehaviour {
 
     //Character Scripts
     Character characterScript;
+    Character opponentScript;
     HomePanelIdentifier homePanelIdentifier;
 
     //Board Scripts
@@ -46,20 +58,36 @@ public class GameManager : MonoBehaviour {
     //Raycast Scripts
     RaycastFromCamera raycastScript;
     Panel panelScriptFromRaycast;
-    
-    void Start ()
+
+    //Battle Buttons
+    public Button DefendButton;
+    public Button EvadeButton;
+
+    //Battle vars
+    bool isDefending = false;
+    bool isEvading = false;
+    int currentAttack = 0;
+    int currentDefense = 0;
+    int currentEvasion = 0;
+
+    void Start()
     {
         boardMap = board.GetComponent<BoardMap>();
         raycastScript = raycaster.GetComponent<RaycastFromCamera>();
-
-        //Temporarily moving the character in Start
+        DefendButton.onClick.AddListener(DefendPicked);
+        EvadeButton.onClick.AddListener(EvadePicked);
+        
         GetHomePanels();
         SpawnCharacters();
 
+        DefendButton.gameObject.SetActive(false);
+        EvadeButton.gameObject.SetActive(false);
+
         currentPhase = TurnPhases.INITIAL;
+        currentBattlePhase = BattlePhases.PLAYERATTACK;
     }
 	
-	void Update () {
+	void Update() {
         switch(currentPhase)
         {
             case TurnPhases.INITIAL:
@@ -84,8 +112,7 @@ public class GameManager : MonoBehaviour {
 
             case TurnPhases.BATTLE:
                 //TEMPORARY
-                Debug.Log("BATTLE PHASE AHEHAEHHA");
-                currentPhase = TurnPhases.END;
+                StartCoroutine(BattlePhase());
                 break;
 
             case TurnPhases.END:
@@ -128,17 +155,37 @@ public class GameManager : MonoBehaviour {
     IEnumerator InitialPhase()
     {
         activePlayer = turn % characters.Count;
+        characterScript = characters[activePlayer].GetComponent<Character>();
 
         //TODO: Set conditions to exit the initial phase
         if (!Input.GetMouseButtonDown(1))
         {
             yield return null;
         }
-        else
+        else if (characterScript.card.isAlive)
         {
             canRollDice = true;
             Debug.Log("Moving on to the Movement Phase");
-            currentPhase++;
+            currentPhase=TurnPhases.MOVEMENT;
+        }
+        else if (!characterScript.card.isAlive)
+        {
+            int reviveDiceRoll = Random.Range(1, 7);
+            if(reviveDiceRoll >= 4)
+            {
+                characterScript.card.isAlive = true;
+                characterScript.card.hp = characterScript.card.stats.maxHp;
+
+                Debug.Log("You rolled a " + reviveDiceRoll + "! You successfully revived!");
+
+                currentPhase = TurnPhases.END;
+            }
+            else
+            {
+                Debug.Log("You rolled a " + reviveDiceRoll + ". You couldn't revive.");
+
+                currentPhase = TurnPhases.END;
+            }
         }
     }
 
@@ -158,13 +205,160 @@ public class GameManager : MonoBehaviour {
         yield return null;
     }
 
+    IEnumerator BattlePhase()
+    {
+        DefendButton.gameObject.SetActive(true);
+        EvadeButton.gameObject.SetActive(true);
+
+        switch (currentBattlePhase)
+        {
+            case BattlePhases.PLAYERATTACK:
+
+                currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + Random.Range(1, 7);
+                Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
+
+                currentBattlePhase = BattlePhases.WAITFORTARGET;
+                break;
+
+            case BattlePhases.WAITFORTARGET:
+                if(isDefending || isEvading)
+                {
+                    if (isDefending)
+                    {
+                        currentDefense = opponentScript.card.stats.defense + characterScript.card.buffCounters.defense + Random.Range(1, 7);
+                        Debug.Log(opponentScript.card.fighterName + " defends with: " + currentDefense);
+
+                        if (currentDefense < currentAttack)
+                        {
+                            opponentScript.card.GetDamaged(currentAttack - currentDefense);
+                        }
+
+                        else
+                        {
+                            opponentScript.card.GetDamaged(1);
+                        }
+                    }
+                    if (isEvading)
+                    {
+                        currentEvasion = opponentScript.card.stats.evasion + characterScript.card.buffCounters.evasion + Random.Range(1, 7);
+                        Debug.Log(opponentScript.card.fighterName + " evades with: " + currentEvasion);
+
+                        if (currentAttack >= currentEvasion)
+                        {
+                            opponentScript.card.GetDamaged(currentAttack);
+                        }
+                    }
+
+                    Debug.Log(opponentScript.card.fighterName + " is left with " + opponentScript.card.hp +" HPs");
+
+                    ResetBattleCounters();
+
+                    if (opponentScript.card.isAlive)
+                    {
+                        currentBattlePhase = BattlePhases.OPPONENTATTACK;
+                    }
+                    else if (!opponentScript.card.isAlive)
+                    {
+                        currentBattlePhase = BattlePhases.ENDOFBATTLE;
+                    }
+                }
+
+                else
+                {
+                    yield return null;
+                }
+                break;
+
+            case BattlePhases.OPPONENTATTACK:
+
+                currentAttack = opponentScript.card.stats.attack + characterScript.card.buffCounters.attack + Random.Range(1, 7);
+                Debug.Log(opponentScript.card.fighterName + " attacks with " + currentAttack);
+                
+                currentBattlePhase = BattlePhases.WAITFORTARGET2;
+
+                break;
+
+            case BattlePhases.WAITFORTARGET2:
+
+                if (isDefending || isEvading)
+                {
+                    if (isDefending)
+                    {
+                        currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense + Random.Range(1, 7);
+                        Debug.Log(characterScript.card.fighterName + " defends with: " + currentDefense);
+
+                        if (currentDefense < currentAttack)
+                        {
+                            characterScript.card.GetDamaged(currentAttack - currentDefense);
+                        }
+                        else
+                        {
+                            characterScript.card.GetDamaged(1);
+                        }
+                    }
+
+                    if (isEvading)
+                    {
+                        currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion + Random.Range(1, 7);
+                        Debug.Log(characterScript.card.fighterName + " evades with: " + currentEvasion);
+
+                        if (currentAttack >= currentEvasion)
+                        {
+                            characterScript.card.GetDamaged(currentAttack);
+                        }
+                    }
+
+                    Debug.Log(characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
+
+                    ResetBattleCounters();
+
+                    currentBattlePhase = BattlePhases.ENDOFBATTLE;
+                }
+
+                else
+                {
+                    yield return null;
+                }
+                break;
+
+            case BattlePhases.ENDOFBATTLE:
+
+                ResetBattleCounters();
+
+                characterScript.card.ResetBuffs();
+                opponentScript.card.ResetBuffs();
+
+                DefendButton.gameObject.SetActive(false);
+                EvadeButton.gameObject.SetActive(false);
+
+                currentBattlePhase = BattlePhases.PLAYERATTACK;
+
+                if(opponentScript.card.nature == FighterCard.Nature.Character && characterScript.card.isAlive)
+                {
+                    currentPhase = TurnPhases.PANEL;
+                }
+                else
+                {
+                    currentPhase = TurnPhases.END;
+                }
+
+                break;
+        }
+
+        yield return null;
+    }
+   
     IEnumerator EndPhase()
     {
         hasMovementStarted = false;
         wasDiceRolled = false;
         isChoosingToFightOpponent = false;
+
+        ResetBattleCounters();
+
         turn++;
         currentPhase = TurnPhases.INITIAL;
+
         Debug.Log("Moving on to the Initial Phase");
         yield return null;
     }
@@ -178,6 +372,15 @@ public class GameManager : MonoBehaviour {
             diceRoll = Random.Range(1, 7);
             Debug.Log(diceRoll);
         }
+    }
+
+    void ResetBattleCounters()
+    {
+        currentAttack = 0;
+        currentDefense = 0;
+        currentEvasion = 0;
+        isDefending = false;
+        isEvading = false;
     }
 
     void RollForMovement()
@@ -233,20 +436,20 @@ public class GameManager : MonoBehaviour {
                 switch(panelScript.direction)
                 {
                     case "downRight":
-                        PickDirectionRight();
-                        PickDirectionDown();
+                        PickDirection("right");
+                        PickDirection("down");
                         break;
                     case "downLeft":
-                        PickDirectionDown();
-                        PickDirectionLeft();
+                        PickDirection("down");
+                        PickDirection("left");
                         break;
                     case "upRight":
-                        PickDirectionUp();
-                        PickDirectionRight();
+                        PickDirection("up");
+                        PickDirection("right");
                         break;
                     case "upLeft":
-                        PickDirectionUp();
-                        PickDirectionLeft();
+                        PickDirection("up");
+                        PickDirection("left");
                         break;
                 }
             }
@@ -317,8 +520,11 @@ public class GameManager : MonoBehaviour {
         {
             if (characters[activePlayer].name != character.name)
             {
-                if (characters[activePlayer].transform.position.x == character.transform.position.x &&
-                   characters[activePlayer].transform.position.z == character.transform.position.z)
+                opponentScript = character.GetComponent<Character>();
+
+                if (characterScript.boardX == opponentScript.boardX &&
+                   characterScript.boardY == opponentScript.boardY &&
+                   opponentScript.card.isAlive)
                 {
                     Debug.Log("Press Mouse Wheel to fight opponent, Right click to ignore");
                     isChoosingToFightOpponent = true;
@@ -327,9 +533,12 @@ public class GameManager : MonoBehaviour {
         }
         
         if(characterScript.currentPanel.name.Contains("Boss"))
-        { 
-            Debug.Log("Press Mouse Wheel to fight a boss monster, Right click to ignore");
-            isChoosingToFightOpponent = true;
+        {
+            if (diceRoll > 0)
+            {
+                Debug.Log("Press Mouse Wheel to fight a boss monster, Right click to ignore");
+                isChoosingToFightOpponent = true;
+            }
         }
 
         if (diceRoll > 1 && !isChoosingToFightOpponent)
@@ -375,43 +584,55 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    void PickDirectionRight()
+    void PickDirection(string _direction)
     {
-        if (panelScriptFromRaycast.boardX == characterScript.boardX - 1 && panelScriptFromRaycast.boardY == characterScript.boardY)
+        switch(_direction)
         {
-            waitingForMovement = false;
-            if(diceRoll > 0)
-                StartCoroutine(Move(-1, 0));
+            case "right":
+                if (panelScriptFromRaycast.boardX == characterScript.boardX - 1 && panelScriptFromRaycast.boardY == characterScript.boardY)
+                {
+                    waitingForMovement = false;
+                    if (diceRoll > 0)
+                        StartCoroutine(Move(-1, 0));
+                }
+                break;
+
+            case "up":
+                if (panelScriptFromRaycast.boardX == characterScript.boardX && panelScriptFromRaycast.boardY == characterScript.boardY - 1)
+                {
+                    waitingForMovement = false;
+                    if (diceRoll > 0)
+                        StartCoroutine(Move(0, -1));
+                }
+                break;
+
+            case "down":
+                if (panelScriptFromRaycast.boardX == characterScript.boardX && panelScriptFromRaycast.boardY == characterScript.boardY + 1)
+                {
+                    waitingForMovement = false;
+                    if (diceRoll > 0)
+                        StartCoroutine(Move(0, +1));
+                }
+                break;
+
+            case "left":
+                if (panelScriptFromRaycast.boardX == characterScript.boardX + 1 && panelScriptFromRaycast.boardY == characterScript.boardY)
+                {
+                    waitingForMovement = false;
+                    if (diceRoll > 0)
+                    StartCoroutine(Move(+1, 0));
+                }
+                break;
         }
     }
 
-    void PickDirectionUp()
+    void DefendPicked()
     {
-        if (panelScriptFromRaycast.boardX == characterScript.boardX && panelScriptFromRaycast.boardY == characterScript.boardY - 1)
-        {
-            waitingForMovement = false;
-            if (diceRoll > 0)
-                StartCoroutine(Move(0, -1));
-        }
+        isDefending = true;
     }
-
-    void PickDirectionDown()
+    
+    void EvadePicked()
     {
-        if (panelScriptFromRaycast.boardX == characterScript.boardX && panelScriptFromRaycast.boardY == characterScript.boardY + 1)
-        {
-            waitingForMovement = false;
-            if (diceRoll > 0)
-                StartCoroutine(Move(0, +1));
-        }
-    }
-
-    void PickDirectionLeft()
-    {
-        if (panelScriptFromRaycast.boardX == characterScript.boardX + 1 && panelScriptFromRaycast.boardY == characterScript.boardY)
-        {
-            waitingForMovement = false;
-            if (diceRoll > 0)
-                StartCoroutine(Move(+1, 0));
-        }
+        isEvading = true;
     }
 }

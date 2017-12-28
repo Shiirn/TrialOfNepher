@@ -24,12 +24,14 @@ public class FighterCard {
     public Texture2D cardImg;
     public bool isAlive;
 
-    void GetDamaged(int damage)
+    public void GetDamaged(int damage)
     {
         hp -= damage;
-
         if (hp <= 0)
+        {
             isAlive = false;
+            hp = 0;
+        }
     }    
 }
 
@@ -142,4 +144,55 @@ public class CharacterCard : FighterCard
 
 public class MonsterCard : FighterCard
 {
+    public MonsterCard(int _id)
+    {
+        id = _id;
+
+        switch (id)
+        {
+            case 0:
+                fighterName = "Gay Fag";
+                nature = Nature.Defender;
+                stats.attack = 1;
+                stats.defense = 0;
+                stats.evasion = 0;
+                stats.maxHp = 3;
+                hp = stats.maxHp;
+                break;
+
+            case 1:
+                fighterName = "Nigger Faggot";
+                nature = Nature.Defender;
+                stats.attack = 0;
+                stats.defense = 2;
+                stats.evasion = 0;
+                stats.maxHp = 5;
+                hp = stats.maxHp;
+                break;
+
+            case 2:
+                fighterName = "Bige Dicke";
+                nature = Nature.Evader;
+                stats.attack = 0;
+                stats.defense = 0;
+                stats.evasion = 1;
+                stats.maxHp = 5;
+                hp = stats.maxHp;
+                break;
+
+            case 3:
+                fighterName = "Le Monke";
+                nature = Nature.Evader;
+                stats.attack = 1;
+                stats.defense = 0;
+                stats.evasion = 2;
+                stats.maxHp = 2;
+                hp = stats.maxHp;
+                break;
+        }
+
+        description = "Monster description, at your service.";
+        isAlive = true;
+        
+    }
 }

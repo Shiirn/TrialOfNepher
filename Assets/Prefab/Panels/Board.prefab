@@ -52,6 +52,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardCsv: {fileID: 4900000, guid: ea8b0dbc65cdde84b8c65ddd60d430af, type: 3}
-  boardDirectionsCsv: {fileID: 0}
-  parsingPanels: []
+  boardDirectionsCsv: {fileID: 4900000, guid: c5e1a4e37e5a6b5409cd25be67b5ec12, type: 3}
+  parsingPanels:
+  - text: boss
+    prefab: {fileID: 1347358791831218, guid: b1fc3374aa2af054f8ce00f824e6fbc1, type: 2}
+  - text: cardLoss
+    prefab: {fileID: 1305662652535290, guid: f713c17373740e24c83e1e5a4ec67bb4, type: 2}
+  - text: draw
+    prefab: {fileID: 1380269771499628, guid: 00988b030ac0dd44e8585d70a96655cc, type: 2}
+  - text: gamble
+    prefab: {fileID: 1009673727145180, guid: 7541dde6c13682049891aeb52262ae2a, type: 2}
+  - text: home1
+    prefab: {fileID: 1092824430448638, guid: 22342cce52aa16d4297b4a046816e490, type: 2}
+  - text: home2
+    prefab: {fileID: 1946377238582530, guid: d53251703e95d554385087c976e9458a, type: 2}
+  - text: levelDown
+    prefab: {fileID: 1668894972740574, guid: 2782958bf8b54cd45b468192e58ea76a, type: 2}
+  - text: monster
+    prefab: {fileID: 1899518353364614, guid: 7339ef784548ebc4582b600e0081a460, type: 2}
+  - text: regen
+    prefab: {fileID: 1778979679668716, guid: a2d596b8b5b80664b89f388605017e3d, type: 2}
+  - text: shrine
+    prefab: {fileID: 1968942033727800, guid: 3c8ffcd60d8156040bf4c5e7cc1d7124, type: 2}
+  arrowPrefab: {fileID: 1507742069384606, guid: b7ca0c5aa04b7ac41bc3b10e0ddd8f12,
+    type: 2}
   board: []
+  arrows: []
