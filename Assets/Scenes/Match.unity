@@ -175,6 +175,10 @@ MonoBehaviour:
   raycaster: {fileID: 1357240166}
   DefendButton: {fileID: 2052207264}
   EvadeButton: {fileID: 877081414}
+  activeMonsterSprite: {fileID: 0}
+  opponentScript: {fileID: 0}
+  monsterScript: {fileID: 0}
+  activeMonsterSpriteRenderer: {fileID: 0}
 --- !u!1 &271049720
 GameObject:
   m_ObjectHideFlags: 0
@@ -1051,6 +1055,48 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 99506190853f87f409d6c5ff59ad2d8b, type: 2}
   m_IsPrefabParent: 0
+--- !u!1 &1181472457
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1181472459}
+  - component: {fileID: 1181472458}
+  m_Layer: 0
+  m_Name: ActiveMonster
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1181472458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1181472457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5bf8ff8f4deb4f40b4a074629c05fd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDead: 1
+  isMonsterActive: 0
+--- !u!4 &1181472459
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1181472457}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 55.176075, y: 203.14638, z: -159.59317}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1225306294 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 1824424740474114, guid: 6f1e577dce02ec54e83dfe223f6ea16e,
@@ -1200,12 +1246,96 @@ MonoBehaviour:
     type: 2}
   m_PrefabInternal: {fileID: 1148414157}
   m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+--- !u!1 &1671697341
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1671697343}
+  - component: {fileID: 1671697342}
+  m_Layer: 0
+  m_Name: ActiveBoss
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1671697342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1671697341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5bf8ff8f4deb4f40b4a074629c05fd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDead: 1
+  isMonsterActive: 0
+--- !u!4 &1671697343
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1671697341}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 55.176075, y: 203.14638, z: -159.59317}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1806507005 stripped
 MonoBehaviour:
   m_PrefabParentObject: {fileID: 114536931329324502, guid: 99506190853f87f409d6c5ff59ad2d8b,
     type: 2}
   m_PrefabInternal: {fileID: 2116349628}
   m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+--- !u!1 &1879923259
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1879923261}
+  - component: {fileID: 1879923260}
+  m_Layer: 0
+  m_Name: ActiveMidBoss
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1879923260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1879923259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5bf8ff8f4deb4f40b4a074629c05fd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDead: 1
+  isMonsterActive: 0
+--- !u!4 &1879923261
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1879923259}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 55.176075, y: 203.14638, z: -159.59317}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 11
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2037714372
 GameObject:
   m_ObjectHideFlags: 0

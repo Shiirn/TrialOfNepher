@@ -16,8 +16,7 @@ public class PanelMonster : Panel {
 
         if (!activeMonsterScript.isMonsterActive)
         {
-
-            activeMonsterScript.FlipNewActiveFighter(Random.Range(1, 5));
+            activeMonsterScript.FlipNewActiveFighter(0, "Hell Hound Pig", "Monster", "Defender", "Among the most famous demonic entities.", -1, 1, 0, 5, "HellHoundPig");
             activeMonsterScript.isMonsterActive = true;
         }
 

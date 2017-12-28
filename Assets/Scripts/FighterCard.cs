@@ -22,7 +22,7 @@ public class FighterCard
     public string type;
     public Nature nature;
     public string description;
-    public Texture2D cardImg;
+    public Sprite cardImg;
     public bool isAlive;
 
     public void GetDamaged(int damage)
@@ -145,55 +145,34 @@ public class CharacterCard : FighterCard
 
 public class MonsterCard : FighterCard
 {
-    public MonsterCard(int _id)
+    public MonsterCard(int _id, string _name, string _type, string _nature, string _description, int attack, int defense, int evasion, int maxHp, string sprite)
     {
         id = _id;
-
-        switch (id)
+        fighterName = _name;
+        type = _type;
+        switch(_nature)
         {
-            case 0:
-                fighterName = "Gay Fag";
+            case "Defender":
                 nature = Nature.Defender;
-                stats.attack = 1;
-                stats.defense = 0;
-                stats.evasion = 0;
-                stats.maxHp = 3;
-                hp = stats.maxHp;
                 break;
-
-            case 1:
-                fighterName = "Nigger Faggot";
-                nature = Nature.Defender;
-                stats.attack = 0;
-                stats.defense = 2;
-                stats.evasion = 0;
-                stats.maxHp = 5;
-                hp = stats.maxHp;
-                break;
-
-            case 2:
-                fighterName = "Bige Dicke";
+            case "Evader":
                 nature = Nature.Evader;
-                stats.attack = 0;
-                stats.defense = 0;
-                stats.evasion = 1;
-                stats.maxHp = 5;
-                hp = stats.maxHp;
                 break;
-
-            case 3:
-                fighterName = "Le Monke";
-                nature = Nature.Evader;
-                stats.attack = 1;
-                stats.defense = 0;
-                stats.evasion = 2;
-                stats.maxHp = 2;
-                hp = stats.maxHp;
+            case "Special":
+                nature = Nature.Special;
                 break;
         }
+        description = _description;
+        stats.attack = attack;
+        stats.defense = defense;
+        stats.evasion = evasion;
+        stats.maxHp = maxHp;
+        hp = maxHp;
 
-        description = "Monster description, at your service.";
         isAlive = true;
 
+        string textureName = "sprite" + sprite;
+
+        cardImg = Resources.Load(textureName) as Sprite;
     }
 }

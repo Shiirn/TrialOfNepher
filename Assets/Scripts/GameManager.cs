@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour {
     public bool hasMovementStarted = false;
     public bool canRollDice = true;
 
+    
+
     public TurnPhases currentPhase;
     public BattlePhases currentBattlePhase;
     public enum TurnPhases
@@ -46,6 +48,11 @@ public class GameManager : MonoBehaviour {
     //Raycast Objects
     public GameObject raycaster;
 
+    //UI Objects
+    public Button DefendButton;
+    public Button EvadeButton;
+    public GameObject activeMonsterSprite;
+
     //Character Scripts
     Character characterScript;
     public Character opponentScript;
@@ -60,11 +67,11 @@ public class GameManager : MonoBehaviour {
     RaycastFromCamera raycastScript;
     Panel panelScriptFromRaycast;
 
-    //Battle Buttons
-    public Button DefendButton;
-    public Button EvadeButton;
+    //UI Scripts
+    public SpriteRenderer activeMonsterSpriteRenderer;
 
     //Battle vars
+    bool mustFightOpponent = false;
     bool isDefending = false;
     bool isEvading = false;
     int currentAttack = 0;
@@ -211,7 +218,7 @@ public class GameManager : MonoBehaviour {
         DefendButton.gameObject.SetActive(true);
         EvadeButton.gameObject.SetActive(true);
 
-        if (characterScript.currentPanel.name.Contains("Monster"))
+        if (characterScript.currentPanel.name.Contains("Monster") && !mustFightOpponent)
         {
             switch (currentBattlePhase)
             {
@@ -219,7 +226,7 @@ public class GameManager : MonoBehaviour {
 
                     currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + Random.Range(1, 7);
                     Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
-                    
+
                     if (monsterScript.card.nature == FighterCard.Nature.Defender)
                     {
                         currentDefense = monsterScript.card.stats.defense + Random.Range(1, 7);
@@ -245,7 +252,7 @@ public class GameManager : MonoBehaviour {
                             monsterScript.card.GetDamaged(currentAttack);
                         }
                     }
-                        
+
 
                     Debug.Log(monsterScript.card.fighterName + " is left with " + monsterScript.card.hp + " HPs");
 
@@ -325,7 +332,7 @@ public class GameManager : MonoBehaviour {
                     EvadeButton.gameObject.SetActive(false);
 
                     currentBattlePhase = BattlePhases.PLAYERATTACK;
-                    
+
                     currentPhase = TurnPhases.END;
                     break;
             }
@@ -449,6 +456,8 @@ public class GameManager : MonoBehaviour {
 
                     characterScript.card.ResetBuffs();
                     opponentScript.card.ResetBuffs();
+
+                    mustFightOpponent = false;
 
                     DefendButton.gameObject.SetActive(false);
                     EvadeButton.gameObject.SetActive(false);
@@ -681,6 +690,7 @@ public class GameManager : MonoBehaviour {
         {
             Debug.Log("yes");
             isChoosingToFightOpponent = false;
+            mustFightOpponent = true;
             diceRoll = 0;
             wasDiceRolled = false;
             currentPhase = TurnPhases.BATTLE;

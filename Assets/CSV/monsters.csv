@@ -1,0 +1,10 @@
+ID,name,type,nature,description,attack,defense,evasion,hp,sprite
+0,Hell Hound Pig,Monster,Defender,Among the most famous demonic entities.,-1,1,0,5,HellHoundPig
+1,Winged Eye,Monster,Defender,A demonic entity filled with killing intent. Its stare is said to paralyze every foe.,1,-1,0,5,WingedEye
+2,Moray Jiang-shi,Monster,Evader,"Faith to his master Nepher, he attacks fiercely and moves swiftly.",1,0,2,3,Moray
+3,Teru Bozu,Monster,Evader,An army of playful little spirits. Children are their favourite prey.,0,0,2,1,TeruBozu
+4,Nightmare Head,Monster,Defender,An evil being that generates from the souls of luscious women.,1,2,0,3,NightmareHead
+5,Mummytaur,MidBoss,Defender,A dead minotaur taken back by Nepher. Its attacks are devastating.,2,1,0,7,Mummytaur
+6,Dream Harpy,MidBoss,Evader,Cuts your dreams in half in the blink of an eye.,1,0,2,5,Harpy
+7,Cyclops Gazer,MidBoss,Defender,A sturdy beast armed with all-seeing eyes.,1,-1,0,12,Gazer
+8,Nepher,Boss,Special,"When attacking this card, if you roll a 1 or a 2, Nepher dodges the attack. This doesn't take stat modifiers into account. If you roll a 3 or higher, he defends regularly.",2,0,2,15,Nepher

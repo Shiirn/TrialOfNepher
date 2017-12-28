@@ -8,10 +8,9 @@ public class ActiveFighter : Fighter {
     public FighterCard card;
     
 
-    public void FlipNewActiveFighter(int id)
+    public void FlipNewActiveFighter(int _id, string _name, string _type, string _nature, string _description, int attack, int defense, int evasion, int maxHp, string sprite)
     {
-        card = new MonsterCard(id);
-        Debug.Log(card.nature);
+        card = new MonsterCard(0, "Hell Hound Pig", "Monster", "Defender", "Among the most famous demonic entities.", -1, 1, 0, 5, "HellHoundPig");
     }
 
     public void CheckIfMonsterIsAlive()
