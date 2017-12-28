@@ -173,12 +173,18 @@ MonoBehaviour:
   board: {fileID: 1225306294}
   homePanels: []
   raycaster: {fileID: 1357240166}
+  canvas: {fileID: 841302544}
   DefendButton: {fileID: 2052207264}
   EvadeButton: {fileID: 877081414}
+  activeMonsterSprites:
+  - {fileID: 1077978042207326, guid: 68e18fd34aec3a149a6a283966617c8d, type: 2}
+  - {fileID: 1860017942170448, guid: 635ba4d496331b04b91e73ead2b27f79, type: 2}
+  - {fileID: 1959538752502036, guid: 45bf6c905d1f3dc489a548af3c9776b9, type: 2}
+  - {fileID: 1251395881680380, guid: 11f6557c65d91cd489d8ff047c393a99, type: 2}
+  - {fileID: 1551716245127302, guid: 246b282560cc887449317b73a3a68534, type: 2}
   activeMonsterSprite: {fileID: 0}
   opponentScript: {fileID: 0}
   monsterScript: {fileID: 0}
-  activeMonsterSpriteRenderer: {fileID: 0}
 --- !u!1 &271049720
 GameObject:
   m_ObjectHideFlags: 0
@@ -1592,6 +1598,10 @@ Prefab:
         type: 2}
       propertyPath: m_Colors.m_HighlightedColor.b
       value: 0.29406354
+      objectReference: {fileID: 0}
+    - target: {fileID: 1921235633813422, guid: 99506190853f87f409d6c5ff59ad2d8b, type: 2}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 99506190853f87f409d6c5ff59ad2d8b, type: 2}

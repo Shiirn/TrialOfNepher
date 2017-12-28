@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public struct Stats
 {
@@ -22,6 +23,7 @@ public class FighterCard
     public string type;
     public Nature nature;
     public string description;
+    public string spriteName;
     public Sprite cardImg;
     public bool isAlive;
 
@@ -171,8 +173,8 @@ public class MonsterCard : FighterCard
 
         isAlive = true;
 
-        string textureName = "sprite" + sprite;
+        spriteName = "sprite" + sprite;
 
-        cardImg = Resources.Load(textureName) as Sprite;
+        cardImg = Resources.Load(spriteName) as Sprite;
     }
 }

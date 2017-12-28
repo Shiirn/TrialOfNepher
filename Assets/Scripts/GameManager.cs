@@ -49,8 +49,10 @@ public class GameManager : MonoBehaviour {
     public GameObject raycaster;
 
     //UI Objects
+    public Canvas canvas;
     public Button DefendButton;
     public Button EvadeButton;
+    public GameObject[] activeMonsterSprites;
     public GameObject activeMonsterSprite;
 
     //Character Scripts
@@ -66,10 +68,7 @@ public class GameManager : MonoBehaviour {
     //Raycast Scripts
     RaycastFromCamera raycastScript;
     Panel panelScriptFromRaycast;
-
-    //UI Scripts
-    public SpriteRenderer activeMonsterSpriteRenderer;
-
+    
     //Battle vars
     bool mustFightOpponent = false;
     bool isDefending = false;
@@ -89,7 +88,7 @@ public class GameManager : MonoBehaviour {
         SpawnCharacters();
 
         DefendButton.gameObject.SetActive(false);
-        EvadeButton.gameObject.SetActive(false);
+        EvadeButton.gameObject.SetActive(false);        
 
         currentPhase = TurnPhases.INITIAL;
         currentBattlePhase = BattlePhases.PLAYERATTACK;
@@ -216,10 +215,12 @@ public class GameManager : MonoBehaviour {
     IEnumerator BattlePhase()
     {
         DefendButton.gameObject.SetActive(true);
-        EvadeButton.gameObject.SetActive(true);
+        EvadeButton.gameObject.SetActive(true);        
 
         if (characterScript.currentPanel.name.Contains("Monster") && !mustFightOpponent)
         {
+            activeMonsterSprite.SetActive(true);
+
             switch (currentBattlePhase)
             {
                 case BattlePhases.PLAYERATTACK:
@@ -330,6 +331,7 @@ public class GameManager : MonoBehaviour {
 
                     DefendButton.gameObject.SetActive(false);
                     EvadeButton.gameObject.SetActive(false);
+                    activeMonsterSprite.SetActive(false);
 
                     currentBattlePhase = BattlePhases.PLAYERATTACK;
 
