@@ -162,6 +162,7 @@ MonoBehaviour:
   diceRoll: 0
   wasDiceRolled: 0
   isChoosingToFightOpponent: 0
+  isChoosingToFightBoss: 0
   hasMovementStarted: 0
   canRollDice: 1
   currentPhase: 0
@@ -176,15 +177,21 @@ MonoBehaviour:
   canvas: {fileID: 841302544}
   DefendButton: {fileID: 2052207264}
   EvadeButton: {fileID: 877081414}
-  activeMonsterSprites:
+  MonsterSprites:
   - {fileID: 1077978042207326, guid: 68e18fd34aec3a149a6a283966617c8d, type: 2}
   - {fileID: 1860017942170448, guid: 635ba4d496331b04b91e73ead2b27f79, type: 2}
   - {fileID: 1959538752502036, guid: 45bf6c905d1f3dc489a548af3c9776b9, type: 2}
   - {fileID: 1251395881680380, guid: 11f6557c65d91cd489d8ff047c393a99, type: 2}
   - {fileID: 1551716245127302, guid: 246b282560cc887449317b73a3a68534, type: 2}
   activeMonsterSprite: {fileID: 0}
+  BossSprites:
+  - {fileID: 1975955420787538, guid: e9bc5c7f44d6d774299e8f832a70efea, type: 2}
+  - {fileID: 1679230263708156, guid: 2c20380f4007b4a4f842e69cae2b9843, type: 2}
+  - {fileID: 1708403046388790, guid: 0d8dc5c47c3f41947b3b674ad69bb759, type: 2}
+  activeBossSprite: {fileID: 0}
   opponentScript: {fileID: 0}
   monsterScript: {fileID: 0}
+  bossScript: {fileID: 0}
 --- !u!1 &271049720
 GameObject:
   m_ObjectHideFlags: 0
@@ -1090,6 +1097,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isDead: 1
   isMonsterActive: 0
+  isBossActive: 0
 --- !u!4 &1181472459
 Transform:
   m_ObjectHideFlags: 0
@@ -1281,6 +1289,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isDead: 1
   isMonsterActive: 0
+  isBossActive: 0
 --- !u!4 &1671697343
 Transform:
   m_ObjectHideFlags: 0
@@ -1300,48 +1309,6 @@ MonoBehaviour:
     type: 2}
   m_PrefabInternal: {fileID: 2116349628}
   m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
---- !u!1 &1879923259
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1879923261}
-  - component: {fileID: 1879923260}
-  m_Layer: 0
-  m_Name: ActiveMidBoss
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1879923260
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1879923259}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5bf8ff8f4deb4f40b4a074629c05fd1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isDead: 1
-  isMonsterActive: 0
---- !u!4 &1879923261
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1879923259}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 55.176075, y: 203.14638, z: -159.59317}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 11
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2037714372
 GameObject:
   m_ObjectHideFlags: 0
