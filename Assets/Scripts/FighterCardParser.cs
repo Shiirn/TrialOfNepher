@@ -15,7 +15,6 @@ public static class FighterCardParser {
             if(monsterString[0].ToString() == id.ToString())
             {
                 ret = monsterString.Split(',');
-                Debug.Log(ret);
                 break;
             }
         }

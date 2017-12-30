@@ -249,7 +249,7 @@ public class GameManager : MonoBehaviour {
             wasDiceRolled = false;
         }
         else if (!wasDiceRolled && !waitingForMovement && !characterScript.isMoving)
-        {
+        {            
             DieRollState();
             yield return null;            
         }        
@@ -1007,6 +1007,7 @@ public class GameManager : MonoBehaviour {
             }
             else if (diceRoll == 0)
             {
+                characterScript.isMoving = false;
                 currentPhase = TurnPhases.PANEL;
             }
         }
@@ -1021,8 +1022,8 @@ public class GameManager : MonoBehaviour {
         }
         else if (!isChoosingToFightOpponent && !isChoosingToFightBoss)
         {
-            currentPhase = TurnPhases.PANEL;
             characterScript.isMoving = false;
+            currentPhase = TurnPhases.PANEL;
         }      
     }
 
@@ -1035,6 +1036,7 @@ public class GameManager : MonoBehaviour {
             mustFightOpponent = true;
             diceRoll = 0;
             wasDiceRolled = false;
+            characterScript.isMoving = false;
             currentPhase = TurnPhases.BATTLE;
 
         }
@@ -1049,6 +1051,8 @@ public class GameManager : MonoBehaviour {
             }
             else
             {
+
+                characterScript.isMoving = false;
                 currentPhase = TurnPhases.PANEL;
             }
         }
@@ -1066,6 +1070,8 @@ public class GameManager : MonoBehaviour {
             isChoosingToFightBoss = false;
             diceRoll = 0;
             wasDiceRolled = false;
+
+            characterScript.isMoving = false;
             currentPhase = TurnPhases.PANEL;
 
         }
@@ -1080,6 +1086,8 @@ public class GameManager : MonoBehaviour {
             }
             else
             {
+
+                characterScript.isMoving = false;
                 currentPhase = TurnPhases.PANEL;
             }
         }
