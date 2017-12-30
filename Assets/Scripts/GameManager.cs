@@ -26,14 +26,16 @@ public class GameManager : MonoBehaviour {
     
 
     public TurnPhases currentPhase;
-    public BattlePhases currentBattlePhase;
+    public TurnPhases previousPhase;
+    public BattlePhases currentBattlePhase;    
     public enum TurnPhases
     {
         INITIAL,
         MOVEMENT,
         PANEL,
         BATTLE,
-        END
+        END,
+        ROLLINGDIE
     }
 
     public enum BattlePhases
@@ -155,6 +157,9 @@ public class GameManager : MonoBehaviour {
             case TurnPhases.END:
                 StartCoroutine(EndPhase());
                 break;
+            case TurnPhases.ROLLINGDIE:
+                StartCoroutine(RollingDie(previousPhase));
+                break;
         }        
     }
 
@@ -197,6 +202,7 @@ public class GameManager : MonoBehaviour {
         //TODO: Set conditions to exit the initial phase
         if (!Input.GetMouseButtonDown(1) && !reviving)
         {
+            canRollDice = false;
             yield return null;
         }
         else if (characterScript.card.isAlive)
@@ -207,14 +213,11 @@ public class GameManager : MonoBehaviour {
         }
         else if (!characterScript.card.isAlive)
         {
+            Debug.Log("Trying to revive");
             reviving = true;
-            Debug.Log("Roll to revive");
-            canRollDice = true;
-            KillDieIfRolled();            
             
             if(wasDiceRolled)
-            {
-                Debug.Log("ho sonno...");
+            {                
                 int reviveDiceRoll = diceRoll;
                 if (reviveDiceRoll >= 4)
                 {
@@ -230,7 +233,14 @@ public class GameManager : MonoBehaviour {
                     Debug.Log("You rolled a " + reviveDiceRoll + ". You couldn't revive.");
 
                     currentPhase = TurnPhases.END;
-                }                
+                }
+
+                wasDiceRolled = false;
+                reviving = false;
+            }
+            else
+            {
+                DieRollState();
             }
            
         }
@@ -238,14 +248,16 @@ public class GameManager : MonoBehaviour {
 
     IEnumerator MovementPhase()
     {
-        KillDieIfRolled();
-
         if (wasDiceRolled)
         {
             RollForMovement();
             wasDiceRolled = false;
         }
-        yield return null;
+        else if (!wasDiceRolled && !waitingForMovement && !characterScript.isMoving)
+        {
+            DieRollState();
+            yield return null;            
+        }        
     }
 
     IEnumerator PanelPhase()
@@ -263,22 +275,17 @@ public class GameManager : MonoBehaviour {
         {
             activeBossSprite.SetActive(true);
 
-            if (!battleDieAvailable)
+            if (!wasDiceRolled && !rollingInBattle)
             {
-                canRollDiceInBattle = true;
-                battleDieAvailable = true;
+                Debug.Log("Roll to attack");
+                DieRollState();
             }
-
-            if (canRollDiceInBattle)
-            {               
-                Debug.Log("Roll");
-                canRollDice = true;
-                KillDieIfRolled();
-            }
-
-            if (wasDiceRolled || rollingInBattle)
+            else if (wasDiceRolled || rollingInBattle)
             {
-                canRollDiceInBattle = false;
+                if (!rollingInBattle)
+                wasDiceRolled = false;
+
+                rollingInBattle = true;                
 
                 switch (currentBattlePhase)
                 {
@@ -286,24 +293,20 @@ public class GameManager : MonoBehaviour {
                       
                         if (!enemyIsDefendingOrEvading)
                         {
-                            if (!rollingInBattle)
+                            currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll;
+                            Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
+
+                            if(wasDiceRolled)
+                                enemyIsDefendingOrEvading = true;
+                            else
                             {
-                                currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll;
-                                Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);                                
-                                wasDiceRolled = false;
-                            }
-
-                            rollingInBattle = true;
-                            canRollDiceInBattle = true;
-
-                            Debug.Log("Roll for monster defense/evade");
+                                Debug.Log("Roll for monster defend/evade");
+                                DieRollState();
+                            }                             
                         }                        
 
                         if (wasDiceRolled)
-                        {
-                            canRollDiceInBattle = false;
-                            enemyIsDefendingOrEvading = true;
-
+                        {   
                             if (bossScript.bossCard.nature == FighterCard.Nature.Defender)
                             {
                                 currentDefense = bossScript.bossCard.stats.defense + diceRoll;
@@ -349,13 +352,14 @@ public class GameManager : MonoBehaviour {
                         break;
 
                     case BattlePhases.OPPONENTATTACK:
-                                                
-                        canRollDiceInBattle = true;                        
 
-                        if (wasDiceRolled)
+                        if (!wasDiceRolled)
                         {
-                            canRollDiceInBattle = false;
-
+                            Debug.Log("Roll for monster attack");
+                            DieRollState();
+                        }
+                        else
+                        {                           
                             currentAttack = bossScript.bossCard.stats.attack + diceRoll;
                             Debug.Log(bossScript.bossCard.fighterName + " attacks with " + currentAttack);
 
@@ -365,13 +369,18 @@ public class GameManager : MonoBehaviour {
 
                         break;
 
-                    case BattlePhases.WAITFORTARGET2:                                                                       
+                    case BattlePhases.WAITFORTARGET2:
+
+                        Debug.Log("Pick Defend or Evade");
 
                         if (isDefending || isEvading)
                         {
-                            canRollDiceInBattle = true;
-
-                            if (wasDiceRolled)
+                            if (!wasDiceRolled)
+                            {
+                                Debug.Log("Roll for defend/evade");
+                                DieRollState();
+                            }
+                            else
                             {
                                 if (isDefending)
                                 {
@@ -402,6 +411,7 @@ public class GameManager : MonoBehaviour {
                                 Debug.Log(characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
 
                                 ResetBattleCounters();
+                                wasDiceRolled = false;
 
                                 currentBattlePhase = BattlePhases.ENDOFBATTLE;
                             }                         
@@ -424,10 +434,8 @@ public class GameManager : MonoBehaviour {
                         DefendButton.gameObject.SetActive(false);
                         EvadeButton.gameObject.SetActive(false);
                         activeBossSprite.SetActive(false);
-
-                        canRollDiceInBattle = false;
-                        rollingInBattle = false;
-                        battleDieAvailable = false;
+                        
+                        rollingInBattle = false;                        
                         enemyIsDefendingOrEvading = false;
 
                         currentBattlePhase = BattlePhases.PLAYERATTACK;
@@ -442,22 +450,17 @@ public class GameManager : MonoBehaviour {
         {
             activeMonsterSprite.SetActive(true);
 
-            if (!battleDieAvailable)
+            if (!wasDiceRolled && !rollingInBattle)
             {
-                canRollDiceInBattle = true;
-                battleDieAvailable = true;
+                Debug.Log("Roll to attack");
+                DieRollState();
             }
-
-            if (canRollDiceInBattle)
+            else if (wasDiceRolled || rollingInBattle)
             {
-                Debug.Log("Roll");
-                canRollDice = true;
-                KillDieIfRolled();
-            }
+                if (!rollingInBattle)
+                    wasDiceRolled = false;
 
-            if (wasDiceRolled || rollingInBattle)
-            {
-                canRollDiceInBattle = false;
+                rollingInBattle = true;
 
                 switch (currentBattlePhase)
                 {
@@ -465,24 +468,20 @@ public class GameManager : MonoBehaviour {
 
                         if (!enemyIsDefendingOrEvading)
                         {
-                            if (!rollingInBattle)
+                            currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll;
+                            Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
+
+                            if (wasDiceRolled)
+                                enemyIsDefendingOrEvading = true;
+                            else
                             {
-                                currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll;
-                                Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
-                                wasDiceRolled = false;
+                                Debug.Log("Roll for monster defend/evade");
+                                DieRollState();
                             }
-
-                            rollingInBattle = true;
-                            canRollDiceInBattle = true;
-
-                            Debug.Log("Roll for monster defense/evade");
                         }
 
                         if (wasDiceRolled)
                         {
-                            canRollDiceInBattle = false;
-                            enemyIsDefendingOrEvading = true;
-
                             if (monsterScript.monsterCard.nature == FighterCard.Nature.Defender)
                             {
                                 currentDefense = monsterScript.monsterCard.stats.defense + diceRoll;
@@ -529,12 +528,13 @@ public class GameManager : MonoBehaviour {
 
                     case BattlePhases.OPPONENTATTACK:
 
-                        canRollDiceInBattle = true;
-
-                        if (wasDiceRolled)
+                        if (!wasDiceRolled)
                         {
-                            canRollDiceInBattle = false;
-
+                            Debug.Log("Roll for monster attack");
+                            DieRollState();
+                        }
+                        else
+                        {
                             currentAttack = monsterScript.monsterCard.stats.attack + diceRoll;
                             Debug.Log(monsterScript.monsterCard.fighterName + " attacks with " + currentAttack);
 
@@ -546,11 +546,16 @@ public class GameManager : MonoBehaviour {
 
                     case BattlePhases.WAITFORTARGET2:
 
+                        Debug.Log("Pick Defend or Evade");
+
                         if (isDefending || isEvading)
                         {
-                            canRollDiceInBattle = true;
-
-                            if (wasDiceRolled)
+                            if (!wasDiceRolled)
+                            {
+                                Debug.Log("Roll for defend/evade");
+                                DieRollState();
+                            }
+                            else
                             {
                                 if (isDefending)
                                 {
@@ -581,6 +586,7 @@ public class GameManager : MonoBehaviour {
                                 Debug.Log(characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
 
                                 ResetBattleCounters();
+                                wasDiceRolled = false;
 
                                 currentBattlePhase = BattlePhases.ENDOFBATTLE;
                             }
@@ -604,9 +610,7 @@ public class GameManager : MonoBehaviour {
                         EvadeButton.gameObject.SetActive(false);
                         activeMonsterSprite.SetActive(false);
 
-                        canRollDiceInBattle = false;
                         rollingInBattle = false;
-                        battleDieAvailable = false;
                         enemyIsDefendingOrEvading = false;
 
                         currentBattlePhase = BattlePhases.PLAYERATTACK;
@@ -619,54 +623,41 @@ public class GameManager : MonoBehaviour {
         }
         else if (mustFightOpponent)
         {
-            if (!battleDieAvailable)
+            if (!wasDiceRolled && !rollingInBattle)
             {
-                canRollDiceInBattle = true;
-                battleDieAvailable = true;
-            }
-
-            if (canRollDiceInBattle)
-            {
-                Debug.Log("Roll");
-                canRollDice = true;
-                KillDieIfRolled();
+                Debug.Log("Roll to attack");
+                DieRollState();
             }
 
             if (wasDiceRolled || rollingInBattle)
             {
-                canRollDiceInBattle = false;
+                if (!rollingInBattle)
+                    wasDiceRolled = false;
+
+                rollingInBattle = true;
 
                 switch (currentBattlePhase)
                 {
                     case BattlePhases.PLAYERATTACK:
-
-                        if (!enemyIsDefendingOrEvading)
-                        {
-                            if (!rollingInBattle)
-                            {
-                                currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll;
-                                Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
-                                wasDiceRolled = false;
-                            }
-
-                            rollingInBattle = true;
-                            canRollDiceInBattle = true;
-
-                            Debug.Log("Roll for enemy defense/evade");
-                        }
-
-                        canRollDiceInBattle = false;
-                        currentBattlePhase = BattlePhases.WAITFORTARGET;
+                                                
+                        currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll;
+                        Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
+                        currentBattlePhase = BattlePhases.WAITFORTARGET;         
+                        
                         break;
 
                     case BattlePhases.WAITFORTARGET:
 
+                        Debug.Log("Pick Defend or Evade");
+
                         if (isDefending || isEvading)
                         {
-                            canRollDiceInBattle = true;
-                            enemyIsDefendingOrEvading = true;
-
-                            if (wasDiceRolled)
+                            if (!wasDiceRolled)
+                            {
+                                Debug.Log("Roll for enemy defense/evade");
+                                DieRollState();
+                            }
+                            else
                             {
                                 if (isDefending)
                                 {
@@ -718,16 +709,17 @@ public class GameManager : MonoBehaviour {
 
                     case BattlePhases.OPPONENTATTACK:
 
-                        canRollDiceInBattle = true;
-
-                        if(wasDiceRolled)
+                        if (!wasDiceRolled)
+                        {
+                            Debug.Log("Roll for enemy attack");
+                            DieRollState();
+                        }
+                        else
                         {
                             currentAttack = opponentScript.card.stats.attack + opponentScript.card.buffCounters.attack + diceRoll;
                             Debug.Log(opponentScript.card.fighterName + " attacks with " + currentAttack);
-                                                        
-                            canRollDiceInBattle = false;
-                            isDefending = false;
-                            isEvading = false;
+
+                            ResetBattleCounters();
                             wasDiceRolled = false;
 
                             currentBattlePhase = BattlePhases.WAITFORTARGET2;
@@ -735,13 +727,18 @@ public class GameManager : MonoBehaviour {
 
                         break;
 
-                    case BattlePhases.WAITFORTARGET2:                                               
-                        
+                    case BattlePhases.WAITFORTARGET2:
+
+                        Debug.Log("Pick Defend or Evade");
+
                         if (isDefending || isEvading)
                         {
-                            canRollDiceInBattle = true;
-
-                            if (wasDiceRolled)
+                            if (!wasDiceRolled)
+                            {
+                                Debug.Log("Roll for enemy defense/evade");
+                                DieRollState();
+                            }
+                            else
                             {
                                 if (isDefending)
                                 {
@@ -795,10 +792,7 @@ public class GameManager : MonoBehaviour {
 
                         DefendButton.gameObject.SetActive(false);
                         EvadeButton.gameObject.SetActive(false);
-
-                        canRollDiceInBattle = false;
-                        rollingInBattle = false;
-                        battleDieAvailable = false;
+                                                
                         enemyIsDefendingOrEvading = false;
 
                         currentBattlePhase = BattlePhases.PLAYERATTACK;
@@ -836,6 +830,20 @@ public class GameManager : MonoBehaviour {
         Debug.Log("Moving on to the Initial Phase");
         yield return null;
     }    
+
+    IEnumerator RollingDie(TurnPhases _previousPhase)
+    {        
+        if (!wasDiceRolled)
+        {
+            canRollDice = true;
+            KillDieIfRolled();
+            yield return null;
+        }
+        else
+        {            
+            currentPhase = _previousPhase;
+        }           
+    }
 
     void ResetBattleCounters()
     {
@@ -1137,6 +1145,12 @@ public class GameManager : MonoBehaviour {
     {
         isEvading = true;
     }    
+    
+    void DieRollState()
+    {
+        previousPhase = currentPhase;
+        currentPhase = TurnPhases.ROLLINGDIE;
+    }
 
     void KillDieIfRolled()
     {
