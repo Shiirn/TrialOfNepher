@@ -64,6 +64,7 @@ public class GameManager : MonoBehaviour {
     public Canvas canvas;
     public Button DefendButton;
     public Button EvadeButton;
+    public Text TurnCounter;
     //Monsters
     public GameObject[] MonsterSprites;
     public GameObject activeMonsterSprite;
@@ -116,6 +117,8 @@ public class GameManager : MonoBehaviour {
 
         currentPhase = TurnPhases.INITIAL;
         currentBattlePhase = BattlePhases.PLAYERATTACK;
+
+        TurnCounter.text = "Turn: " + turn.ToString();
     }
 	
 	void Update() {
@@ -884,6 +887,7 @@ public class GameManager : MonoBehaviour {
         ResetBattleCounters();
 
         turn++;
+        TurnCounter.text = "Turn: " + turn.ToString();
         currentPhase = TurnPhases.INITIAL;
 
         Debug.Log("Moving on to the Initial Phase");
