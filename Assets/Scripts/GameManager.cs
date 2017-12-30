@@ -9,12 +9,19 @@ public class GameManager : MonoBehaviour {
     public int turn;
     public int activePlayer = 0;
     public bool waitingForMovement = false;
+    public bool reviving = false;
     public int diceRoll;
     public bool wasDiceRolled = false;
     public bool isChoosingToFightOpponent = false;
     public bool isChoosingToFightBoss = false;
     public bool hasMovementStarted = false;
+    
+    //Die bools
     public bool canRollDice = true;
+    public bool canRollDiceInBattle = true;
+    public bool rollingInBattle = false;
+    public bool enemyIsDefendingOrEvading = false;
+    public bool battleDieAvailable = false;
 
     
 
@@ -46,6 +53,10 @@ public class GameManager : MonoBehaviour {
     public GameObject board;
     public List<GameObject> homePanels = new List<GameObject>();
 
+    //Die Objects
+    public GameObject dieContainer;
+    public GameObject die;
+
     //Raycast Objects
     public GameObject raycaster;
 
@@ -72,9 +83,13 @@ public class GameManager : MonoBehaviour {
     BoardMap boardMap;
     Panel panelScript;
 
+    //Die Scripts
+    DisplayDieValue dieScript;
+    ApplyRandomForce dieInputScript;
+
     //Raycast Scripts
     RaycastFromCamera raycastScript;
-    Panel panelScriptFromRaycast;
+    Panel panelScriptFromRaycast;    
     
     //Battle vars
     bool mustFightOpponent = false;
@@ -86,8 +101,12 @@ public class GameManager : MonoBehaviour {
 
     void Start()
     {
+        dieScript = die.GetComponent<DisplayDieValue>();
+        dieInputScript = die.GetComponent<ApplyRandomForce>();
+
         boardMap = board.GetComponent<BoardMap>();
         raycastScript = raycaster.GetComponent<RaycastFromCamera>();
+
         DefendButton.onClick.AddListener(DefendPicked);
         EvadeButton.onClick.AddListener(EvadePicked);
         
@@ -176,7 +195,7 @@ public class GameManager : MonoBehaviour {
         characterScript = characters[activePlayer].GetComponent<Character>();
 
         //TODO: Set conditions to exit the initial phase
-        if (!Input.GetMouseButtonDown(1))
+        if (!Input.GetMouseButtonDown(1) && !reviving)
         {
             yield return null;
         }
@@ -188,28 +207,40 @@ public class GameManager : MonoBehaviour {
         }
         else if (!characterScript.card.isAlive)
         {
-            int reviveDiceRoll = Random.Range(1, 7);
-            if(reviveDiceRoll >= 4)
+            reviving = true;
+            Debug.Log("Roll to revive");
+            canRollDice = true;
+            KillDieIfRolled();            
+            
+            if(wasDiceRolled)
             {
-                characterScript.card.isAlive = true;
-                characterScript.card.hp = characterScript.card.stats.maxHp;
+                Debug.Log("ho sonno...");
+                int reviveDiceRoll = diceRoll;
+                if (reviveDiceRoll >= 4)
+                {
+                    characterScript.card.isAlive = true;
+                    characterScript.card.hp = characterScript.card.stats.maxHp;
 
-                Debug.Log("You rolled a " + reviveDiceRoll + "! You successfully revived!");
+                    Debug.Log("You rolled a " + reviveDiceRoll + "! You successfully revived!");
 
-                currentPhase = TurnPhases.END;
+                    currentPhase = TurnPhases.END;
+                }
+                else
+                {
+                    Debug.Log("You rolled a " + reviveDiceRoll + ". You couldn't revive.");
+
+                    currentPhase = TurnPhases.END;
+                }                
             }
-            else
-            {
-                Debug.Log("You rolled a " + reviveDiceRoll + ". You couldn't revive.");
-
-                currentPhase = TurnPhases.END;
-            }
+           
         }
     }
 
     IEnumerator MovementPhase()
     {
-        if(wasDiceRolled)
+        KillDieIfRolled();
+
+        if (wasDiceRolled)
         {
             RollForMovement();
             wasDiceRolled = false;
@@ -232,385 +263,560 @@ public class GameManager : MonoBehaviour {
         {
             activeBossSprite.SetActive(true);
 
-            switch (currentBattlePhase)
+            if (!battleDieAvailable)
             {
-                case BattlePhases.PLAYERATTACK:
+                canRollDiceInBattle = true;
+                battleDieAvailable = true;
+            }
 
-                    currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + Random.Range(1, 7);
-                    Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
+            if (canRollDiceInBattle)
+            {               
+                Debug.Log("Roll");
+                canRollDice = true;
+                KillDieIfRolled();
+            }
 
-                    if (bossScript.bossCard.nature == FighterCard.Nature.Defender)
-                    {
-                        currentDefense = bossScript.bossCard.stats.defense + Random.Range(1, 7);
-                        Debug.Log(bossScript.bossCard.fighterName + " defends with: " + currentDefense);
+            if (wasDiceRolled || rollingInBattle)
+            {
+                canRollDiceInBattle = false;
 
-                        if (currentDefense < currentAttack)
+                switch (currentBattlePhase)
+                {
+                    case BattlePhases.PLAYERATTACK:                        
+                      
+                        if (!enemyIsDefendingOrEvading)
                         {
-                            bossScript.bossCard.GetDamaged(currentAttack - currentDefense);
+                            if (!rollingInBattle)
+                            {
+                                currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll;
+                                Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);                                
+                                wasDiceRolled = false;
+                            }
+
+                            rollingInBattle = true;
+                            canRollDiceInBattle = true;
+
+                            Debug.Log("Roll for monster defense/evade");
+                        }                        
+
+                        if (wasDiceRolled)
+                        {
+                            canRollDiceInBattle = false;
+                            enemyIsDefendingOrEvading = true;
+
+                            if (bossScript.bossCard.nature == FighterCard.Nature.Defender)
+                            {
+                                currentDefense = bossScript.bossCard.stats.defense + diceRoll;
+                                Debug.Log(bossScript.bossCard.fighterName + " defends with: " + currentDefense);
+
+                                if (currentDefense < currentAttack)
+                                {
+                                    bossScript.bossCard.GetDamaged(currentAttack - currentDefense);
+                                }
+
+                                else
+                                {
+                                    bossScript.bossCard.GetDamaged(1);
+                                }
+                            }
+                            if (bossScript.bossCard.nature == FighterCard.Nature.Evader)
+                            {
+                                currentEvasion = bossScript.bossCard.stats.evasion + diceRoll;
+                                Debug.Log(bossScript.bossCard.fighterName + " evades with: " + currentEvasion);
+
+                                if (currentAttack >= currentEvasion)
+                                {
+                                    bossScript.bossCard.GetDamaged(currentAttack);
+                                }
+                            }
+
+                            Debug.Log(bossScript.bossCard.fighterName + " is left with " + bossScript.bossCard.hp + " HPs");
+
+                            ResetBattleCounters();
+                            wasDiceRolled = false;
+
+                            if (bossScript.bossCard.isAlive)
+                            {
+                                currentBattlePhase = BattlePhases.OPPONENTATTACK;
+                            }
+                            else if (!bossScript.bossCard.isAlive)
+                            {
+                                currentBattlePhase = BattlePhases.ENDOFBATTLE;
+                            }
+                                                        
+                        }                  
+                                              
+                        break;
+
+                    case BattlePhases.OPPONENTATTACK:
+                                                
+                        canRollDiceInBattle = true;                        
+
+                        if (wasDiceRolled)
+                        {
+                            canRollDiceInBattle = false;
+
+                            currentAttack = bossScript.bossCard.stats.attack + diceRoll;
+                            Debug.Log(bossScript.bossCard.fighterName + " attacks with " + currentAttack);
+
+                            wasDiceRolled = false;
+                            currentBattlePhase = BattlePhases.WAITFORTARGET2;
+                        }                        
+
+                        break;
+
+                    case BattlePhases.WAITFORTARGET2:                                                                       
+
+                        if (isDefending || isEvading)
+                        {
+                            canRollDiceInBattle = true;
+
+                            if (wasDiceRolled)
+                            {
+                                if (isDefending)
+                                {
+                                    currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense + diceRoll;
+                                    Debug.Log(characterScript.card.fighterName + " defends with: " + currentDefense);
+
+                                    if (currentDefense < currentAttack)
+                                    {
+                                        characterScript.card.GetDamaged(currentAttack - currentDefense);
+                                    }
+                                    else
+                                    {
+                                        characterScript.card.GetDamaged(1);
+                                    }
+                                }
+
+                                if (isEvading)
+                                {
+                                    currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion + diceRoll;
+                                    Debug.Log(characterScript.card.fighterName + " evades with: " + currentEvasion);
+
+                                    if (currentAttack >= currentEvasion)
+                                    {
+                                        characterScript.card.GetDamaged(currentAttack);
+                                    }
+                                }
+
+                                Debug.Log(characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
+
+                                ResetBattleCounters();
+
+                                currentBattlePhase = BattlePhases.ENDOFBATTLE;
+                            }                         
+                                                        
                         }
 
                         else
                         {
-                            bossScript.bossCard.GetDamaged(1);
+                            yield return null;
                         }
-                    }
-                    if (bossScript.bossCard.nature == FighterCard.Nature.Evader)
-                    {
-                        currentEvasion = bossScript.bossCard.stats.evasion + Random.Range(1, 7);
-                        Debug.Log(bossScript.bossCard.fighterName + " evades with: " + currentEvasion);
+                        break;
 
-                        if (currentAttack >= currentEvasion)
-                        {
-                            bossScript.bossCard.GetDamaged(currentAttack);
-                        }
-                    }
-
-
-                    Debug.Log(bossScript.bossCard.fighterName + " is left with " + bossScript.bossCard.hp + " HPs");
-
-                    ResetBattleCounters();
-
-                    if (bossScript.bossCard.isAlive)
-                    {
-                        currentBattlePhase = BattlePhases.OPPONENTATTACK;
-                    }
-                    else if (!bossScript.bossCard.isAlive)
-                    {
-                        currentBattlePhase = BattlePhases.ENDOFBATTLE;
-                    }
-
-                    break;
-
-                case BattlePhases.OPPONENTATTACK:
-
-                    currentAttack = bossScript.bossCard.stats.attack + Random.Range(1, 7);
-                    Debug.Log(bossScript.bossCard.fighterName + " attacks with " + currentAttack);
-
-                    currentBattlePhase = BattlePhases.WAITFORTARGET2;
-
-                    break;
-
-                case BattlePhases.WAITFORTARGET2:
-
-                    if (isDefending || isEvading)
-                    {
-                        if (isDefending)
-                        {
-                            currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense + Random.Range(1, 7);
-                            Debug.Log(characterScript.card.fighterName + " defends with: " + currentDefense);
-
-                            if (currentDefense < currentAttack)
-                            {
-                                characterScript.card.GetDamaged(currentAttack - currentDefense);
-                            }
-                            else
-                            {
-                                characterScript.card.GetDamaged(1);
-                            }
-                        }
-
-                        if (isEvading)
-                        {
-                            currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion + Random.Range(1, 7);
-                            Debug.Log(characterScript.card.fighterName + " evades with: " + currentEvasion);
-
-                            if (currentAttack >= currentEvasion)
-                            {
-                                characterScript.card.GetDamaged(currentAttack);
-                            }
-                        }
-
-                        Debug.Log(characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
+                    case BattlePhases.ENDOFBATTLE:
 
                         ResetBattleCounters();
 
-                        currentBattlePhase = BattlePhases.ENDOFBATTLE;
-                    }
+                        characterScript.card.ResetBuffs();
+                        opponentScript.card.ResetBuffs();
 
-                    else
-                    {
-                        yield return null;
-                    }
-                    break;
+                        DefendButton.gameObject.SetActive(false);
+                        EvadeButton.gameObject.SetActive(false);
+                        activeBossSprite.SetActive(false);
 
-                case BattlePhases.ENDOFBATTLE:
+                        canRollDiceInBattle = false;
+                        rollingInBattle = false;
+                        battleDieAvailable = false;
+                        enemyIsDefendingOrEvading = false;
 
-                    ResetBattleCounters();
+                        currentBattlePhase = BattlePhases.PLAYERATTACK;
 
-                    characterScript.card.ResetBuffs();
-                    opponentScript.card.ResetBuffs();                    
-
-                    DefendButton.gameObject.SetActive(false);
-                    EvadeButton.gameObject.SetActive(false);
-                    activeBossSprite.SetActive(false);
-
-                    currentBattlePhase = BattlePhases.PLAYERATTACK;
-
-                    currentPhase = TurnPhases.END;
-                    break;
+                        currentPhase = TurnPhases.END;
+                        break;
+                }
             }
+            
         }
-
         if (characterScript.currentPanel.name.Contains("Monster") && !mustFightOpponent)
         {
             activeMonsterSprite.SetActive(true);
 
-            switch (currentBattlePhase)
+            if (!battleDieAvailable)
             {
-                case BattlePhases.PLAYERATTACK:
+                canRollDiceInBattle = true;
+                battleDieAvailable = true;
+            }
 
-                    currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + Random.Range(1, 7);
-                    Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
+            if (canRollDiceInBattle)
+            {
+                Debug.Log("Roll");
+                canRollDice = true;
+                KillDieIfRolled();
+            }
 
-                    if (monsterScript.monsterCard.nature == FighterCard.Nature.Defender)
-                    {
-                        currentDefense = monsterScript.monsterCard.stats.defense + Random.Range(1, 7);
-                        Debug.Log(monsterScript.monsterCard.fighterName + " defends with: " + currentDefense);
+            if (wasDiceRolled || rollingInBattle)
+            {
+                canRollDiceInBattle = false;
 
-                        if (currentDefense < currentAttack)
+                switch (currentBattlePhase)
+                {
+                    case BattlePhases.PLAYERATTACK:
+
+                        if (!enemyIsDefendingOrEvading)
                         {
-                            monsterScript.monsterCard.GetDamaged(currentAttack - currentDefense);
+                            if (!rollingInBattle)
+                            {
+                                currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll;
+                                Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
+                                wasDiceRolled = false;
+                            }
+
+                            rollingInBattle = true;
+                            canRollDiceInBattle = true;
+
+                            Debug.Log("Roll for monster defense/evade");
+                        }
+
+                        if (wasDiceRolled)
+                        {
+                            canRollDiceInBattle = false;
+                            enemyIsDefendingOrEvading = true;
+
+                            if (monsterScript.monsterCard.nature == FighterCard.Nature.Defender)
+                            {
+                                currentDefense = monsterScript.monsterCard.stats.defense + diceRoll;
+                                Debug.Log(monsterScript.monsterCard.fighterName + " defends with: " + currentDefense);
+
+                                if (currentDefense < currentAttack)
+                                {
+                                    monsterScript.monsterCard.GetDamaged(currentAttack - currentDefense);
+                                }
+
+                                else
+                                {
+                                    monsterScript.monsterCard.GetDamaged(1);
+                                }
+                            }
+                            if (monsterScript.monsterCard.nature == FighterCard.Nature.Evader)
+                            {
+                                currentEvasion = monsterScript.monsterCard.stats.evasion + diceRoll;
+                                Debug.Log(monsterScript.monsterCard.fighterName + " evades with: " + currentEvasion);
+
+                                if (currentAttack >= currentEvasion)
+                                {
+                                    monsterScript.monsterCard.GetDamaged(currentAttack);
+                                }
+                            }
+
+                            Debug.Log(monsterScript.monsterCard.fighterName + " is left with " + monsterScript.monsterCard.hp + " HPs");
+
+                            ResetBattleCounters();
+                            wasDiceRolled = false;
+
+                            if (monsterScript.monsterCard.isAlive)
+                            {
+                                currentBattlePhase = BattlePhases.OPPONENTATTACK;
+                            }
+                            else if (!monsterScript.monsterCard.isAlive)
+                            {
+                                currentBattlePhase = BattlePhases.ENDOFBATTLE;
+                            }
+
+                        }
+
+                        break;
+
+                    case BattlePhases.OPPONENTATTACK:
+
+                        canRollDiceInBattle = true;
+
+                        if (wasDiceRolled)
+                        {
+                            canRollDiceInBattle = false;
+
+                            currentAttack = monsterScript.monsterCard.stats.attack + diceRoll;
+                            Debug.Log(monsterScript.monsterCard.fighterName + " attacks with " + currentAttack);
+
+                            wasDiceRolled = false;
+                            currentBattlePhase = BattlePhases.WAITFORTARGET2;
+                        }
+
+                        break;
+
+                    case BattlePhases.WAITFORTARGET2:
+
+                        if (isDefending || isEvading)
+                        {
+                            canRollDiceInBattle = true;
+
+                            if (wasDiceRolled)
+                            {
+                                if (isDefending)
+                                {
+                                    currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense + diceRoll;
+                                    Debug.Log(characterScript.card.fighterName + " defends with: " + currentDefense);
+
+                                    if (currentDefense < currentAttack)
+                                    {
+                                        characterScript.card.GetDamaged(currentAttack - currentDefense);
+                                    }
+                                    else
+                                    {
+                                        characterScript.card.GetDamaged(1);
+                                    }
+                                }
+
+                                if (isEvading)
+                                {
+                                    currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion + diceRoll;
+                                    Debug.Log(characterScript.card.fighterName + " evades with: " + currentEvasion);
+
+                                    if (currentAttack >= currentEvasion)
+                                    {
+                                        characterScript.card.GetDamaged(currentAttack);
+                                    }
+                                }
+
+                                Debug.Log(characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
+
+                                ResetBattleCounters();
+
+                                currentBattlePhase = BattlePhases.ENDOFBATTLE;
+                            }
+
                         }
 
                         else
                         {
-                            monsterScript.monsterCard.GetDamaged(1);
+                            yield return null;
                         }
-                    }
-                    if (monsterScript.monsterCard.nature == FighterCard.Nature.Evader)
-                    {
-                        currentEvasion = monsterScript.monsterCard.stats.evasion + Random.Range(1, 7);
-                        Debug.Log(monsterScript.monsterCard.fighterName + " evades with: " + currentEvasion);
+                        break;
 
-                        if (currentAttack >= currentEvasion)
-                        {
-                            monsterScript.monsterCard.GetDamaged(currentAttack);
-                        }
-                    }
-
-
-                    Debug.Log(monsterScript.monsterCard.fighterName + " is left with " + monsterScript.monsterCard.hp + " HPs");
-
-                    ResetBattleCounters();
-
-                    if (monsterScript.monsterCard.isAlive)
-                    {
-                        currentBattlePhase = BattlePhases.OPPONENTATTACK;
-                    }
-                    else if (!monsterScript.monsterCard.isAlive)
-                    {
-                        currentBattlePhase = BattlePhases.ENDOFBATTLE;
-                    }
-
-                    break;
-
-                case BattlePhases.OPPONENTATTACK:
-
-                    currentAttack = monsterScript.monsterCard.stats.attack + Random.Range(1, 7);
-                    Debug.Log(monsterScript.monsterCard.fighterName + " attacks with " + currentAttack);
-
-                    currentBattlePhase = BattlePhases.WAITFORTARGET2;
-
-                    break;
-
-                case BattlePhases.WAITFORTARGET2:
-
-                    if (isDefending || isEvading)
-                    {
-                        if (isDefending)
-                        {
-                            currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense + Random.Range(1, 7);
-                            Debug.Log(characterScript.card.fighterName + " defends with: " + currentDefense);
-
-                            if (currentDefense < currentAttack)
-                            {
-                                characterScript.card.GetDamaged(currentAttack - currentDefense);
-                            }
-                            else
-                            {
-                                characterScript.card.GetDamaged(1);
-                            }
-                        }
-
-                        if (isEvading)
-                        {
-                            currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion + Random.Range(1, 7);
-                            Debug.Log(characterScript.card.fighterName + " evades with: " + currentEvasion);
-
-                            if (currentAttack >= currentEvasion)
-                            {
-                                characterScript.card.GetDamaged(currentAttack);
-                            }
-                        }
-
-                        Debug.Log(characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
+                    case BattlePhases.ENDOFBATTLE:
 
                         ResetBattleCounters();
 
-                        currentBattlePhase = BattlePhases.ENDOFBATTLE;
-                    }
+                        characterScript.card.ResetBuffs();
+                        opponentScript.card.ResetBuffs();
 
-                    else
-                    {
-                        yield return null;
-                    }
-                    break;
+                        DefendButton.gameObject.SetActive(false);
+                        EvadeButton.gameObject.SetActive(false);
+                        activeMonsterSprite.SetActive(false);
 
-                case BattlePhases.ENDOFBATTLE:
+                        canRollDiceInBattle = false;
+                        rollingInBattle = false;
+                        battleDieAvailable = false;
+                        enemyIsDefendingOrEvading = false;
 
-                    ResetBattleCounters();
+                        currentBattlePhase = BattlePhases.PLAYERATTACK;
 
-                    characterScript.card.ResetBuffs();
-                    opponentScript.card.ResetBuffs();
-
-                    DefendButton.gameObject.SetActive(false);
-                    EvadeButton.gameObject.SetActive(false);
-                    activeMonsterSprite.SetActive(false);
-
-                    currentBattlePhase = BattlePhases.PLAYERATTACK;
-
-                    currentPhase = TurnPhases.END;
-                    break;
+                        currentPhase = TurnPhases.END;
+                        break;
+                }
             }
+
         }
         else if (mustFightOpponent)
         {
-            switch (currentBattlePhase)
+            if (!battleDieAvailable)
             {
-                case BattlePhases.PLAYERATTACK:
-
-                    currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + Random.Range(1, 7);
-                    Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
-
-                    currentBattlePhase = BattlePhases.WAITFORTARGET;
-                    break;
-
-                case BattlePhases.WAITFORTARGET:
-                    if (isDefending || isEvading)
-                    {
-                        if (isDefending)
-                        {
-                            currentDefense = opponentScript.card.stats.defense + opponentScript.card.buffCounters.defense + Random.Range(1, 7);
-                            Debug.Log(opponentScript.card.fighterName + " defends with: " + currentDefense);
-
-                            if (currentDefense < currentAttack)
-                            {
-                                opponentScript.card.GetDamaged(currentAttack - currentDefense);
-                            }
-
-                            else
-                            {
-                                opponentScript.card.GetDamaged(1);
-                            }
-                        }
-                        if (isEvading)
-                        {
-                            currentEvasion = opponentScript.card.stats.evasion + opponentScript.card.buffCounters.evasion + Random.Range(1, 7);
-                            Debug.Log(opponentScript.card.fighterName + " evades with: " + currentEvasion);
-
-                            if (currentAttack >= currentEvasion)
-                            {
-                                opponentScript.card.GetDamaged(currentAttack);
-                            }
-                        }
-
-                        Debug.Log(opponentScript.card.fighterName + " is left with " + opponentScript.card.hp + " HPs");
-
-                        ResetBattleCounters();
-
-                        if (opponentScript.card.isAlive)
-                        {
-                            currentBattlePhase = BattlePhases.OPPONENTATTACK;
-                        }
-                        else if (!opponentScript.card.isAlive)
-                        {
-                            currentBattlePhase = BattlePhases.ENDOFBATTLE;
-                        }
-                    }
-
-                    else
-                    {
-                        yield return null;
-                    }
-                    break;
-
-                case BattlePhases.OPPONENTATTACK:
-
-                    currentAttack = opponentScript.card.stats.attack + opponentScript.card.buffCounters.attack + Random.Range(1, 7);
-                    Debug.Log(opponentScript.card.fighterName + " attacks with " + currentAttack);
-
-                    currentBattlePhase = BattlePhases.WAITFORTARGET2;
-
-                    break;
-
-                case BattlePhases.WAITFORTARGET2:
-
-                    if (isDefending || isEvading)
-                    {
-                        if (isDefending)
-                        {
-                            currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense + Random.Range(1, 7);
-                            Debug.Log(characterScript.card.fighterName + " defends with: " + currentDefense);
-
-                            if (currentDefense < currentAttack)
-                            {
-                                characterScript.card.GetDamaged(currentAttack - currentDefense);
-                            }
-                            else
-                            {
-                                characterScript.card.GetDamaged(1);
-                            }
-                        }
-
-                        if (isEvading)
-                        {
-                            currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion + Random.Range(1, 7);
-                            Debug.Log(characterScript.card.fighterName + " evades with: " + currentEvasion);
-
-                            if (currentAttack >= currentEvasion)
-                            {
-                                characterScript.card.GetDamaged(currentAttack);
-                            }
-                        }
-
-                        Debug.Log(characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
-
-                        ResetBattleCounters();
-
-                        currentBattlePhase = BattlePhases.ENDOFBATTLE;
-                    }
-
-                    else
-                    {
-                        yield return null;
-                    }
-                    break;
-
-                case BattlePhases.ENDOFBATTLE:
-
-                    ResetBattleCounters();
-
-                    characterScript.card.ResetBuffs();
-                    opponentScript.card.ResetBuffs();
-
-                    mustFightOpponent = false;
-
-                    DefendButton.gameObject.SetActive(false);
-                    EvadeButton.gameObject.SetActive(false);
-
-                    currentBattlePhase = BattlePhases.PLAYERATTACK;
-
-                    if (characterScript.card.isAlive)
-                    {
-                        currentPhase = TurnPhases.PANEL;
-                    }
-                    else
-                    {
-                        currentPhase = TurnPhases.END;
-                    }
-
-                    break;
+                canRollDiceInBattle = true;
+                battleDieAvailable = true;
             }
+
+            if (canRollDiceInBattle)
+            {
+                Debug.Log("Roll");
+                canRollDice = true;
+                KillDieIfRolled();
+            }
+
+            if (wasDiceRolled || rollingInBattle)
+            {
+                canRollDiceInBattle = false;
+
+                switch (currentBattlePhase)
+                {
+                    case BattlePhases.PLAYERATTACK:
+
+                        if (!enemyIsDefendingOrEvading)
+                        {
+                            if (!rollingInBattle)
+                            {
+                                currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll;
+                                Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
+                                wasDiceRolled = false;
+                            }
+
+                            rollingInBattle = true;
+                            canRollDiceInBattle = true;
+
+                            Debug.Log("Roll for enemy defense/evade");
+                        }
+
+                        canRollDiceInBattle = false;
+                        currentBattlePhase = BattlePhases.WAITFORTARGET;
+                        break;
+
+                    case BattlePhases.WAITFORTARGET:
+
+                        if (isDefending || isEvading)
+                        {
+                            canRollDiceInBattle = true;
+                            enemyIsDefendingOrEvading = true;
+
+                            if (wasDiceRolled)
+                            {
+                                if (isDefending)
+                                {
+                                    currentDefense = opponentScript.card.stats.defense + opponentScript.card.buffCounters.defense + diceRoll;
+                                    Debug.Log(opponentScript.card.fighterName + " defends with: " + currentDefense);
+
+                                    if (currentDefense < currentAttack)
+                                    {
+                                        opponentScript.card.GetDamaged(currentAttack - currentDefense);
+                                    }
+
+                                    else
+                                    {
+                                        opponentScript.card.GetDamaged(1);
+                                    }
+                                }
+                                if (isEvading)
+                                {
+                                    currentEvasion = opponentScript.card.stats.evasion + opponentScript.card.buffCounters.evasion + diceRoll;
+                                    Debug.Log(opponentScript.card.fighterName + " evades with: " + currentEvasion);
+
+                                    if (currentAttack >= currentEvasion)
+                                    {
+                                        opponentScript.card.GetDamaged(currentAttack);
+                                    }
+                                }
+
+                                Debug.Log(opponentScript.card.fighterName + " is left with " + opponentScript.card.hp + " HPs");
+
+                                ResetBattleCounters();
+                                wasDiceRolled = false;
+
+                                if (opponentScript.card.isAlive)
+                                {
+                                    currentBattlePhase = BattlePhases.OPPONENTATTACK;
+                                }
+                                else if (!opponentScript.card.isAlive)
+                                {
+                                    currentBattlePhase = BattlePhases.ENDOFBATTLE;
+                                }
+                            }                            
+                        }
+
+                        else
+                        {
+                            yield return null;
+                        }
+                        break;
+
+                    case BattlePhases.OPPONENTATTACK:
+
+                        canRollDiceInBattle = true;
+
+                        if(wasDiceRolled)
+                        {
+                            currentAttack = opponentScript.card.stats.attack + opponentScript.card.buffCounters.attack + diceRoll;
+                            Debug.Log(opponentScript.card.fighterName + " attacks with " + currentAttack);
+                                                        
+                            canRollDiceInBattle = false;
+                            isDefending = false;
+                            isEvading = false;
+                            wasDiceRolled = false;
+
+                            currentBattlePhase = BattlePhases.WAITFORTARGET2;
+                        }                        
+
+                        break;
+
+                    case BattlePhases.WAITFORTARGET2:                                               
+                        
+                        if (isDefending || isEvading)
+                        {
+                            canRollDiceInBattle = true;
+
+                            if (wasDiceRolled)
+                            {
+                                if (isDefending)
+                                {
+                                    currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense + diceRoll;
+                                    Debug.Log(characterScript.card.fighterName + " defends with: " + currentDefense);
+
+                                    if (currentDefense < currentAttack)
+                                    {
+                                        characterScript.card.GetDamaged(currentAttack - currentDefense);
+                                    }
+                                    else
+                                    {
+                                        characterScript.card.GetDamaged(1);
+                                    }
+                                }
+
+                                if (isEvading)
+                                {
+                                    currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion + diceRoll;
+                                    Debug.Log(characterScript.card.fighterName + " evades with: " + currentEvasion);
+
+                                    if (currentAttack >= currentEvasion)
+                                    {
+                                        characterScript.card.GetDamaged(currentAttack);
+                                    }
+                                }
+
+                                Debug.Log(characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
+
+                                ResetBattleCounters();
+                                wasDiceRolled = false;
+
+                                currentBattlePhase = BattlePhases.ENDOFBATTLE;
+                            }
+                        }                            
+
+                        else
+                        {
+                            yield return null;
+                        }
+                        break;
+
+                    case BattlePhases.ENDOFBATTLE:
+
+                        ResetBattleCounters();
+
+                        characterScript.card.ResetBuffs();
+                        opponentScript.card.ResetBuffs();
+
+                        mustFightOpponent = false;
+
+                        DefendButton.gameObject.SetActive(false);
+                        EvadeButton.gameObject.SetActive(false);
+
+                        canRollDiceInBattle = false;
+                        rollingInBattle = false;
+                        battleDieAvailable = false;
+                        enemyIsDefendingOrEvading = false;
+
+                        currentBattlePhase = BattlePhases.PLAYERATTACK;
+
+                        if (characterScript.card.isAlive)
+                        {
+                            currentPhase = TurnPhases.PANEL;
+                        }
+                        else
+                        {
+                            currentPhase = TurnPhases.END;
+                        }
+
+                        break;
+                }
+            }
+
+            
         }
         yield return null;
     }
@@ -629,18 +835,7 @@ public class GameManager : MonoBehaviour {
 
         Debug.Log("Moving on to the Initial Phase");
         yield return null;
-    }
-
-    private void OnGUI()
-    {
-        if(GUILayout.Button("Roll") && canRollDice && currentPhase == TurnPhases.MOVEMENT)
-        {
-            canRollDice = false;
-            wasDiceRolled = true;
-            diceRoll = Random.Range(1, 7);
-            Debug.Log(diceRoll);
-        }
-    }
+    }    
 
     void ResetBattleCounters()
     {
@@ -798,8 +993,21 @@ public class GameManager : MonoBehaviour {
                     isChoosingToFightOpponent = true;
                 }
             }
-        }       
-        
+        }
+
+        if (characterScript.currentPanel.name.Contains("Boss"))
+        {
+            if (diceRoll >= 2)
+            {
+                Debug.Log("Press Mouse Wheel to fight a boss monster, Right click to ignore");
+                isChoosingToFightBoss = true;
+            }
+            else if (diceRoll == 0)
+            {
+                currentPhase = TurnPhases.PANEL;
+            }
+        }
+
         if (diceRoll > 1)
         {
             if (!isChoosingToFightOpponent && !isChoosingToFightBoss)
@@ -812,20 +1020,7 @@ public class GameManager : MonoBehaviour {
         {
             currentPhase = TurnPhases.PANEL;
             characterScript.isMoving = false;
-        }
-
-        if (characterScript.currentPanel.name.Contains("Boss"))
-        {
-            if (diceRoll >= 1)
-            {
-                Debug.Log("Press Mouse Wheel to fight a boss monster, Right click to ignore");
-                isChoosingToFightBoss = true;
-            }
-            else if (diceRoll == 0)
-            {
-                currentPhase = TurnPhases.PANEL;
-            }
-        }
+        }      
     }
 
     IEnumerator FightOpponentChoice()
@@ -941,5 +1136,15 @@ public class GameManager : MonoBehaviour {
     void EvadePicked()
     {
         isEvading = true;
+    }    
+
+    void KillDieIfRolled()
+    {
+        if (dieScript.rollComplete && canRollDice)
+        {
+            canRollDice = false;
+            wasDiceRolled = true;
+            dieScript.rollComplete = false;
+        }
     }
 }
