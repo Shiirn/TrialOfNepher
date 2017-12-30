@@ -305,6 +305,7 @@ public class GameManager : MonoBehaviour {
                                     Debug.Log("Roll for Boss Evasion");
                                 }
                                 DieRollState();
+                                die.GetComponent<ApplyRandomForce>().RollDie();
                             }                             
                         }                        
 
@@ -360,6 +361,7 @@ public class GameManager : MonoBehaviour {
                         {
                             Debug.Log("Roll for monster attack");
                             DieRollState();
+                            die.GetComponent<ApplyRandomForce>().RollDie();
                         }
                         else
                         {                           
@@ -542,6 +544,7 @@ public class GameManager : MonoBehaviour {
                         {
                             Debug.Log("Roll for monster attack");
                             DieRollState();
+                            die.GetComponent<ApplyRandomForce>().RollDie();
                         }
                         else
                         {
