@@ -33,7 +33,7 @@ public class DisplayDieValue : MonoBehaviour {
         if (GetComponent<Rigidbody>().IsSleeping() && !stoppedRolling && diceWasRolled)
         {
             stoppedRolling = true;
-            Debug.Log("Roll complete!");
+            Debug.Log("Roll complete! " + currentValue);
             GetComponent<Rigidbody>().position = origin;
         }
 

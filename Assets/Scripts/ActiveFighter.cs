@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class ActiveFighter : Fighter {
 
@@ -10,15 +11,33 @@ public class ActiveFighter : Fighter {
     public FighterCard monsterCard;
     public FighterCard bossCard;
 
-    public void FlipNewActiveMonster(int _id, string _name, string _type, string _nature, string _description, int attack, int defense, int evasion, int maxHp, string sprite)
+    public void FlipNewActiveMonster(string[] monsterString)
     {
-        monsterCard = new MonsterCard(0, "Hell Hound Pig", "Monster", "Defender", "Among the most famous demonic entities.", -1, 1, 0, 5, "HellHoundPig");
+        monsterCard = new MonsterCard(Convert.ToInt32(monsterString[0]),
+                                        monsterString[1], 
+                                        monsterString[2], 
+                                        monsterString[3], 
+                                        monsterString[4], 
+                                        Convert.ToInt32(monsterString[5]), 
+                                        Convert.ToInt32(monsterString[6]), 
+                                        Convert.ToInt32(monsterString[7]), 
+                                        Convert.ToInt32(monsterString[8]), 
+                                        monsterString[9]);
         isMonsterActive = true;
     }
 
-    public void FlipNewActiveBoss(int _id, string _name, string _type, string _nature, string _description, int attack, int defense, int evasion, int maxHp, string sprite)
+    public void FlipNewActiveBoss(string[] monsterString)
     {
-        bossCard = new MonsterCard(5, "Mummytaur", "MidBoss", "Defender", "blaaaaaaaaaaarhg", 2, 1, 0, 7, "Mummytaur");
+        bossCard = new MonsterCard(Convert.ToInt32(monsterString[0]),
+                                        monsterString[1],
+                                        monsterString[2],
+                                        monsterString[3],
+                                        monsterString[4],
+                                        Convert.ToInt32(monsterString[5]),
+                                        Convert.ToInt32(monsterString[6]),
+                                        Convert.ToInt32(monsterString[7]),
+                                        Convert.ToInt32(monsterString[8]),
+                                        monsterString[9]);
         isBossActive = true;
     }
 

@@ -159,17 +159,17 @@ MonoBehaviour:
   turn: 0
   activePlayer: 0
   waitingForMovement: 0
-  diceRoll: 0
-  wasDiceRolled: 0
+  hasMovementStarted: 0
+  reviving: 0
+  enemyIsDefendingOrEvading: 0
   isChoosingToFightOpponent: 0
   isChoosingToFightBoss: 0
-  hasMovementStarted: 0
+  diceRoll: 0
   canRollDice: 0
-  canRollDiceInBattle: 1
   rollingInBattle: 0
-  enemyIsDefendingOrEvading: 0
-  battleDieAvailable: 0
+  wasDiceRolled: 0
   currentPhase: 0
+  previousPhase: 0
   currentBattlePhase: 0
   characterPrefabs:
   - {fileID: 1780075081872368, guid: 815a63b8487847f408f01f1f4893bd63, type: 2}
@@ -1277,9 +1277,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buttonName: Jump
-  forceAmount: 50
+  forceAmount: 4000
   forceMode: 0
-  torque: 10
+  torque: 6000
   manager: {fileID: 235550752}
 --- !u!1001 &1430563871
 Prefab:
@@ -1294,7 +1294,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4890771955397022, guid: 04d22919619a5af4197c67190aca0bf5, type: 2}
       propertyPath: m_LocalPosition.y
-      value: -7.5
+      value: -9.9176
       objectReference: {fileID: 0}
     - target: {fileID: 4890771955397022, guid: 04d22919619a5af4197c67190aca0bf5, type: 2}
       propertyPath: m_LocalPosition.z
@@ -1319,6 +1319,10 @@ Prefab:
     - target: {fileID: 4890771955397022, guid: 04d22919619a5af4197c67190aca0bf5, type: 2}
       propertyPath: m_RootOrder
       value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 4890771955397022, guid: 04d22919619a5af4197c67190aca0bf5, type: 2}
+      propertyPath: m_LocalScale.y
+      value: 2.6658995
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 04d22919619a5af4197c67190aca0bf5, type: 2}
@@ -1472,7 +1476,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4094468873281502, guid: 0ce8297820baa3240b3ce326fd073e4d, type: 2}
       propertyPath: m_LocalPosition.y
-      value: -6.306436
+      value: -8.91
       objectReference: {fileID: 0}
     - target: {fileID: 4094468873281502, guid: 0ce8297820baa3240b3ce326fd073e4d, type: 2}
       propertyPath: m_LocalPosition.z
@@ -1530,6 +1534,11 @@ Prefab:
         type: 2}
       propertyPath: rollComplete
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 54460369100687366, guid: 0ce8297820baa3240b3ce326fd073e4d,
+        type: 2}
+      propertyPath: m_Mass
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 114257806963000764, guid: 0ce8297820baa3240b3ce326fd073e4d, type: 2}

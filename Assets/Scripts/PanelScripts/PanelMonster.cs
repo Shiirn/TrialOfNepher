@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class PanelMonster : Panel {
 
+    public TextAsset monsterCsv;
+
     public override void PanelEffect()
     {
         GameObject manager = GameObject.Find("Manager");
@@ -17,7 +19,8 @@ public class PanelMonster : Panel {
 
         if (!activeMonsterScript.isMonsterActive)
         {
-            activeMonsterScript.FlipNewActiveMonster(0, "Hell Hound Pig", "Monster", "Defender", "Among the most famous demonic entities.", -1, 1, 0, 5, "HellHoundPig");            
+            activeMonsterScript.FlipNewActiveMonster(FighterCardParser.ParseMonsterCard(monsterCsv, Random.Range(0, 5)));
+
             foreach (GameObject prefab in managerScript.MonsterSprites)
             {                
                 if (prefab.name == activeMonsterScript.monsterCard.spriteName)

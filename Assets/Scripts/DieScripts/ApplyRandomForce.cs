@@ -33,8 +33,13 @@ public class ApplyRandomForce : MonoBehaviour
     {
         GetComponent<DisplayDieValue>().diceWasRolled = true;
 
-        GetComponent<Rigidbody>().AddForce((Random.onUnitSphere * forceAmount) * 300);
-        GetComponent<Rigidbody>().AddTorque((Random.onUnitSphere * torque) * 300);
+        GetComponent<Rigidbody>().AddForce((Vector3.up * Random.Range(forceAmount*0.8f, forceAmount)));
+
+        Vector3 funnyAttempt = Random.onUnitSphere;
+        funnyAttempt.y = 0;
+
+        GetComponent<Rigidbody>().AddForce((funnyAttempt * forceAmount) * 0.4f);
+        GetComponent<Rigidbody>().AddTorque((Random.onUnitSphere * torque));
     }
 }
 

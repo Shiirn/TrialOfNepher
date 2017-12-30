@@ -441,7 +441,7 @@ public class GameManager : MonoBehaviour {
             }
             
         }
-        if (characterScript.currentPanel.name.Contains("Monster") && !mustFightOpponent)
+        else if (characterScript.currentPanel.name.Contains("Monster") && !mustFightOpponent)
         {
             activeMonsterSprite.SetActive(true);
 
@@ -1134,11 +1134,13 @@ public class GameManager : MonoBehaviour {
     void DefendPicked()
     {
         isDefending = true;
+        isEvading = false;
     }
     
     void EvadePicked()
     {
         isEvading = true;
+        isDefending = false;
     }    
     
     void DieRollState()

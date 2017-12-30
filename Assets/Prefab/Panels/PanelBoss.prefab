@@ -223,3 +223,4 @@ MonoBehaviour:
   boardX: 0
   boardY: 0
   direction: 
+  monsterCsv: {fileID: 4900000, guid: 663df88bcc6a8f048a901e73e4fbcb40, type: 3}
