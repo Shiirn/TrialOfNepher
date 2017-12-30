@@ -11,12 +11,10 @@ public class ApplyRandomForce : MonoBehaviour
         
     public GameObject manager;
     GameManager managerScript;
-    DisplayDieValue dieScript;
 
     private void Start()
     {
         managerScript = manager.GetComponent<GameManager>();
-        dieScript = this.GetComponent<DisplayDieValue>();
     }
 
     // Update is called once per frame

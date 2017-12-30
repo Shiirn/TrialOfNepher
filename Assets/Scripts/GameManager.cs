@@ -7,23 +7,20 @@ public class GameManager : MonoBehaviour {
 
     //Manager Variables
     public int turn;
+    //Player    
     public int activePlayer = 0;
     public bool waitingForMovement = false;
-    public bool reviving = false;
-    public int diceRoll;
-    public bool wasDiceRolled = false;
-    public bool isChoosingToFightOpponent = false;
-    public bool isChoosingToFightBoss = false;
     public bool hasMovementStarted = false;
-    
-    //Die bools
-    public bool canRollDice = true;
-    public bool canRollDiceInBattle = true;
-    public bool rollingInBattle = false;
+    public bool reviving = false;   
+    //Battle
     public bool enemyIsDefendingOrEvading = false;
-    public bool battleDieAvailable = false;
-
-    
+    public bool isChoosingToFightOpponent = false;
+    public bool isChoosingToFightBoss = false;    
+    //Die
+    public int diceRoll;
+    public bool canRollDice = true;    
+    public bool rollingInBattle = false;
+    public bool wasDiceRolled = false;
 
     public TurnPhases currentPhase;
     public TurnPhases previousPhase;
@@ -87,7 +84,6 @@ public class GameManager : MonoBehaviour {
 
     //Die Scripts
     DisplayDieValue dieScript;
-    ApplyRandomForce dieInputScript;
 
     //Raycast Scripts
     RaycastFromCamera raycastScript;
@@ -104,7 +100,6 @@ public class GameManager : MonoBehaviour {
     void Start()
     {
         dieScript = die.GetComponent<DisplayDieValue>();
-        dieInputScript = die.GetComponent<ApplyRandomForce>();
 
         boardMap = board.GetComponent<BoardMap>();
         raycastScript = raycaster.GetComponent<RaycastFromCamera>();
