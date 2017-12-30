@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour {
     public TurnPhases currentPhase;
     public TurnPhases previousPhase;
     public BattlePhases currentBattlePhase;    
+
     public enum TurnPhases
     {
         INITIAL,
@@ -472,28 +473,24 @@ public class GameManager : MonoBehaviour {
                 {
                     case BattlePhases.PLAYERATTACK:
 
-                        if (!enemyIsDefendingOrEvading)
+                        if (!wasDiceRolled)
                         {
                             currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll;
                             Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
-
-                            if (wasDiceRolled)
-                                enemyIsDefendingOrEvading = true;
-                            else
+                            
+                            if (monsterScript.monsterCard.nature == FighterCard.Nature.Defender)
                             {
-                                if (monsterScript.monsterCard.nature == FighterCard.Nature.Defender)
-                                {
-                                    Debug.Log("Roll for Monster Defense");
-                                }
-                                else
-                                {
-                                    Debug.Log("Roll for Monster Evasion");
-                                }
-                                DieRollState();
+                                Debug.Log("Monster is rolling for Defense");
                             }
+                            else if (monsterScript.monsterCard.nature == FighterCard.Nature.Evader)
+                            {
+                                Debug.Log("Roll for Monster Evasion");
+                            }
+                            DieRollState();
+                            die.GetComponent<ApplyRandomForce>().RollDie();
                         }
 
-                        if (wasDiceRolled)
+                        else
                         {
                             if (monsterScript.monsterCard.nature == FighterCard.Nature.Defender)
                             {
@@ -570,6 +567,7 @@ public class GameManager : MonoBehaviour {
                                     Debug.Log("Roll for Defense");
                                 else
                                     Debug.Log("Roll for Evasion");
+
                                 DieRollState();
                             }
                             else
@@ -856,7 +854,7 @@ public class GameManager : MonoBehaviour {
         yield return null;
     }    
 
-    IEnumerator RollingDie(TurnPhases _previousPhase)
+    IEnumerator RollingDie(TurnPhases previousPhase)
     {        
         if (!wasDiceRolled)
         {
@@ -866,7 +864,7 @@ public class GameManager : MonoBehaviour {
         }
         else
         {            
-            currentPhase = _previousPhase;
+            currentPhase = previousPhase;
         }           
     }
 
