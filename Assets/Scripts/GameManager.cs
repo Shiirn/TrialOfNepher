@@ -295,7 +295,14 @@ public class GameManager : MonoBehaviour {
                                 enemyIsDefendingOrEvading = true;
                             else
                             {
-                                Debug.Log("Roll for monster defend/evade");
+                               if (bossScript.bossCard.nature == FighterCard.Nature.Defender)
+                                {
+                                    Debug.Log("Roll for Boss Defense");
+                                }
+                                else
+                                {
+                                    Debug.Log("Roll for Boss Evasion");
+                                }
                                 DieRollState();
                             }                             
                         }                        
@@ -372,7 +379,11 @@ public class GameManager : MonoBehaviour {
                         {
                             if (!wasDiceRolled)
                             {
-                                Debug.Log("Roll for defend/evade");
+                                Debug.Log("Pick Defend or Evade");
+                                if (isDefending)
+                                    Debug.Log("Roll for Defense");
+                                else
+                                    Debug.Log("Roll for Evasion");
                                 DieRollState();
                             }
                             else
@@ -470,7 +481,14 @@ public class GameManager : MonoBehaviour {
                                 enemyIsDefendingOrEvading = true;
                             else
                             {
-                                Debug.Log("Roll for monster defend/evade");
+                                if (monsterScript.monsterCard.nature == FighterCard.Nature.Defender)
+                                {
+                                    Debug.Log("Roll for Monster Defense");
+                                }
+                                else
+                                {
+                                    Debug.Log("Roll for Monster Evasion");
+                                }
                                 DieRollState();
                             }
                         }
@@ -547,7 +565,11 @@ public class GameManager : MonoBehaviour {
                         {
                             if (!wasDiceRolled)
                             {
-                                Debug.Log("Roll for defend/evade");
+                                Debug.Log("Pick Defend or Evade");
+                                if (isDefending)
+                                    Debug.Log("Roll for Defense");
+                                else
+                                    Debug.Log("Roll for Evasion");
                                 DieRollState();
                             }
                             else
@@ -649,7 +671,11 @@ public class GameManager : MonoBehaviour {
                         {
                             if (!wasDiceRolled)
                             {
-                                Debug.Log("Roll for enemy defense/evade");
+                                Debug.Log("Pick Defend or Evade");
+                                if (isDefending)
+                                    Debug.Log("Roll for Defense");
+                                else
+                                    Debug.Log("Roll for Evasion");
                                 DieRollState();
                             }
                             else
@@ -730,7 +756,11 @@ public class GameManager : MonoBehaviour {
                         {
                             if (!wasDiceRolled)
                             {
-                                Debug.Log("Roll for enemy defense/evade");
+                                Debug.Log("Pick Defend or Evade");
+                                if (isDefending)
+                                    Debug.Log("Roll for Defense");
+                                else
+                                    Debug.Log("Roll for Evasion");
                                 DieRollState();
                             }
                             else
