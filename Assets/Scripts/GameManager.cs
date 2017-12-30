@@ -735,8 +735,7 @@ public class GameManager : MonoBehaviour {
                                 }
                                 else if (!opponentScript.card.isAlive)
                                 {
-                                    if(characterScript.card.level < 3)
-                                        characterScript.card.LevelUp(1);
+                                    characterScript.card.LevelUp(1);
                                     Debug.Log("Your current level is " + characterScript.card.level);
                                     Debug.Log("Your current stats are " + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
                                         + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
