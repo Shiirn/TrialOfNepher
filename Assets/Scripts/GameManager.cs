@@ -156,7 +156,11 @@ public class GameManager : MonoBehaviour {
             case TurnPhases.ROLLINGDIE:
                 StartCoroutine(RollingDie(previousPhase));
                 break;
-        }        
+        }
+        /*if (Input.GetKeyDown("j"))
+        {
+            bossScript.bossCard.hp--;
+        }*/
     }
 
     void GetHomePanels()
@@ -289,7 +293,8 @@ public class GameManager : MonoBehaviour {
                       
                         if (!enemyIsDefendingOrEvading)
                         {
-                            currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll;
+                            currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack
+                                + diceRoll + characterScript.card.levelCounters.attack;
                             Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
 
                             if(wasDiceRolled)
@@ -348,6 +353,14 @@ public class GameManager : MonoBehaviour {
                             }
                             else if (!bossScript.bossCard.isAlive)
                             {
+                                if(characterScript.card.level<2)
+                                    characterScript.card.LevelUp(2);
+                                if(characterScript.card.level == 2)
+                                    characterScript.card.LevelUp(1);
+                                Debug.Log("Your current level is " + characterScript.card.level);
+                                Debug.Log("Your current stats are " + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
+                                    + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
+                                     + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
                                 currentBattlePhase = BattlePhases.ENDOFBATTLE;
                             }
                                                         
@@ -376,13 +389,12 @@ public class GameManager : MonoBehaviour {
 
                     case BattlePhases.WAITFORTARGET2:
 
-                        Debug.Log("Pick Defend or Evade");
+                        //Debug.Log("Pick Defend or Evade");
 
                         if (isDefending || isEvading)
                         {
                             if (!wasDiceRolled)
                             {
-                                Debug.Log("Pick Defend or Evade");
                                 if (isDefending)
                                     Debug.Log("Roll for Defense");
                                 else
@@ -393,7 +405,8 @@ public class GameManager : MonoBehaviour {
                             {
                                 if (isDefending)
                                 {
-                                    currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense + diceRoll;
+                                    currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense
+                                        + diceRoll + characterScript.card.levelCounters.defense;
                                     Debug.Log(characterScript.card.fighterName + " defends with: " + currentDefense);
 
                                     if (currentDefense < currentAttack)
@@ -408,7 +421,8 @@ public class GameManager : MonoBehaviour {
 
                                 if (isEvading)
                                 {
-                                    currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion + diceRoll;
+                                    currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion
+                                        + diceRoll + characterScript.card.levelCounters.evasion;
                                     Debug.Log(characterScript.card.fighterName + " evades with: " + currentEvasion);
 
                                     if (currentAttack >= currentEvasion)
@@ -477,7 +491,8 @@ public class GameManager : MonoBehaviour {
 
                         if (!wasDiceRolled)
                         {
-                            currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll;
+                            currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack 
+                                + diceRoll + characterScript.card.levelCounters.attack;
                             Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
                             
                             if (monsterScript.monsterCard.nature == FighterCard.Nature.Defender)
@@ -531,6 +546,13 @@ public class GameManager : MonoBehaviour {
                             }
                             else if (!monsterScript.monsterCard.isAlive)
                             {
+                                if (characterScript.card.level < 3)
+                                    characterScript.card.LevelUp(1);
+                                Debug.Log("Your current level is " + characterScript.card.level);
+                                Debug.Log("Your current stats are " + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
+                                    + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
+                                     + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
+
                                 currentBattlePhase = BattlePhases.ENDOFBATTLE;
                             }
 
@@ -559,13 +581,12 @@ public class GameManager : MonoBehaviour {
 
                     case BattlePhases.WAITFORTARGET2:
 
-                        Debug.Log("Pick Defend or Evade");
+                        //Debug.Log("Pick Defend or Evade");
 
                         if (isDefending || isEvading)
                         {
                             if (!wasDiceRolled)
                             {
-                                Debug.Log("Pick Defend or Evade");
                                 if (isDefending)
                                     Debug.Log("Roll for Defense");
                                 else
@@ -577,7 +598,8 @@ public class GameManager : MonoBehaviour {
                             {
                                 if (isDefending)
                                 {
-                                    currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense + diceRoll;
+                                    currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense
+                                        + diceRoll + characterScript.card.levelCounters.defense;
                                     Debug.Log(characterScript.card.fighterName + " defends with: " + currentDefense);
 
                                     if (currentDefense < currentAttack)
@@ -592,7 +614,8 @@ public class GameManager : MonoBehaviour {
 
                                 if (isEvading)
                                 {
-                                    currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion + diceRoll;
+                                    currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion 
+                                        + diceRoll + characterScript.card.levelCounters.evasion;
                                     Debug.Log(characterScript.card.fighterName + " evades with: " + currentEvasion);
 
                                     if (currentAttack >= currentEvasion)
@@ -658,15 +681,13 @@ public class GameManager : MonoBehaviour {
                 {
                     case BattlePhases.PLAYERATTACK:
                                                 
-                        currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll;
+                        currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll + characterScript.card.levelCounters.attack;
                         Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
                         currentBattlePhase = BattlePhases.WAITFORTARGET;         
                         
                         break;
 
                     case BattlePhases.WAITFORTARGET:
-
-                        Debug.Log("Pick Defend or Evade");
 
                         if (isDefending || isEvading)
                         {
@@ -683,7 +704,8 @@ public class GameManager : MonoBehaviour {
                             {
                                 if (isDefending)
                                 {
-                                    currentDefense = opponentScript.card.stats.defense + opponentScript.card.buffCounters.defense + diceRoll;
+                                    currentDefense = opponentScript.card.stats.defense + opponentScript.card.buffCounters.defense
+                                        + diceRoll + opponentScript.card.levelCounters.defense;
                                     Debug.Log(opponentScript.card.fighterName + " defends with: " + currentDefense);
 
                                     if (currentDefense < currentAttack)
@@ -698,7 +720,8 @@ public class GameManager : MonoBehaviour {
                                 }
                                 if (isEvading)
                                 {
-                                    currentEvasion = opponentScript.card.stats.evasion + opponentScript.card.buffCounters.evasion + diceRoll;
+                                    currentEvasion = opponentScript.card.stats.evasion + opponentScript.card.buffCounters.evasion 
+                                        + diceRoll + opponentScript.card.levelCounters.evasion;
                                     Debug.Log(opponentScript.card.fighterName + " evades with: " + currentEvasion);
 
                                     if (currentAttack >= currentEvasion)
@@ -718,6 +741,12 @@ public class GameManager : MonoBehaviour {
                                 }
                                 else if (!opponentScript.card.isAlive)
                                 {
+                                    if(characterScript.card.level < 3)
+                                        characterScript.card.LevelUp(1);
+                                    Debug.Log("Your current level is " + characterScript.card.level);
+                                    Debug.Log("Your current stats are " + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
+                                        + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
+                                         + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
                                     currentBattlePhase = BattlePhases.ENDOFBATTLE;
                                 }
                             }                            
@@ -738,7 +767,8 @@ public class GameManager : MonoBehaviour {
                         }
                         else
                         {
-                            currentAttack = opponentScript.card.stats.attack + opponentScript.card.buffCounters.attack + diceRoll;
+                            currentAttack = opponentScript.card.stats.attack + opponentScript.card.buffCounters.attack + 
+                                diceRoll + opponentScript.card.levelCounters.attack;
                             Debug.Log(opponentScript.card.fighterName + " attacks with " + currentAttack);
 
                             ResetBattleCounters();
@@ -750,8 +780,6 @@ public class GameManager : MonoBehaviour {
                         break;
 
                     case BattlePhases.WAITFORTARGET2:
-
-                        Debug.Log("Pick Defend or Evade");
 
                         if (isDefending || isEvading)
                         {
@@ -768,7 +796,8 @@ public class GameManager : MonoBehaviour {
                             {
                                 if (isDefending)
                                 {
-                                    currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense + diceRoll;
+                                    currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense
+                                        + diceRoll + characterScript.card.levelCounters.defense;
                                     Debug.Log(characterScript.card.fighterName + " defends with: " + currentDefense);
 
                                     if (currentDefense < currentAttack)
@@ -777,13 +806,15 @@ public class GameManager : MonoBehaviour {
                                     }
                                     else
                                     {
-                                        characterScript.card.GetDamaged(1);
+                                        if (characterScript.card.level < 2)
+                                            characterScript.card.GetDamaged(1);
                                     }
                                 }
 
                                 if (isEvading)
                                 {
-                                    currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion + diceRoll;
+                                    currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion 
+                                        + diceRoll + characterScript.card.levelCounters.evasion;
                                     Debug.Log(characterScript.card.fighterName + " evades with: " + currentEvasion);
 
                                     if (currentAttack >= currentEvasion)
@@ -796,6 +827,14 @@ public class GameManager : MonoBehaviour {
 
                                 ResetBattleCounters();
                                 wasDiceRolled = false;
+                                if (!characterScript.card.isAlive)
+                                {
+                                    opponentScript.card.LevelUp(1);
+                                    Debug.Log("Your opponent level is " + opponentScript.card.level);
+                                    Debug.Log("Your opponent current stats are " + (opponentScript.card.levelCounters.attack + opponentScript.card.buffCounters.attack)
+                                        + (opponentScript.card.levelCounters.defense + opponentScript.card.buffCounters.defense)
+                                         + (opponentScript.card.levelCounters.evasion + opponentScript.card.buffCounters.evasion));
+                                }
 
                                 currentBattlePhase = BattlePhases.ENDOFBATTLE;
                             }

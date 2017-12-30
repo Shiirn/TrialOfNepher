@@ -26,8 +26,9 @@ public class FighterCard
     public string spriteName;
     public Sprite cardImg;
     public bool isAlive;
+    CharacterCard card;
 
-    public void GetDamaged(int damage)
+    public virtual void GetDamaged(int damage)
     {
         hp -= damage;
         if (hp <= 0)
@@ -43,7 +44,7 @@ public class CharacterCard : FighterCard
     public int level;
     public Stats artifactCounters;
     public Stats buffCounters;
-    Stats levelCounters;
+    public Stats levelCounters;
 
     public void LevelUp(int count) //count is how many times you leveled up in a single go
     {
@@ -91,6 +92,18 @@ public class CharacterCard : FighterCard
         }
     }
 
+
+    public override void GetDamaged(int damage)
+    {
+        hp -= damage;
+        if (hp <= 0)
+        {
+            isAlive = false;
+            hp = 0;
+            if(level > 0)
+            LevelDown(1);
+        }
+    }
     void Equip()
     {
 
@@ -123,6 +136,9 @@ public class CharacterCard : FighterCard
         stats.evasion = 0;
         stats.maxHp = 5;
         hp = stats.maxHp;
+        levelCounters.attack = 0;
+        levelCounters.defense = 0;
+        levelCounters.evasion = 0;
     }
 
     new public string ToString()
