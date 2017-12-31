@@ -64,12 +64,20 @@ public class GameManager : MonoBehaviour {
     public Canvas canvas;
     public Button DefendButton;
     public Button EvadeButton;
-    public Text TurnCounter;
-    //Monsters
+    //Cards
     public GameObject[] MonsterSprites;
     public GameObject activeMonsterSprite;
     public GameObject[] BossSprites;
     public GameObject activeBossSprite;
+    public GameObject blackHoodSprite;
+    public GameObject whiteHoodSprite;
+    public GameObject activeCharSprite;
+    public GameObject enemyCharSprite;
+    //Text
+    public GameObject playerTurn;
+    public GameObject system;
+    public GameObject attackerStats;
+    public GameObject enemyStats;
 
     //Character Scripts
     Character characterScript;
@@ -113,12 +121,12 @@ public class GameManager : MonoBehaviour {
         SpawnCharacters();
 
         DefendButton.gameObject.SetActive(false);
-        EvadeButton.gameObject.SetActive(false);        
+        EvadeButton.gameObject.SetActive(false);
+        attackerStats.SetActive(false);
+        enemyStats.SetActive(false);
 
         currentPhase = TurnPhases.INITIAL;
-        currentBattlePhase = BattlePhases.PLAYERATTACK;
-
-        TurnCounter.text = "Turn: " + turn.ToString();
+        currentBattlePhase = BattlePhases.PLAYERATTACK;        
     }
 	
 	void Update() {
@@ -201,6 +209,8 @@ public class GameManager : MonoBehaviour {
     {
         activePlayer = turn % characters.Count;
         characterScript = characters[activePlayer].GetComponent<Character>();
+        string playerTurnString = characterScript.card.fighterName + " is now playing.";
+        DisplayText("playerTurn", playerTurnString);
 
         //TODO: Set conditions to exit the initial phase
         if (!Input.GetMouseButtonDown(1) && !reviving)
@@ -211,12 +221,12 @@ public class GameManager : MonoBehaviour {
         else if (characterScript.card.isAlive)
         {
             canRollDice = true;
-            Debug.Log("Moving on to the Movement Phase");
+            DisplayText("system", "Press Space to roll the Die, then click on the Panel next to your character to move.");
             currentPhase=TurnPhases.MOVEMENT;
         }
         else if (!characterScript.card.isAlive)
         {
-            Debug.Log("Trying to revive");
+            DisplayText("system", "Roll to revive");
             reviving = true;
             
             if(wasDiceRolled)
@@ -227,13 +237,13 @@ public class GameManager : MonoBehaviour {
                     characterScript.card.isAlive = true;
                     characterScript.card.hp = characterScript.card.stats.maxHp;
 
-                    Debug.Log("You rolled a " + reviveDiceRoll + "! You successfully revived!");
+                    DisplayText("system", "You rolled a " + reviveDiceRoll + "! You successfully revived!");
 
                     currentPhase = TurnPhases.END;
                 }
                 else
                 {
-                    Debug.Log("You rolled a " + reviveDiceRoll + ". You couldn't revive.");
+                    DisplayText("system", "You rolled a " + reviveDiceRoll + ". You couldn't revive.");
 
                     currentPhase = TurnPhases.END;
                 }
@@ -270,17 +280,34 @@ public class GameManager : MonoBehaviour {
     }
 
     IEnumerator BattlePhase()
-    {
+    {        
         DefendButton.gameObject.SetActive(true);
         EvadeButton.gameObject.SetActive(true);
 
         if (characterScript.currentPanel.name.Contains("Boss") && !mustFightOpponent)
         {
+            DisplayStats("attacker", characterScript.card.fighterName,
+                                characterScript.card.hp,
+                                characterScript.card.stats.attack + characterScript.card.buffCounters.attack
+                                + characterScript.card.levelCounters.attack,
+                                characterScript.card.stats.defense + characterScript.card.buffCounters.defense
+                                + characterScript.card.levelCounters.defense,
+                                characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion
+                                + characterScript.card.levelCounters.evasion);
+            DisplayStats("enemy", bossScript.bossCard.fighterName,
+                                    bossScript.bossCard.hp,
+                                    bossScript.bossCard.stats.attack,
+                                    bossScript.bossCard.stats.defense,
+                                    bossScript.bossCard.stats.evasion);
+
+            attackerStats.SetActive(true);
+            enemyStats.SetActive(true);
+            activeCharSprite.SetActive(true);
             activeBossSprite.SetActive(true);
 
             if (!wasDiceRolled && !rollingInBattle)
             {
-                Debug.Log("Roll to attack");
+                DisplayText("system", "Roll to attack");
                 DieRollState();
             }
             else if (wasDiceRolled || rollingInBattle)
@@ -298,17 +325,18 @@ public class GameManager : MonoBehaviour {
                         {
                             currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack
                                 + diceRoll + characterScript.card.levelCounters.attack;
-                            Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
+                            DisplayText("system", characterScript.card.fighterName + " attacks with " + currentAttack);
 
                             if (bossScript.bossCard.nature == FighterCard.Nature.Defender)
                             {
-                                Debug.Log("Boss is rolling for Defense");
+                                DisplayText("system", "Boss is rolling for Defense");
                             }
                             else if (bossScript.bossCard.nature == FighterCard.Nature.Evader)
                             {
-                                Debug.Log("Roll for Boss Evasion");
+                                DisplayText("system", "Roll for Boss Evasion");
                             }
                             DieRollState();
+                            canRollDice = false;
                             die.GetComponent<ApplyRandomForce>().RollDie();
                         }
 
@@ -317,7 +345,7 @@ public class GameManager : MonoBehaviour {
                             if (bossScript.bossCard.nature == FighterCard.Nature.Defender)
                             {
                                 currentDefense = bossScript.bossCard.stats.defense + diceRoll;
-                                Debug.Log(bossScript.bossCard.fighterName + " defends with: " + currentDefense);
+                                DisplayText("system", bossScript.bossCard.fighterName + " defends with: " + currentDefense);
 
                                 if (currentDefense < currentAttack)
                                 {
@@ -332,7 +360,7 @@ public class GameManager : MonoBehaviour {
                             if (bossScript.bossCard.nature == FighterCard.Nature.Evader)
                             {
                                 currentEvasion = bossScript.bossCard.stats.evasion + diceRoll;
-                                Debug.Log(bossScript.bossCard.fighterName + " evades with: " + currentEvasion);
+                                DisplayText("system", bossScript.bossCard.fighterName + " evades with: " + currentEvasion);
 
                                 if (currentAttack >= currentEvasion)
                                 {
@@ -340,7 +368,7 @@ public class GameManager : MonoBehaviour {
                                 }
                             }
 
-                            Debug.Log(bossScript.bossCard.fighterName + " is left with " + bossScript.bossCard.hp + " HPs");
+                            DisplayText("system", bossScript.bossCard.fighterName + " is left with " + bossScript.bossCard.hp + " HPs");
 
                             ResetBattleCounters();
                             wasDiceRolled = false;
@@ -353,8 +381,8 @@ public class GameManager : MonoBehaviour {
                             {
                                 characterScript.card.LevelUp(2);
 
-                                Debug.Log("Your current level is " + characterScript.card.level);
-                                Debug.Log("Your current stats are " + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
+                                DisplayText("system", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are "
+                                    + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
                                     + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
                                      + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
 
@@ -369,14 +397,15 @@ public class GameManager : MonoBehaviour {
 
                         if (!wasDiceRolled)
                         {
-                            Debug.Log("Roll for boss attack");
+                            DisplayText("system", "Roll for boss attack");
                             DieRollState();
+                            canRollDice = false;
                             die.GetComponent<ApplyRandomForce>().RollDie();
                         }
                         else
                         {                           
                             currentAttack = bossScript.bossCard.stats.attack + diceRoll;
-                            Debug.Log(bossScript.bossCard.fighterName + " attacks with " + currentAttack);
+                            DisplayText("system", bossScript.bossCard.fighterName + " attacks with " + currentAttack);
 
                             wasDiceRolled = false;
                             currentBattlePhase = BattlePhases.WAITFORTARGET2;
@@ -386,16 +415,16 @@ public class GameManager : MonoBehaviour {
 
                     case BattlePhases.WAITFORTARGET2:
 
-                        //Debug.Log("Pick Defend or Evade");
+                        DisplayText("system", "Pick Defend or Evade");
 
                         if (isDefending || isEvading)
                         {
                             if (!wasDiceRolled)
                             {
                                 if (isDefending)
-                                    Debug.Log("Roll for Defense");
+                                    DisplayText("system", "Roll for Defense");
                                 else
-                                    Debug.Log("Roll for Evasion");
+                                    DisplayText("system", "Roll for Evasion");
                                 DieRollState();
                             }
                             else
@@ -404,7 +433,7 @@ public class GameManager : MonoBehaviour {
                                 {
                                     currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense
                                         + diceRoll + characterScript.card.levelCounters.defense;
-                                    Debug.Log(characterScript.card.fighterName + " defends with: " + currentDefense);
+                                    DisplayText("system", characterScript.card.fighterName + " defends with: " + currentDefense);
 
                                     if (currentDefense < currentAttack)
                                     {
@@ -420,7 +449,7 @@ public class GameManager : MonoBehaviour {
                                 {
                                     currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion
                                         + diceRoll + characterScript.card.levelCounters.evasion;
-                                    Debug.Log(characterScript.card.fighterName + " evades with: " + currentEvasion);
+                                    DisplayText("system", characterScript.card.fighterName + " evades with: " + currentEvasion);
 
                                     if (currentAttack >= currentEvasion)
                                     {
@@ -428,7 +457,7 @@ public class GameManager : MonoBehaviour {
                                     }
                                 }
 
-                                Debug.Log(characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
+                                DisplayText("system", characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
 
                                 ResetBattleCounters();
                                 wasDiceRolled = false;
@@ -454,7 +483,10 @@ public class GameManager : MonoBehaviour {
                         DefendButton.gameObject.SetActive(false);
                         EvadeButton.gameObject.SetActive(false);
                         activeBossSprite.SetActive(false);
-                        
+                        activeCharSprite.SetActive(false);
+                        attackerStats.SetActive(false);
+                        enemyStats.SetActive(false);
+
                         rollingInBattle = false;                        
                         enemyIsDefendingOrEvading = false;
 
@@ -468,11 +500,28 @@ public class GameManager : MonoBehaviour {
         }
         else if (characterScript.currentPanel.name.Contains("Monster") && !mustFightOpponent)
         {
+            DisplayStats("attacker", characterScript.card.fighterName,
+                                characterScript.card.hp,
+                                characterScript.card.stats.attack + characterScript.card.buffCounters.attack
+                                + characterScript.card.levelCounters.attack,
+                                characterScript.card.stats.defense + characterScript.card.buffCounters.defense
+                                + characterScript.card.levelCounters.defense,
+                                characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion
+                                + characterScript.card.levelCounters.evasion);
+            DisplayStats("enemy", monsterScript.monsterCard.fighterName,
+                                    monsterScript.monsterCard.hp,
+                                    monsterScript.monsterCard.stats.attack,
+                                    monsterScript.monsterCard.stats.defense,
+                                    monsterScript.monsterCard.stats.evasion);
+
+            attackerStats.SetActive(true);
+            enemyStats.SetActive(true);
+            activeCharSprite.SetActive(true);
             activeMonsterSprite.SetActive(true);
 
             if (!wasDiceRolled && !rollingInBattle)
             {
-                Debug.Log("Roll to attack");
+                DisplayText("system", "Roll to attack");
                 DieRollState();
             }
             else if (wasDiceRolled || rollingInBattle)
@@ -490,17 +539,18 @@ public class GameManager : MonoBehaviour {
                         {
                             currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack 
                                 + diceRoll + characterScript.card.levelCounters.attack;
-                            Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
+                            DisplayText("system", characterScript.card.fighterName + " attacks with " + currentAttack);
                             
                             if (monsterScript.monsterCard.nature == FighterCard.Nature.Defender)
                             {
-                                Debug.Log("Monster is rolling for Defense");
+                                DisplayText("system", "Monster is rolling for Defense");
                             }
                             else if (monsterScript.monsterCard.nature == FighterCard.Nature.Evader)
                             {
-                                Debug.Log("Roll for Monster Evasion");
+                                DisplayText("system", "Roll for Monster Evasion");
                             }
                             DieRollState();
+                            canRollDice = false;
                             die.GetComponent<ApplyRandomForce>().RollDie();
                         }
 
@@ -509,7 +559,7 @@ public class GameManager : MonoBehaviour {
                             if (monsterScript.monsterCard.nature == FighterCard.Nature.Defender)
                             {
                                 currentDefense = monsterScript.monsterCard.stats.defense + diceRoll;
-                                Debug.Log(monsterScript.monsterCard.fighterName + " defends with: " + currentDefense);
+                                DisplayText("system", monsterScript.monsterCard.fighterName + " defends with: " + currentDefense);
 
                                 if (currentDefense < currentAttack)
                                 {
@@ -524,7 +574,7 @@ public class GameManager : MonoBehaviour {
                             if (monsterScript.monsterCard.nature == FighterCard.Nature.Evader)
                             {
                                 currentEvasion = monsterScript.monsterCard.stats.evasion + diceRoll;
-                                Debug.Log(monsterScript.monsterCard.fighterName + " evades with: " + currentEvasion);
+                                DisplayText("system", monsterScript.monsterCard.fighterName + " evades with: " + currentEvasion);
 
                                 if (currentAttack >= currentEvasion)
                                 {
@@ -532,7 +582,7 @@ public class GameManager : MonoBehaviour {
                                 }
                             }
 
-                            Debug.Log(monsterScript.monsterCard.fighterName + " is left with " + monsterScript.monsterCard.hp + " HPs");
+                            DisplayText("system", monsterScript.monsterCard.fighterName + " is left with " + monsterScript.monsterCard.hp + " HPs");
 
                             ResetBattleCounters();
                             wasDiceRolled = false;
@@ -545,8 +595,8 @@ public class GameManager : MonoBehaviour {
                             {
                                 characterScript.card.LevelUp(1);
 
-                                Debug.Log("Your current level is " + characterScript.card.level);
-                                Debug.Log("Your current stats are " + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
+                                DisplayText("system", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are " 
+                                    + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
                                     + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
                                      + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
 
@@ -561,14 +611,15 @@ public class GameManager : MonoBehaviour {
 
                         if (!wasDiceRolled)
                         {
-                            Debug.Log("Roll for monster attack");
+                            DisplayText("system", "Roll for monster attack");
                             DieRollState();
+                            canRollDice = false;
                             die.GetComponent<ApplyRandomForce>().RollDie();
                         }
                         else
                         {
                             currentAttack = monsterScript.monsterCard.stats.attack + diceRoll;
-                            Debug.Log(monsterScript.monsterCard.fighterName + " attacks with " + currentAttack);
+                            DisplayText("system", monsterScript.monsterCard.fighterName + " attacks with " + currentAttack);
 
                             wasDiceRolled = false;
                             currentBattlePhase = BattlePhases.WAITFORTARGET2;
@@ -578,16 +629,16 @@ public class GameManager : MonoBehaviour {
 
                     case BattlePhases.WAITFORTARGET2:
 
-                        //Debug.Log("Pick Defend or Evade");
+                        DisplayText("system", "Pick Defend or Evade");
 
                         if (isDefending || isEvading)
                         {
                             if (!wasDiceRolled)
                             {
                                 if (isDefending)
-                                    Debug.Log("Roll for Defense");
+                                    DisplayText("system", "Roll for Defense");
                                 else
-                                    Debug.Log("Roll for Evasion");
+                                    DisplayText("system", "Roll for Evasion");
 
                                 DieRollState();
                             }
@@ -597,7 +648,7 @@ public class GameManager : MonoBehaviour {
                                 {
                                     currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense
                                         + diceRoll + characterScript.card.levelCounters.defense;
-                                    Debug.Log(characterScript.card.fighterName + " defends with: " + currentDefense);
+                                    DisplayText("system", characterScript.card.fighterName + " defends with: " + currentDefense);
 
                                     if (currentDefense < currentAttack)
                                     {
@@ -613,7 +664,7 @@ public class GameManager : MonoBehaviour {
                                 {
                                     currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion 
                                         + diceRoll + characterScript.card.levelCounters.evasion;
-                                    Debug.Log(characterScript.card.fighterName + " evades with: " + currentEvasion);
+                                    DisplayText("system", characterScript.card.fighterName + " evades with: " + currentEvasion);
 
                                     if (currentAttack >= currentEvasion)
                                     {
@@ -621,7 +672,7 @@ public class GameManager : MonoBehaviour {
                                     }
                                 }
 
-                                Debug.Log(characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
+                                DisplayText("system", characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
 
                                 ResetBattleCounters();
                                 wasDiceRolled = false;
@@ -647,6 +698,9 @@ public class GameManager : MonoBehaviour {
                         DefendButton.gameObject.SetActive(false);
                         EvadeButton.gameObject.SetActive(false);
                         activeMonsterSprite.SetActive(false);
+                        activeCharSprite.SetActive(false);
+                        attackerStats.SetActive(false);
+                        enemyStats.SetActive(false);
 
                         rollingInBattle = false;
                         enemyIsDefendingOrEvading = false;
@@ -661,9 +715,42 @@ public class GameManager : MonoBehaviour {
         }
         else if (mustFightOpponent)
         {
+            DisplayStats("attacker", characterScript.card.fighterName,
+                                characterScript.card.hp,
+                                characterScript.card.stats.attack + characterScript.card.buffCounters.attack
+                                + characterScript.card.levelCounters.attack,
+                                characterScript.card.stats.defense + characterScript.card.buffCounters.defense
+                                + characterScript.card.levelCounters.defense,
+                                characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion
+                                + characterScript.card.levelCounters.evasion);
+            DisplayStats("enemy", opponentScript.card.fighterName,
+                                    opponentScript.card.hp,
+                                    opponentScript.card.stats.attack + opponentScript.card.buffCounters.attack
+                                    + opponentScript.card.levelCounters.attack,
+                                    opponentScript.card.stats.defense + opponentScript.card.buffCounters.defense
+                                    + opponentScript.card.levelCounters.defense,
+                                    opponentScript.card.stats.evasion + opponentScript.card.buffCounters.evasion
+                                    + opponentScript.card.levelCounters.evasion);
+
+            attackerStats.SetActive(true);
+            enemyStats.SetActive(true);
+
+            if (characters[activePlayer].GetComponent<Character>().card.fighterName == "White Hood")
+            {
+                SetCard("activePlayer", whiteHoodSprite);
+                SetCard("enemyPlayer", blackHoodSprite);
+            }
+            else
+            {
+                SetCard("activePlayer", blackHoodSprite);
+                SetCard("enemyPlayer", whiteHoodSprite);
+            }            
+            activeCharSprite.SetActive(true);
+            enemyCharSprite.SetActive(true);
+
             if (!wasDiceRolled && !rollingInBattle)
             {
-                Debug.Log("Roll to attack");
+                DisplayText("system", "Roll to attack");
                 DieRollState();
             }
 
@@ -679,7 +766,7 @@ public class GameManager : MonoBehaviour {
                     case BattlePhases.PLAYERATTACK:
                                                 
                         currentAttack = characterScript.card.stats.attack + characterScript.card.buffCounters.attack + diceRoll + characterScript.card.levelCounters.attack;
-                        Debug.Log(characterScript.card.fighterName + " attacks with " + currentAttack);
+                        DisplayText("system", characterScript.card.fighterName + " attacks with " + currentAttack);
                         currentBattlePhase = BattlePhases.WAITFORTARGET;         
                         
                         break;
@@ -690,11 +777,11 @@ public class GameManager : MonoBehaviour {
                         {
                             if (!wasDiceRolled)
                             {
-                                Debug.Log("Pick Defend or Evade");
+                                DisplayText("system", "Pick Defend or Evade");
                                 if (isDefending)
-                                    Debug.Log("Roll for Defense");
+                                    DisplayText("system", "Roll for Defense");
                                 else
-                                    Debug.Log("Roll for Evasion");
+                                    DisplayText("system", "Roll for Evasion");
                                 DieRollState();
                             }
                             else
@@ -703,7 +790,7 @@ public class GameManager : MonoBehaviour {
                                 {
                                     currentDefense = opponentScript.card.stats.defense + opponentScript.card.buffCounters.defense
                                         + diceRoll + opponentScript.card.levelCounters.defense;
-                                    Debug.Log(opponentScript.card.fighterName + " defends with: " + currentDefense);
+                                    DisplayText("system", opponentScript.card.fighterName + " defends with: " + currentDefense);
 
                                     if (currentDefense < currentAttack)
                                     {
@@ -719,7 +806,7 @@ public class GameManager : MonoBehaviour {
                                 {
                                     currentEvasion = opponentScript.card.stats.evasion + opponentScript.card.buffCounters.evasion 
                                         + diceRoll + opponentScript.card.levelCounters.evasion;
-                                    Debug.Log(opponentScript.card.fighterName + " evades with: " + currentEvasion);
+                                    DisplayText("system", opponentScript.card.fighterName + " evades with: " + currentEvasion);
 
                                     if (currentAttack >= currentEvasion)
                                     {
@@ -727,7 +814,7 @@ public class GameManager : MonoBehaviour {
                                     }
                                 }
 
-                                Debug.Log(opponentScript.card.fighterName + " is left with " + opponentScript.card.hp + " HPs");
+                                DisplayText("system", opponentScript.card.fighterName + " is left with " + opponentScript.card.hp + " HPs");
 
                                 ResetBattleCounters();
                                 wasDiceRolled = false;
@@ -739,8 +826,8 @@ public class GameManager : MonoBehaviour {
                                 else if (!opponentScript.card.isAlive)
                                 {
                                     characterScript.card.LevelUp(1);
-                                    Debug.Log("Your current level is " + characterScript.card.level);
-                                    Debug.Log("Your current stats are " + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
+                                    DisplayText("system", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are " 
+                                        + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
                                         + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
                                          + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
                                     currentBattlePhase = BattlePhases.ENDOFBATTLE;
@@ -758,14 +845,14 @@ public class GameManager : MonoBehaviour {
 
                         if (!wasDiceRolled)
                         {
-                            Debug.Log("Roll for enemy attack");
+                            DisplayText("system", "Roll for enemy attack");
                             DieRollState();
                         }
                         else
                         {
                             currentAttack = opponentScript.card.stats.attack + opponentScript.card.buffCounters.attack + 
                                 diceRoll + opponentScript.card.levelCounters.attack;
-                            Debug.Log(opponentScript.card.fighterName + " attacks with " + currentAttack);
+                            DisplayText("system", opponentScript.card.fighterName + " attacks with " + currentAttack);
 
                             ResetBattleCounters();
                             wasDiceRolled = false;
@@ -781,11 +868,11 @@ public class GameManager : MonoBehaviour {
                         {
                             if (!wasDiceRolled)
                             {
-                                Debug.Log("Pick Defend or Evade");
+                                DisplayText("system", "Pick Defend or Evade");
                                 if (isDefending)
-                                    Debug.Log("Roll for Defense");
+                                    DisplayText("system", "Roll for Defense");
                                 else
-                                    Debug.Log("Roll for Evasion");
+                                    DisplayText("system", "Roll for Evasion");
                                 DieRollState();
                             }
                             else
@@ -794,7 +881,7 @@ public class GameManager : MonoBehaviour {
                                 {
                                     currentDefense = characterScript.card.stats.defense + characterScript.card.buffCounters.defense
                                         + diceRoll + characterScript.card.levelCounters.defense;
-                                    Debug.Log(characterScript.card.fighterName + " defends with: " + currentDefense);
+                                    DisplayText("system", characterScript.card.fighterName + " defends with: " + currentDefense);
 
                                     if (currentDefense < currentAttack)
                                     {
@@ -811,7 +898,7 @@ public class GameManager : MonoBehaviour {
                                 {
                                     currentEvasion = characterScript.card.stats.evasion + characterScript.card.buffCounters.evasion 
                                         + diceRoll + characterScript.card.levelCounters.evasion;
-                                    Debug.Log(characterScript.card.fighterName + " evades with: " + currentEvasion);
+                                    DisplayText("system", characterScript.card.fighterName + " evades with: " + currentEvasion);
 
                                     if (currentAttack >= currentEvasion)
                                     {
@@ -819,15 +906,15 @@ public class GameManager : MonoBehaviour {
                                     }
                                 }
 
-                                Debug.Log(characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
+                                DisplayText("system", characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
 
                                 ResetBattleCounters();
                                 wasDiceRolled = false;
                                 if (!characterScript.card.isAlive)
                                 {
                                     opponentScript.card.LevelUp(1);
-                                    Debug.Log("Your opponent level is " + opponentScript.card.level);
-                                    Debug.Log("Your opponent current stats are " + (opponentScript.card.levelCounters.attack + opponentScript.card.buffCounters.attack)
+                                    DisplayText("system", "Your opponent level is " + opponentScript.card.level + "\n" + "Your opponent current stats are " 
+                                        + (opponentScript.card.levelCounters.attack + opponentScript.card.buffCounters.attack)
                                         + (opponentScript.card.levelCounters.defense + opponentScript.card.buffCounters.defense)
                                          + (opponentScript.card.levelCounters.evasion + opponentScript.card.buffCounters.evasion));
                                 }
@@ -853,7 +940,11 @@ public class GameManager : MonoBehaviour {
 
                         DefendButton.gameObject.SetActive(false);
                         EvadeButton.gameObject.SetActive(false);
-                                                
+                        activeCharSprite.SetActive(false);
+                        enemyCharSprite.SetActive(false);
+                        attackerStats.SetActive(true);
+                        enemyStats.SetActive(true);
+
                         enemyIsDefendingOrEvading = false;
                         rollingInBattle = false;
 
@@ -886,11 +977,10 @@ public class GameManager : MonoBehaviour {
 
         ResetBattleCounters();
 
-        turn++;
-        TurnCounter.text = "Turn: " + turn.ToString();
+        turn++;        
         currentPhase = TurnPhases.INITIAL;
 
-        Debug.Log("Moving on to the Initial Phase");
+        DisplayText("system", "Moving on to the Initial Phase");
         yield return null;
     }    
 
@@ -1060,7 +1150,7 @@ public class GameManager : MonoBehaviour {
                    characterScript.boardY == opponentScript.boardY &&
                    opponentScript.card.isAlive)
                 {
-                    Debug.Log("Press Mouse Wheel to fight opponent, Right click to ignore");
+                    DisplayText("system", "Press Mouse Wheel to fight opponent, Right click to ignore");
                     isChoosingToFightOpponent = true;
                 }
             }
@@ -1070,7 +1160,7 @@ public class GameManager : MonoBehaviour {
         {
             if (diceRoll >= 2)
             {
-                Debug.Log("Press Mouse Wheel to fight a boss monster, Right click to ignore");
+                DisplayText("system", "Press Mouse Wheel to fight a boss monster, Right click to ignore");
                 isChoosingToFightBoss = true;
             }
             else if (diceRoll == 0)
@@ -1099,7 +1189,6 @@ public class GameManager : MonoBehaviour {
     {
         if(Input.GetMouseButtonDown(2))
         {
-            Debug.Log("yes");
             isChoosingToFightOpponent = false;
             mustFightOpponent = true;
             diceRoll = 0;
@@ -1110,7 +1199,6 @@ public class GameManager : MonoBehaviour {
         }
         else if (Input.GetMouseButtonDown(1))
         {
-            Debug.Log("noooo");
             isChoosingToFightOpponent = false;
             diceRoll--;
             if (diceRoll > 0)
@@ -1134,7 +1222,6 @@ public class GameManager : MonoBehaviour {
     {
         if (Input.GetMouseButtonDown(2))
         {
-            Debug.Log("yes");
             isChoosingToFightBoss = false;
             diceRoll = 0;
             wasDiceRolled = false;
@@ -1145,7 +1232,6 @@ public class GameManager : MonoBehaviour {
         }
         else if (Input.GetMouseButtonDown(1))
         {
-            Debug.Log("noooo");
             isChoosingToFightBoss = false;
             diceRoll--;
             if (diceRoll > 0)
@@ -1231,6 +1317,63 @@ public class GameManager : MonoBehaviour {
             canRollDice = false;
             wasDiceRolled = true;
             dieScript.rollComplete = false;
+        }
+    }
+
+    public void SetCard(string _cardType, GameObject _card)
+    {
+        switch (_cardType)
+        {
+            case "boss":                
+                activeBossSprite = _card;
+                _card.transform.SetParent(canvas.transform);
+                break;
+            case "monster":                
+                activeMonsterSprite = _card;
+                _card.transform.SetParent(canvas.transform);
+                break;
+            case "activePlayer":                
+                activeCharSprite = _card;
+                activeCharSprite.transform.position = new Vector3 (75, 175, 0);
+                break;
+            case "enemyPlayer":
+                enemyCharSprite = _card;
+                enemyCharSprite.transform.position = new Vector3 (218, 175, 0);
+                break;
+        }
+            
+    }
+
+    public void DisplayText(string _textType, string _text)
+    {
+        switch (_textType)
+        {
+            case "playerTurn":
+                playerTurn.GetComponent<Text>().text = _text;
+                break;
+            case "system":
+                system.GetComponent<Text>().text = _text;
+                break;            
+
+        }
+    }
+
+    public void DisplayStats(string _fighter, string name, int _hp, int _atk, int _def, int _evs)
+    {
+        switch (_fighter)
+        {
+            case "attacker":
+                attackerStats.GetComponent<Text>().text = name + "\n" + "HP" + "<color=red>" + _hp + "</color>" + "\n"
+                                                                      + "ATK" + "<color=orange>" + _atk + "</color>" + "/"
+                                                                      + "DEF" + "<color=blue>" + _def + "</color>" + "/"
+                                                                      + "EVS" + "<color=green>" + _evs + "</color>";
+                break;
+            case "enemy":
+                enemyStats.GetComponent<Text>().text = name + "\n" + "HP" + "<color=red>" + _hp + "</color>" + "\n"
+                                                                      + "ATK" + "<color=orange>" + _atk + "</color>" + "/"
+                                                                      + "DEF" + "<color=blue>" + _def + "</color>" + "/"
+                                                                      + "EVS" + "<color=green>" + _evs + "</color>";
+                break;
         }
     }
 }

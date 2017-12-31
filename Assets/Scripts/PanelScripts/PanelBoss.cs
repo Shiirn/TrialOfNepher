@@ -11,6 +11,7 @@ public class PanelBoss : Panel {
         GameObject manager = GameObject.Find("Manager");
         GameManager managerScript = manager.GetComponent<GameManager>();
 
+        GameObject activePlayerCard;
         GameObject activeBoss = GameObject.Find("ActiveBoss");
         ActiveFighter activeBossScript = activeBoss.GetComponent<ActiveFighter>();
 
@@ -25,8 +26,18 @@ public class PanelBoss : Panel {
                 if (prefab.name == activeBossScript.bossCard.spriteName)
                 {
                     GameObject activeBossSprite = Instantiate(prefab);
-                    managerScript.activeBossSprite = activeBossSprite;
-                    activeBossSprite.transform.SetParent(managerScript.canvas.transform);
+                    managerScript.SetCard("boss", activeBossSprite);
+
+                    if (managerScript.characters[managerScript.activePlayer].GetComponent<Character>().card.fighterName == "White Hood")
+                    {
+                        activePlayerCard = managerScript.whiteHoodSprite;
+                        managerScript.SetCard("activePlayer", activePlayerCard);
+                    }
+                    else
+                    {
+                        activePlayerCard = managerScript.blackHoodSprite;
+                        managerScript.SetCard("activePlayer", activePlayerCard);
+                    }
                 }
             }
         }

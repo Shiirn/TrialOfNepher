@@ -12,6 +12,7 @@ public class PanelMonster : Panel {
         GameObject manager = GameObject.Find("Manager");
         GameManager managerScript = manager.GetComponent<GameManager>();
 
+        GameObject activePlayerCard;
         GameObject activeMonster = GameObject.Find("ActiveMonster");
         ActiveFighter activeMonsterScript = activeMonster.GetComponent<ActiveFighter>();        
 
@@ -26,8 +27,18 @@ public class PanelMonster : Panel {
                 if (prefab.name == activeMonsterScript.monsterCard.spriteName)
                 {                    
                     GameObject activeMonsterSprite = Instantiate(prefab);
-                    managerScript.activeMonsterSprite = activeMonsterSprite;
-                    activeMonsterSprite.transform.SetParent(managerScript.canvas.transform);
+                    managerScript.SetCard("monster", activeMonsterSprite);
+
+                    if (managerScript.characters[managerScript.activePlayer].GetComponent<Character>().card.fighterName == "White Hood")
+                    {
+                        activePlayerCard = managerScript.whiteHoodSprite;
+                        managerScript.SetCard("activePlayer", activePlayerCard);
+                    }
+                    else
+                    {
+                        activePlayerCard = managerScript.blackHoodSprite;
+                        managerScript.SetCard("activePlayer", activePlayerCard);
+                    }                   
                 }
             }
             
