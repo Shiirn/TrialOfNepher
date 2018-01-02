@@ -8,17 +8,17 @@ public static class FighterCardParser {
     {
         string[] stringSeparator = new string[] { "\r\n" };
         string[] monsterStrings = monsterCsv.text.Split(stringSeparator, System.StringSplitOptions.None);
-        string[] ret = new string[] { };
+        string[] monsterStringToReturn = new string[] { };
 
         foreach(string monsterString in monsterStrings)
         {
             if(monsterString[0].ToString() == id.ToString())
             {
-                ret = monsterString.Split(',');
+                monsterStringToReturn = monsterString.Split(',');
                 break;
             }
         }
 
-        return ret;
+        return monsterStringToReturn;
     }
 }

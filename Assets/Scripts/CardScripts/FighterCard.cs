@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+public enum Nature { Character, Defender, Evader, Special }
+
 public struct Stats
 {
     public int attack;
@@ -14,8 +17,6 @@ public struct Stats
 public class FighterCard
 {
 
-    public enum Nature { Character, Defender, Evader, Special }
-
     public Stats stats;
     public int hp;
     public int id;
@@ -26,7 +27,9 @@ public class FighterCard
     public string spriteName;
     public Sprite cardImg;
     public bool isAlive;
-    CharacterCard card;
+    public ArtifactCard equippedArtifact;
+    public List<ArtifactCard> artifactsOwned = new List<ArtifactCard>();
+    public List<string> abilities = new List<string>();
 
     public virtual void GetDamaged(int damage)
     {
@@ -104,14 +107,37 @@ public class CharacterCard : FighterCard
             LevelDown(1);
         }
     }
-    void Equip()
-    {
 
+    void Equip(ArtifactCard artifactCard)
+    {
+        if(equippedArtifact != null)
+        {
+            Unequip(equippedArtifact);
+        }
+
+        abilities.Add(artifactCard.ability);
+        artifactCounters.attack += artifactCard.stats.attack;
+        artifactCounters.defense += artifactCard.stats.defense;
+        artifactCounters.evasion += artifactCard.stats.evasion;
+        artifactCounters.maxHp += artifactCard.stats.maxHp;
+        hp += artifactCard.stats.maxHp;
     }
 
-    void Unequip()
+    void Unequip(ArtifactCard artifactCard)
     {
+        for(int i = 0; i < abilities.Count; i++)
+        {
+            if(abilities[i] == artifactCard.ability)
+            {
+                abilities.RemoveAt(i);
+            }
 
+            artifactCounters.attack -= artifactCard.stats.attack;
+            artifactCounters.defense -= artifactCard.stats.defense;
+            artifactCounters.evasion -= artifactCard.stats.evasion;
+            artifactCounters.maxHp -= artifactCard.stats.maxHp;
+            GetDamaged(artifactCard.stats.maxHp);
+        }
     }
 
     public CharacterCard(int _id)

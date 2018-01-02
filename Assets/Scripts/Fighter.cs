@@ -4,6 +4,4 @@ using UnityEngine;
 
 public class Fighter : MonoBehaviour {
     
-    public bool isDead = true;
-
 }
