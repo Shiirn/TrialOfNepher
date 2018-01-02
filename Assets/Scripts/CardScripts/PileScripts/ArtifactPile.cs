@@ -2,54 +2,35 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ArtifactPile : MonoBehaviour {
-
-    public TextAsset artifactCsv;
-
-    string[] stringSeparator = new string[] { "\r\n" };
-    string[] artifactStrings;
-
-    public List<int> cards = new List<int>();
-
-
-
+public class ArtifactPile : Pile {
+    
 	// Use this for initialization
 	void Start () {
 
-        artifactStrings = artifactCsv.text.Split(stringSeparator, System.StringSplitOptions.None);
+        csvStrings = csv.text.Split(stringSeparator, System.StringSplitOptions.None);
 
-        for (int i = 1; i < artifactStrings.Length; i++)
-        {
-            cards.Add(i-1);
-        }
+        GeneratePile();
 
-        Shuffle();
-
+        //DEBUGGING
         foreach(int card in cards)
         {
             Debug.Log(card);
         }
+        //DEBUGGING
+    }
 
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
+    void Update () {
 		
 	}
 
-    void Shuffle()
+    void GeneratePile()
     {
-        int temp;
-
-        for(int i = 0; i < cards.Count * 5; i++)
+        for (int i = 1; i < csvStrings.Length; i++)
         {
-            int randomIndex1 = Random.Range(0, cards.Count);
-            int randomIndex2 = Random.Range(0, cards.Count);
-
-            temp = cards[randomIndex1];
-            cards[randomIndex1] = cards[randomIndex2];
-            cards[randomIndex2] = temp;
+            cards.Add(i - 1);
         }
+        Shuffle();
     }
 
     public ArtifactCard Draw()
@@ -58,7 +39,7 @@ public class ArtifactPile : MonoBehaviour {
 
         cards.RemoveAt(cards.Count - 1);
 
-        string stringToDraw = artifactStrings[drawnCard + 1];
+        string stringToDraw = csvStrings[drawnCard + 1];
 
         string[] parsedString = stringToDraw.Split(',');
 
@@ -73,9 +54,5 @@ public class ArtifactPile : MonoBehaviour {
                                 System.Convert.ToInt32(parsedString[8]),
                                 parsedString[9],
                                 parsedString[10]);
-
-
     }
-
-
 }

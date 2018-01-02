@@ -607,8 +607,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b765f78c5928de04991bd204ca4f830c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  artifactCsv: {fileID: 4900000, guid: b61a9db1f810b4b439bbd8bfe3aa6ced, type: 3}
+  csv: {fileID: 4900000, guid: b61a9db1f810b4b439bbd8bfe3aa6ced, type: 3}
   cards: 
+  discardedCards: 
 --- !u!4 &372340140
 Transform:
   m_ObjectHideFlags: 0
@@ -1153,6 +1154,92 @@ MonoBehaviour:
     type: 2}
   m_PrefabInternal: {fileID: 2116349628}
   m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+--- !u!1 &892906016
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 892906018}
+  - component: {fileID: 892906017}
+  m_Layer: 0
+  m_Name: MonsterCardPile
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &892906017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 892906016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e90be8c975ed0194d9a7a41d7604c5b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  csv: {fileID: 4900000, guid: 663df88bcc6a8f048a901e73e4fbcb40, type: 3}
+  cards: 
+  discardedCards: 
+--- !u!4 &892906018
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 892906016}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 152.37248, y: 111.96867, z: 105.61145}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 14
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1091168455
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1091168457}
+  - component: {fileID: 1091168456}
+  m_Layer: 0
+  m_Name: BossCardPile
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1091168456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1091168455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1916e6564c8eba41a18cd3238bf8e75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  csv: {fileID: 4900000, guid: 663df88bcc6a8f048a901e73e4fbcb40, type: 3}
+  cards: 
+  discardedCards: 
+--- !u!4 &1091168457
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1091168455}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 152.37248, y: 111.96867, z: 105.61145}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 15
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1148414157
 Prefab:
   m_ObjectHideFlags: 0

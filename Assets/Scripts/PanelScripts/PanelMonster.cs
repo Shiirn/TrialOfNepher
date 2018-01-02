@@ -14,13 +14,17 @@ public class PanelMonster : Panel {
 
         GameObject activePlayerCard;
         GameObject activeMonster = GameObject.Find("ActiveMonster");
-        ActiveFighter activeMonsterScript = activeMonster.GetComponent<ActiveFighter>();        
+        ActiveFighter activeMonsterScript = activeMonster.GetComponent<ActiveFighter>();
+
+        GameObject monsterCardPile = GameObject.Find("MonsterCardPile");
+        MonsterPile monsterCardPileScript = monsterCardPile.GetComponent<MonsterPile>();
 
         activeMonsterScript.CheckIfMonsterIsAlive();
 
         if (!activeMonsterScript.isMonsterActive)
         {
-            activeMonsterScript.FlipNewActiveMonster(FighterCardParser.ParseMonsterCard(monsterCsv, Random.Range(0, 5)));
+            activeMonsterScript.isMonsterActive = true;
+            monsterCardPileScript.FlipNewActiveMonster();
 
             foreach (GameObject prefab in managerScript.MonsterSprites)
             {                

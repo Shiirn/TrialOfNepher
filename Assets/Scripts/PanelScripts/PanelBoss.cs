@@ -17,9 +17,14 @@ public class PanelBoss : Panel {
 
         activeBossScript.CheckIfBossIsAlive();
 
-        if (!activeBossScript.isBossActive)
+        GameObject bossCardPile = GameObject.Find("BossCardPile");
+        BossPile bossCardPileScript = bossCardPile.GetComponent<BossPile>();
+        
+
+        if (!activeBossScript.isMonsterActive)
         {
-            activeBossScript.FlipNewActiveBoss(FighterCardParser.ParseMonsterCard(monsterCsv, Random.Range(5, 8)));
+            activeBossScript.isBossActive = true;
+            bossCardPileScript.FlipNewActiveBoss();
 
             foreach (GameObject prefab in managerScript.BossSprites)
             {

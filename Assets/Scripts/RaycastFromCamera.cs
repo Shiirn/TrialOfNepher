@@ -6,17 +6,27 @@ public class RaycastFromCamera : MonoBehaviour
 {
 
     new public Camera camera;
+
     public GameObject panelMarker;
     public GameObject selectedPanelPrefab;
     public GameObject selectedPanel;
 
+    GameObject manager;
+    GameManager managerScript;
+
     private void Start()
     {
-
+        manager = GameObject.Find("Manager");
+        managerScript = manager.GetComponent<GameManager>();
     }
 
     // Update is called once per frame
     void Update()
+    {
+        Raycast();
+    }
+
+    void Raycast()
     {
         selectedPanel = selectedPanelPrefab;
 
@@ -34,7 +44,7 @@ public class RaycastFromCamera : MonoBehaviour
                                                             objectHit.transform.position.z));
             }
 
-            if(Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0))
             {
                 selectedPanel = objectHit;
             }

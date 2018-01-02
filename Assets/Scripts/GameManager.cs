@@ -78,8 +78,12 @@ public class GameManager : MonoBehaviour {
 
     //Pile Objects
     GameObject artifactPile;
+    GameObject monsterPile;
+    GameObject bossPile;
     //Pile Scripts
     ArtifactPile artifactPileScript;
+    MonsterPile monsterPileScript;
+    BossPile bossPileScript;
 
     //UI Objects
     public Canvas canvas;
@@ -116,6 +120,10 @@ public class GameManager : MonoBehaviour {
     {
         artifactPile = GameObject.Find("ArtifactCardPile");
         artifactPileScript = artifactPile.GetComponent<ArtifactPile>();
+        monsterPile = GameObject.Find("MonsterCardPile");
+        monsterPileScript = monsterPile.GetComponent<MonsterPile>();
+        bossPile = GameObject.Find("BossCardPile");
+        bossPileScript = bossPile.GetComponent<BossPile>();
 
         dieScript = die.GetComponent<DisplayDieValue>();
 
@@ -179,7 +187,7 @@ public class GameManager : MonoBehaviour {
         //DEBUGGING
         if (Input.GetKeyDown("j"))
         {
-            monsterScript.monsterCard.hp--;
+            bossScript.bossCard.GetDamaged(1);
         }
         //DEBUGGING
     }
@@ -499,6 +507,21 @@ public class GameManager : MonoBehaviour {
 
                     case BattlePhases.ENDOFBATTLE:
 
+                        if (!bossScript.bossCard.isAlive)
+                        {
+                            bossPileScript.Discard(bossScript.bossCard.id);
+
+                            if (artifactPileScript.cards.Count > 0)
+                            {
+                                characterScript.card.artifactsOwned.Add(artifactPileScript.Draw());
+
+                                if (artifactPileScript.cards.Count > 0)
+                                {
+                                    characterScript.card.artifactsOwned.Add(artifactPileScript.Draw());
+                                }
+                            }
+                        }
+
                         ResetBattleCounters();
 
                         characterScript.card.ResetBuffs();
@@ -720,9 +743,14 @@ public class GameManager : MonoBehaviour {
 
                     case BattlePhases.ENDOFBATTLE:
 
-                        if (!monsterScript.monsterCard.isAlive && artifactPileScript.cards.Count > 0)
+                        if (!monsterScript.monsterCard.isAlive)
                         {
-                            characterScript.card.artifactsOwned.Add(artifactPileScript.Draw());
+                            monsterPileScript.Discard(monsterScript.monsterCard.id);
+
+                            if (artifactPileScript.cards.Count > 0)
+                            {
+                                characterScript.card.artifactsOwned.Add(artifactPileScript.Draw());
+                            }
                         }
 
                         ResetBattleCounters();
