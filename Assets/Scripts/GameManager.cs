@@ -11,8 +11,14 @@ public class GameManager : MonoBehaviour {
     public int activePlayer = 0;
     public bool waitingForMovement = false;
     public bool hasMovementStarted = false;
-    public bool reviving = false;   
+    public bool reviving = false;
+    public bool artifactCardsShown = false;
+    public bool itemCardsShown = false;
+    public bool initialSetupDone = false;
     //Battle
+    public bool fightPlayer = false;
+    public bool fightBoss = false;
+    public bool ignoreFight = false;
     public bool enemyIsDefendingOrEvading = false;
     public bool isChoosingToFightOpponent = false;
     public bool isChoosingToFightBoss = false;    
@@ -89,9 +95,21 @@ public class GameManager : MonoBehaviour {
 
     //UI Objects
     public Canvas canvasInPlay;
+    public Canvas canvasFightChoice;
     public Canvas canvasInBattle;
+    public Canvas canvasInitial;
+    public Canvas canvasArtifactCards;
+    public Canvas canvasItemCards;
+    //Buttons        
     public Button DefendButton;
     public Button EvadeButton;
+    public Button EquipArtifactButton;
+    public Button UseItemButton;
+    public Button RollButton;
+    public Button FightPlayerButton;
+    public Button FightBossButton;
+    public Button IgnoreFightButton;
+
     //Cards
     public GameObject[] MonsterSprites;
     public GameObject activeMonsterSprite;
@@ -100,7 +118,9 @@ public class GameManager : MonoBehaviour {
     public GameObject blackHoodSprite;
     public GameObject whiteHoodSprite;
     public GameObject blackHoodSpriteInBattle;
-    public GameObject whiteHoodSpriteInBattle;    
+    public GameObject whiteHoodSpriteInBattle;
+    public GameObject[] ArtifactCardSprites;
+    public GameObject[] ItemCardSprites;    
     //Text    
     public GameObject system;
     public GameObject systemInBattle;
@@ -151,15 +171,26 @@ public class GameManager : MonoBehaviour {
 
         DefendButton.onClick.AddListener(DefendPicked);
         EvadeButton.onClick.AddListener(EvadePicked);
-        
+        EquipArtifactButton.onClick.AddListener(EquipSelectedArtifact);
+        UseItemButton.onClick.AddListener(UseSelectedItem);
+        RollButton.onClick.AddListener(GoToRoll);
+        FightPlayerButton.onClick.AddListener(FightPlayerPicked);
+        FightBossButton.onClick.AddListener(FightBossPicked);
+        IgnoreFightButton.onClick.AddListener(IgnoreFightPicked);
+
         GetHomePanels();
         SpawnCharacters();
         InitializeBounties();
 
         canvasInPlay.GetComponent<Canvas>().enabled = true;
-        canvasInBattle.GetComponent<Canvas>().enabled = false;
+        canvasInBattle.GetComponent<Canvas>().enabled = false;        
+        canvasFightChoice.GetComponent<Canvas>().enabled = false;
         DefendButton.gameObject.SetActive(false);
-        EvadeButton.gameObject.SetActive(false);
+        EvadeButton.gameObject.SetActive(false);        
+        EquipArtifactButton.gameObject.SetActive(false);
+        UseItemButton.gameObject.SetActive(false);
+        RollButton.gameObject.SetActive(false);
+
 
         currentPhase = TurnPhases.INITIAL;
         currentBattlePhase = BattlePhases.PLAYERATTACK;        
@@ -228,6 +259,11 @@ public class GameManager : MonoBehaviour {
                 characterScript.DiscardCardAt(Random.Range(0,characterScript.itemsOwned.Count));
             }
         }
+        if (Input.GetKeyDown("r"))
+        {
+            characterScript.DrawItemCards(1);
+            characterScript.DrawArtifactCards(1);
+        }
         //DEBUGGING
     }
 
@@ -272,7 +308,7 @@ public class GameManager : MonoBehaviour {
             {
                 opponentScript = character.GetComponent<Character>();
             }
-        }        
+        }  
 
         if (characterScript.card.fighterName == "White Hood")
         {
@@ -320,16 +356,24 @@ public class GameManager : MonoBehaviour {
 
         DisplayText("system", "You can change equipped artifact or use a item before rolling. Press Right Click to roll.");
 
-        //TODO: Set conditions to exit the initial phase
-        if (!Input.GetMouseButtonDown(1) && !reviving)
+        EquipArtifactButton.gameObject.SetActive(true);
+        UseItemButton.gameObject.SetActive(true);
+        RollButton.gameObject.SetActive(true);
+
+        if (!artifactCardsShown && !itemCardsShown)
+        { 
+            ShowArtifacts();
+            ShowItems();
+        }
+        
+
+        if (!initialSetupDone && !reviving)
         {
             canRollDice = false;
             yield return null;
         }
         else if (characterScript.card.isAlive)
-        {
-            canRollDice = true;
-            DisplayText("system", "Press Space to roll the Die");            
+        {           
             currentPhase = TurnPhases.MOVEMENT;
         }
         else if (!characterScript.card.isAlive)
@@ -368,7 +412,10 @@ public class GameManager : MonoBehaviour {
     }
 
     IEnumerator MovementPhase()
-    {       
+    {
+        ResetInitialObjects();
+
+        initialSetupDone = false;
 
         if (!wasDiceRolled && !waitingForMovement && !characterScript.isMoving)
         {
@@ -1220,6 +1267,26 @@ public class GameManager : MonoBehaviour {
         currentEvasion = 0;
         isDefending = false;
         isEvading = false;
+        fightPlayer = false;
+        fightBoss = false;
+        ignoreFight = false;
+    }
+
+    void ResetInitialObjects()
+    {
+        artifactCardsShown = false;
+        itemCardsShown = false;
+        EquipArtifactButton.gameObject.SetActive(false);
+        UseItemButton.gameObject.SetActive(false);
+        RollButton.gameObject.SetActive(false);
+        foreach (Transform child in canvasArtifactCards.transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+        foreach (Transform child in canvasItemCards.transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
     }
 
     void RollForMovement()
@@ -1402,8 +1469,13 @@ public class GameManager : MonoBehaviour {
 
     IEnumerator FightOpponentChoice()
     {
-        if(Input.GetMouseButtonDown(2))
+        canvasFightChoice.GetComponent<Canvas>().enabled = true;
+        FightPlayerButton.gameObject.SetActive(true);
+        FightBossButton.gameObject.SetActive(false);
+
+        if(fightPlayer)
         {
+            canvasFightChoice.GetComponent<Canvas>().enabled = false;
             isChoosingToFightOpponent = false;
             mustFightOpponent = true;
             diceRoll = 0;
@@ -1412,20 +1484,31 @@ public class GameManager : MonoBehaviour {
             currentPhase = TurnPhases.BATTLE;
 
         }
-        else if (Input.GetMouseButtonDown(1))
+        else if (ignoreFight)
         {
+            ignoreFight = false;
+            canvasFightChoice.GetComponent<Canvas>().enabled = false;
             isChoosingToFightOpponent = false;
-            diceRoll--;
-            if (diceRoll > 0)
+
+            if (characterScript.currentPanel.name.Contains("Boss") && diceRoll > 1)
             {
-                RollForMovement();
+                isChoosingToFightBoss = true;
+                FightBossChoice();
             }
             else
-            {
+            {   
+                diceRoll--;
 
-                characterScript.isMoving = false;
-                currentPhase = TurnPhases.PANEL;
-            }
+                if (diceRoll > 0)
+                {
+                    RollForMovement();
+                }
+                else
+                {
+                    characterScript.isMoving = false;
+                    currentPhase = TurnPhases.PANEL;
+                }
+            }            
         }
         else
         {
@@ -1435,8 +1518,13 @@ public class GameManager : MonoBehaviour {
 
     IEnumerator FightBossChoice()
     {
-        if (Input.GetMouseButtonDown(2))
+        canvasFightChoice.GetComponent<Canvas>().enabled = true;
+        FightPlayerButton.gameObject.SetActive(false);
+        FightBossButton.gameObject.SetActive(true);
+
+        if (fightBoss)
         {
+            canvasFightChoice.GetComponent<Canvas>().enabled = false;
             isChoosingToFightBoss = false;
             diceRoll = 0;
             wasDiceRolled = false;
@@ -1445,8 +1533,10 @@ public class GameManager : MonoBehaviour {
             currentPhase = TurnPhases.PANEL;
 
         }
-        else if (Input.GetMouseButtonDown(1))
+        else if (ignoreFight)
         {
+            ignoreFight = false;
+            canvasFightChoice.GetComponent<Canvas>().enabled = false;
             isChoosingToFightBoss = false;
             diceRoll--;
             if (diceRoll > 0)
@@ -1518,7 +1608,78 @@ public class GameManager : MonoBehaviour {
         isEvading = true;
         isDefending = false;
     }    
-    
+
+    void FightPlayerPicked()
+    {
+        fightPlayer = true;
+    }
+
+    void FightBossPicked()
+    {
+        fightBoss = true;
+    }
+
+    void IgnoreFightPicked()
+    {
+        ignoreFight = true;
+    }
+
+    void ShowArtifacts()
+    {
+        foreach (GameObject artifactCard in ArtifactCardSprites)
+        {
+            for (int i = 0; i < characterScript.artifactsOwned.Count; i++)
+            {
+                if (artifactCard.name == characterScript.artifactsOwned[i].spriteName)
+                {
+                    GameObject currentCard = Instantiate(artifactCard);
+                    currentCard.transform.SetParent(canvasArtifactCards.transform, false);
+                    currentCard.GetComponent<InHandCardScript>().inHandIndex = i;
+                    currentCard.transform.Translate(135 * i, 0, 0);
+
+                }
+            }
+
+            artifactCardsShown = true;
+        }
+    }
+
+    void EquipSelectedArtifact()
+    {
+        
+    }
+
+    void ShowItems()
+    {
+        foreach (GameObject itemCard in ItemCardSprites)
+        {
+            for (int i = 0; i < characterScript.itemsOwned.Count; i++)
+            {
+                if (itemCard.name == characterScript.itemsOwned[i].spriteName)
+                {
+                    GameObject currentCard = Instantiate(itemCard);
+                    currentCard.transform.SetParent(canvasItemCards.transform, false);
+                    currentCard.GetComponent<InHandCardScript>().inHandIndex = i;
+                    currentCard.transform.Translate(135 * i, 0, 0);
+                }
+            }
+        }
+
+        itemCardsShown = true;
+    }
+
+    void UseSelectedItem()
+    {
+
+    }
+
+    void GoToRoll()
+    {
+        initialSetupDone = true;        
+        canRollDice = false;
+        die.GetComponent<ApplyRandomForce>().RollDie();
+    }
+
     void DieRollState()
     {
         previousPhase = currentPhase;

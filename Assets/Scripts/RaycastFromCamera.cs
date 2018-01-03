@@ -10,6 +10,8 @@ public class RaycastFromCamera : MonoBehaviour
     public GameObject panelMarker;
     public GameObject selectedPanelPrefab;
     public GameObject selectedPanel;
+    public GameObject selectedArtifactCard;
+    public GameObject selectedItemCard;
 
     GameObject manager;
     GameManager managerScript;
@@ -23,10 +25,72 @@ public class RaycastFromCamera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Raycast();
+        RaycastPanel();
+        RaycastArtifactCards();
+        RaycastItemCards();
     }
 
-    void Raycast()
+    void RaycastArtifactCards()
+    {
+        selectedArtifactCard = selectedPanelPrefab;
+
+        RaycastHit hit;
+        Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            GameObject objectHit = hit.transform.gameObject;
+            //Debug.Log(objectHit.name);
+            if (objectHit.name.Contains("Panel"))
+            {
+                panelMarker.transform.position = (new Vector3(objectHit.transform.position.x,
+                                                            panelMarker.transform.position.y,
+                                                            objectHit.transform.position.z));
+            }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                selectedPanel = objectHit;
+            }
+
+        }
+        else
+        {
+            panelMarker.transform.position = (new Vector3(0, 3, 0));
+        }
+    }
+
+    void RaycastItemCards()
+    {
+        selectedItemCard = selectedPanelPrefab;
+
+        RaycastHit hit;
+        Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            GameObject objectHit = hit.transform.gameObject;
+            //Debug.Log(objectHit.name);
+            if (objectHit.name.Contains("Panel"))
+            {
+                panelMarker.transform.position = (new Vector3(objectHit.transform.position.x,
+                                                            panelMarker.transform.position.y,
+                                                            objectHit.transform.position.z));
+            }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                selectedPanel = objectHit;
+            }
+
+        }
+        else
+        {
+            panelMarker.transform.position = (new Vector3(0, 3, 0));
+        }
+    }
+
+    void RaycastPanel()
     {
         selectedPanel = selectedPanelPrefab;
 
