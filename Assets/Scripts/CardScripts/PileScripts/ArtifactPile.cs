@@ -10,13 +10,6 @@ public class ArtifactPile : Pile {
         csvStrings = csv.text.Split(stringSeparator, System.StringSplitOptions.None);
 
         GeneratePile();
-
-        //DEBUGGING
-        foreach(int card in cards)
-        {
-            Debug.Log(card);
-        }
-        //DEBUGGING
     }
 
     // Update is called once per frame

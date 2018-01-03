@@ -22,13 +22,6 @@ public class BossPile : Pile {
         }
 
         Shuffle();
-
-        //DEBUGGING
-        foreach (int card in cards)
-        {
-            Debug.Log(card);
-        }
-        //DEBUGGING
     }
 
     // Update is called once per frame
