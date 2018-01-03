@@ -1,0 +1,15 @@
+ID,name,type,nature,description,sprite,function
+0,Healing Potion,Item,Turn,Your Character recovers 1 HP.,HealingPotion,heal 1
+1,Greater Healing Potion,Item,Turn,Your Character recovers all HP.,GreaterHealingPotion,heal 3
+2,Scroll of Fireball,Item,Turn,Your Opponent loses 1 HP.,ScrollOfFireball,hit 1
+3,Scroll of Thunder,Item,Turn,Your Opponent loses 3 HP.,ScrollOfThunder,hit 3
+4,Lucky Retrieval,Item,Turn,"Roll a die. If you roll a 4 or higher, you gain an Artifact. If there are no Artifacts left, you can discard this Card and draw 1.",LuckyRetrieval,luckyroll 4
+5,Hermes Boots,Item,Turn,You gain movement +2. This Card is discarded after moving twice.,HermesBoots,movement 2
+6,Golden Thievery,Item,Turn,Steal a random Artifact from your opponent.,GoldenThievery,steal 1
+7,Ankh of Life,Item,Turn,Revive without roling the die. Proceed with your movement phase.,AnkhOfLife,revive 1
+8,An Eye for an Eye,Item,Turn,ACTIVATION COST: -2HP. Your Opponent gets -1 on each stat for the next Battle.,AnEyeForAnEye,fullDebuff 1
+9,Blessing,Item,Battle,Choose a stat. You gain +1 on that stat for the next Battle.,Blessing,buff 1
+10,Divine Blessing,Item,Battle,Choose a stat. You gain +2 on that stat for the next Battle.,DivineBlessing,buff 2
+11,Almighty Blessing,Item,Battle,You gain +1 on each stat for the next Battle.,AlmightyBlessing,fullBuff 1
+12,Smite,Item,Battle,Only usable when the Opponent is not a Character. Your Opponent loses 3 HP.,Smite,smite 3
+13,Distraction,Item,Battle,You can immediately flee from the Battle. Temporary Buffs are kept after the Battle.,Distraction,flee 1

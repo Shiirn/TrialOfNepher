@@ -80,10 +80,12 @@ public class GameManager : MonoBehaviour {
     GameObject artifactPile;
     GameObject monsterPile;
     GameObject bossPile;
+    GameObject itemPile;
     //Pile Scripts
     ArtifactPile artifactPileScript;
     MonsterPile monsterPileScript;
     BossPile bossPileScript;
+    ItemPile itemPileScript;
 
     //UI Objects
     public Canvas canvasInPlay;
@@ -107,7 +109,7 @@ public class GameManager : MonoBehaviour {
     public GameObject attackerStats;
     public GameObject enemyStats;
 
-    //Battle vars
+    //Battle Vars
     bool mustFightOpponent = false;
     bool pvpCardsAreSet = false;
     bool isDefending = false;
@@ -115,10 +117,21 @@ public class GameManager : MonoBehaviour {
     int currentAttack = 0;
     int currentDefense = 0;
     int currentEvasion = 0;
-    //Temporary battle Scripts
+    //Temporary Battle Scripts
     public FighterCard attackerCard;
     public FighterCard targetCard;
 
+    //Bounty Vars
+    public struct Bounty
+    {
+        public int artifacts;
+        public int levels;
+        public int items;
+    }
+
+    Bounty monsterBounty;
+    Bounty bossBounty;
+    Bounty characterBounty;
 
     void Start()
     {
@@ -128,6 +141,8 @@ public class GameManager : MonoBehaviour {
         monsterPileScript = monsterPile.GetComponent<MonsterPile>();
         bossPile = GameObject.Find("BossCardPile");
         bossPileScript = bossPile.GetComponent<BossPile>();
+        itemPile = GameObject.Find("ItemCardPile");
+        itemPileScript = itemPile.GetComponent<ItemPile>();
 
         dieScript = die.GetComponent<DisplayDieValue>();
 
@@ -139,6 +154,7 @@ public class GameManager : MonoBehaviour {
         
         GetHomePanels();
         SpawnCharacters();
+        InitializeBounties();
 
         canvasInPlay.GetComponent<Canvas>().enabled = true;
         canvasInBattle.GetComponent<Canvas>().enabled = false;
@@ -192,6 +208,25 @@ public class GameManager : MonoBehaviour {
         if (Input.GetKeyDown("j"))
         {
             bossScript.bossCard.GetDamaged(1);
+        }
+        if (Input.GetKeyDown("k"))
+        {
+            monsterScript.monsterCard.GetDamaged(1);
+        }
+        if (Input.GetKeyDown("a"))
+        {
+            characterScript.card.GetDamaged(1);
+        }
+        if (Input.GetKeyDown("s"))
+        {
+            opponentScript.card.GetDamaged(1);
+        }
+        if (Input.GetKeyDown("d"))
+        {
+            if (characterScript.itemsOwned.Count > 0)
+            {
+                characterScript.DiscardCardAt(Random.Range(0,characterScript.itemsOwned.Count));
+            }
         }
         //DEBUGGING
     }
@@ -465,13 +500,6 @@ public class GameManager : MonoBehaviour {
                             }
                             else if (!bossScript.bossCard.isAlive)
                             {
-                                characterScript.card.LevelUp(2);
-
-                                DisplayText("systemInBattle", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are "
-                                    + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
-                                    + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
-                                     + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
-
                                 currentBattlePhase = BattlePhases.ENDOFBATTLE;
                             }
 
@@ -570,13 +598,17 @@ public class GameManager : MonoBehaviour {
 
                             if (artifactPileScript.cards.Count > 0)
                             {
-                                characterScript.card.artifactsOwned.Add(artifactPileScript.Draw());
-
-                                if (artifactPileScript.cards.Count > 0)
-                                {
-                                    characterScript.card.artifactsOwned.Add(artifactPileScript.Draw());
-                                }
+                                characterScript.DrawArtifactCards(bossBounty.artifacts);
                             }
+
+                            characterScript.DrawItemCards(bossBounty.items);
+
+                            characterScript.card.LevelUp(bossBounty.levels);
+
+                            DisplayText("systemInBattle", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are "
+                                 + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
+                                 + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
+                                 + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
                         }
 
                         ResetBattleCounters();
@@ -702,13 +734,6 @@ public class GameManager : MonoBehaviour {
                             }
                             else if (!monsterScript.monsterCard.isAlive)
                             {
-                                characterScript.card.LevelUp(1);
-
-                                DisplayText("systemInBattle", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are " 
-                                    + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
-                                    + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
-                                     + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
-
                                 currentBattlePhase = BattlePhases.ENDOFBATTLE;
                             }
 
@@ -808,8 +833,17 @@ public class GameManager : MonoBehaviour {
 
                             if (artifactPileScript.cards.Count > 0)
                             {
-                                characterScript.card.artifactsOwned.Add(artifactPileScript.Draw());
+                                characterScript.DrawArtifactCards(monsterBounty.artifacts);
                             }
+
+                            characterScript.DrawItemCards(monsterBounty.items);
+
+                            characterScript.card.LevelUp(monsterBounty.levels);
+
+                            DisplayText("systemInBattle", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are "
+                                 + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
+                                 + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
+                                 + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
                         }
 
                         ResetBattleCounters();
@@ -956,11 +990,6 @@ public class GameManager : MonoBehaviour {
                                 }
                                 else if (!opponentScript.card.isAlive)
                                 {
-                                    characterScript.card.LevelUp(1);
-                                    DisplayText("systemInBattle", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are " 
-                                        + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
-                                        + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
-                                         + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
                                     currentBattlePhase = BattlePhases.ENDOFBATTLE;
                                 }
                             }                            
@@ -1064,6 +1093,44 @@ public class GameManager : MonoBehaviour {
                         break;
 
                     case BattlePhases.ENDOFBATTLE:
+
+                        if (!opponentScript.card.isAlive)
+                        {
+                            Debug.Log("This is happening, right?");
+
+                            if (artifactPileScript.cards.Count > 0)
+                            {
+                                characterScript.DrawArtifactCards(characterBounty.artifacts);
+                            }
+
+                            characterScript.DrawItemCards(characterBounty.items);
+
+                            characterScript.card.LevelUp(characterBounty.levels);
+
+                            DisplayText("systemInBattle", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are "
+                                 + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
+                                 + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
+                                 + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
+                        }
+
+                        if (!characterScript.card.isAlive)
+                        {
+                            Debug.Log("This is happening, right?");
+
+                            if (artifactPileScript.cards.Count > 0)
+                            {
+                                opponentScript.DrawArtifactCards(characterBounty.artifacts);
+                            }
+
+                            opponentScript.DrawItemCards(characterBounty.items);
+
+                            opponentScript.card.LevelUp(characterBounty.levels);
+
+                            DisplayText("systemInBattle", "Your current level is " + opponentScript.card.level + "\n" + "Your current stats are "
+                                 + (opponentScript.card.levelCounters.attack + opponentScript.card.buffCounters.attack)
+                                 + (opponentScript.card.levelCounters.defense + +opponentScript.card.buffCounters.defense)
+                                 + (opponentScript.card.levelCounters.evasion + opponentScript.card.buffCounters.evasion));
+                        }
 
                         ResetBattleCounters();
 
@@ -1537,5 +1604,20 @@ public class GameManager : MonoBehaviour {
                 AbilityScript.ActivateArtifactAbility(ability);
             }
         }
+    }
+
+    public void InitializeBounties()
+    {
+        monsterBounty.items = 1;
+        monsterBounty.artifacts = 1;
+        monsterBounty.levels = 1;
+
+        bossBounty.items = 1;
+        bossBounty.artifacts = 2;
+        bossBounty.levels = 2;
+
+        characterBounty.items = 1;
+        characterBounty.artifacts = 1;
+        characterBounty.levels = 1;
     }
 }

@@ -27,8 +27,6 @@ public class FighterCard
     public string spriteName;
     public Sprite cardImg;
     public bool isAlive;
-    public ArtifactCard equippedArtifact;
-    public List<ArtifactCard> artifactsOwned = new List<ArtifactCard>();
     public List<string> abilities = new List<string>();
 
     public virtual void GetDamaged(int damage)
@@ -95,48 +93,17 @@ public class CharacterCard : FighterCard
         }
     }
 
-
     public override void GetDamaged(int damage)
     {
         hp -= damage;
+
         if (hp <= 0)
         {
             isAlive = false;
             hp = 0;
+
             if(level > 0)
-            LevelDown(1);
-        }
-    }
-
-    void Equip(ArtifactCard artifactCard)
-    {
-        if(equippedArtifact != null)
-        {
-            Unequip(equippedArtifact);
-        }
-
-        abilities.Add(artifactCard.ability);
-        artifactCounters.attack += artifactCard.stats.attack;
-        artifactCounters.defense += artifactCard.stats.defense;
-        artifactCounters.evasion += artifactCard.stats.evasion;
-        artifactCounters.maxHp += artifactCard.stats.maxHp;
-        hp += artifactCard.stats.maxHp;
-    }
-
-    void Unequip(ArtifactCard artifactCard)
-    {
-        for(int i = 0; i < abilities.Count; i++)
-        {
-            if(abilities[i] == artifactCard.ability)
-            {
-                abilities.RemoveAt(i);
-            }
-
-            artifactCounters.attack -= artifactCard.stats.attack;
-            artifactCounters.defense -= artifactCard.stats.defense;
-            artifactCounters.evasion -= artifactCard.stats.evasion;
-            artifactCounters.maxHp -= artifactCard.stats.maxHp;
-            GetDamaged(artifactCard.stats.maxHp);
+                LevelDown(1);
         }
     }
 
@@ -217,6 +184,6 @@ public class MonsterCard : FighterCard
 
         spriteName = "sprite" + sprite;
 
-        cardImg = Resources.Load(spriteName) as Sprite;
+        //cardImg = Resources.Load(spriteName) as Sprite;
     }
 }

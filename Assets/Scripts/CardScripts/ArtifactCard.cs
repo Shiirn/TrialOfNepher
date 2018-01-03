@@ -36,10 +36,11 @@ public class ArtifactCard
         description = _description;
         ability = _ability;
 
+        spriteName = "sprite" + sprite;
+
         stats.attack = attack;
         stats.defense = defense;
         stats.evasion = evasion;
         stats.maxHp = maxHp;
     }
-    
 }

@@ -27,7 +27,7 @@ public class Pile : MonoBehaviour {
         }
     }
 
-    public void Discard(int id)
+    public virtual void Discard(int id)
     {
         discardedCards.Add(id);
 
@@ -49,8 +49,7 @@ public class Pile : MonoBehaviour {
 
         Shuffle();
     }
-
-    // Use this for initialization
+    
     void Start () {
         csvStrings = csv.text.Split(stringSeparator, System.StringSplitOptions.None);
     }
