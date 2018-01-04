@@ -16,7 +16,6 @@ public struct Stats
 
 public class FighterCard
 {
-
     public Stats stats;
     public int hp;
     public int id;
@@ -37,6 +36,18 @@ public class FighterCard
             isAlive = false;
             hp = 0;
         }
+    }
+
+    public virtual Stats GetCurrentStats()
+    {
+        Stats currentStats;
+
+        currentStats.attack = stats.attack;
+        currentStats.defense = stats.defense;
+        currentStats.evasion = stats.evasion;
+        currentStats.maxHp = stats.maxHp;
+
+        return currentStats;
     }
 }
 
@@ -107,6 +118,18 @@ public class CharacterCard : FighterCard
         }
     }
 
+    public override Stats GetCurrentStats()
+    {
+        Stats currentStats;
+
+        currentStats.attack = stats.attack + buffCounters.attack + artifactCounters.attack + levelCounters.attack;
+        currentStats.defense = stats.defense + buffCounters.defense + artifactCounters.defense + levelCounters.defense;
+        currentStats.evasion = stats.evasion + buffCounters.evasion + artifactCounters.evasion + levelCounters.evasion;
+        currentStats.maxHp = stats.maxHp + buffCounters.maxHp + artifactCounters.maxHp + levelCounters.maxHp;
+
+        return currentStats;
+    }
+
     public CharacterCard(int _id)
     {
         id = _id;
@@ -132,11 +155,6 @@ public class CharacterCard : FighterCard
         levelCounters.attack = 0;
         levelCounters.defense = 0;
         levelCounters.evasion = 0;
-    }
-
-    new public string ToString()
-    {
-        return fighterName + " " + id + " " + nature + " " + description + " " + isAlive + " " + stats.attack + " " + stats.maxHp;
     }
 
     public void Buff(Stats buff)

@@ -36,6 +36,18 @@ public class ArtifactPile : Pile {
 
         string[] parsedString = stringToDraw.Split(',');
 
+        Debug.Log(System.Convert.ToInt32(parsedString[0]) + " " +
+                                parsedString[1] + " " +
+                                parsedString[2] + " " +
+                                parsedString[3] + " " +
+                                parsedString[4] + " " +
+                                System.Convert.ToInt32(parsedString[5]) + " " +
+                                System.Convert.ToInt32(parsedString[6]) + " " +
+                                System.Convert.ToInt32(parsedString[7]) + " " +
+                                System.Convert.ToInt32(parsedString[8]) + " " +
+                                parsedString[9] + " " +
+                                parsedString[10]);
+
         return new ArtifactCard(System.Convert.ToInt32(parsedString[0]),
                                 parsedString[1],
                                 parsedString[2],
@@ -46,6 +58,6 @@ public class ArtifactPile : Pile {
                                 System.Convert.ToInt32(parsedString[7]),
                                 System.Convert.ToInt32(parsedString[8]),
                                 parsedString[9],
-                                parsedString[10]);
+                                parsedString[10]);        
     }
 }

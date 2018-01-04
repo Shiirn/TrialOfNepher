@@ -26,7 +26,7 @@ public class PanelMonster : Panel {
             activeMonsterScript.isMonsterActive = true;
             monsterCardPileScript.FlipNewActiveMonster();
 
-            foreach (GameObject prefab in managerScript.MonsterSprites)
+            foreach (GameObject prefab in managerScript.monsterSprites)
             {                
                 if (prefab.name == activeMonsterScript.monsterCard.spriteName)
                 {                    

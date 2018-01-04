@@ -3,7 +3,7 @@ ID,name,type,nature,description,sprite,function
 1,Greater Healing Potion,Item,Turn,Your Character recovers all HP.,GreaterHealingPotion,heal 3
 2,Scroll of Fireball,Item,Turn,Your Opponent loses 1 HP.,ScrollOfFireball,hit 1
 3,Scroll of Thunder,Item,Turn,Your Opponent loses 3 HP.,ScrollOfThunder,hit 3
-4,Lucky Retrieval,Item,Turn,"Roll a die. If you roll a 4 or higher, you gain an Artifact. If there are no Artifacts left, you can discard this Card and draw 1.",LuckyRetrieval,luckyroll 4
+4,Lucky Retrieval,Item,Turn,Roll a die. If you roll a 4 or higher: you gain an Artifact. If there are no Artifacts left: you can discard this Card and draw 1.,LuckyRetrieval,luckyroll 4
 5,Hermes Boots,Item,Turn,You gain movement +2. This Card is discarded after moving twice.,HermesBoots,movement 2
 6,Golden Thievery,Item,Turn,Steal a random Artifact from your opponent.,GoldenThievery,steal 1
 7,Ankh of Life,Item,Turn,Revive without roling the die. Proceed with your movement phase.,AnkhOfLife,revive 1

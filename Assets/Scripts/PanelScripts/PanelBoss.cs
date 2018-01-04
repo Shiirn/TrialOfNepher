@@ -26,7 +26,7 @@ public class PanelBoss : Panel {
             activeBossScript.isBossActive = true;
             bossCardPileScript.FlipNewActiveBoss();
 
-            foreach (GameObject prefab in managerScript.BossSprites)
+            foreach (GameObject prefab in managerScript.bossSprites)
             {
                 if (prefab.name == activeBossScript.bossCard.spriteName)
                 {

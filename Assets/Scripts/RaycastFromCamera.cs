@@ -71,12 +71,21 @@ public class RaycastFromCamera : MonoBehaviour
         {
             GameObject objectHit = hit.transform.gameObject;
             //Debug.Log(objectHit.name);
-            if (objectHit.name.Contains("Panel"))
+
+            if (objectHit.name.Contains("sprite"))
             {
-                panelMarker.transform.position = (new Vector3(objectHit.transform.position.x,
-                                                            panelMarker.transform.position.y,
-                                                            objectHit.transform.position.z));
+                foreach(GameObject item in managerScript.itemCardSprites)
+                {
+                    if(objectHit.name.Contains(item.name))
+                    {
+                        Debug.Log("wewe");
+                    }
+                }
             }
+            panelMarker.transform.position = (new Vector3(objectHit.transform.position.x,
+                                                        panelMarker.transform.position.y,
+                                                        objectHit.transform.position.z));
+            
 
             if (Input.GetMouseButtonDown(0))
             {

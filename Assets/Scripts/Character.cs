@@ -17,12 +17,14 @@ public class Character : Fighter {
 
     public List<ItemCard> itemsOwned = new List<ItemCard>();
 
-    void Equip(ArtifactCard artifactCard)
+    public void Equip(ArtifactCard artifactCard)
     {
         if (equippedArtifact != null)
         {
             Unequip(equippedArtifact);
         }
+
+        equippedArtifact = artifactCard;
 
         card.abilities.Add(artifactCard.ability);
         card.artifactCounters.attack += artifactCard.stats.attack;
@@ -32,7 +34,7 @@ public class Character : Fighter {
         card.hp += artifactCard.stats.maxHp;
     }
 
-    void Unequip(ArtifactCard artifactCard)
+    public void Unequip(ArtifactCard artifactCard)
     {
         for (int i = 0; i < card.abilities.Count; i++)
         {
