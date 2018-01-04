@@ -432,7 +432,9 @@ MonoBehaviour:
   monsterScript: {fileID: 0}
   bossScript: {fileID: 0}
   board: {fileID: 1225306294}
-  homePanels: []
+  homePanels:
+  - {fileID: 1092824430448638, guid: 22342cce52aa16d4297b4a046816e490, type: 2}
+  - {fileID: 1946377238582530, guid: d53251703e95d554385087c976e9458a, type: 2}
   dieContainer: {fileID: 1253231646}
   die: {fileID: 1374172157}
   canvasInPlay: {fileID: 841302544}

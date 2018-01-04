@@ -31,6 +31,11 @@ public class MonsterPile : Pile {
 
     public MonsterCard FlipNewActiveMonster()
     {
+        if(cards.Count <= 0)
+        {
+            ResetDiscardedCards();
+        }
+
         int drawnCard = cards[cards.Count - 1];
 
         cards.RemoveAt(cards.Count - 1);

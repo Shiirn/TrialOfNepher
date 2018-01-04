@@ -76,8 +76,7 @@ public class GameManager : MonoBehaviour {
     public List<GameObject> characters = new List<GameObject>();
     //Character Scripts
     public Character characterScript;
-    public Character opponentScript;    
-    HomePanelIdentifier homePanelIdentifier;
+    public Character opponentScript;
 
     //Monster Scripts
     public ActiveFighter monsterScript;
@@ -85,7 +84,7 @@ public class GameManager : MonoBehaviour {
 
     //Board Objects
     public GameObject board;
-    public List<GameObject> homePanels = new List<GameObject>();
+    public List<GameObject> homePanels;
     //Board Scripts
     BoardMap boardMap;
     Panel panelScript;
@@ -180,6 +179,9 @@ public class GameManager : MonoBehaviour {
         itemPile = GameObject.Find("ItemCardPile");
         itemPileScript = itemPile.GetComponent<ItemPile>();
 
+        SpawnCharacters();
+        InitializeBounties();
+
         dieScript = die.GetComponent<DisplayDieValue>();
 
         boardMap = board.GetComponent<BoardMap>();
@@ -194,10 +196,6 @@ public class GameManager : MonoBehaviour {
         FightBossButton.onClick.AddListener(FightBossPicked);
         IgnoreFightButton.onClick.AddListener(IgnoreFightPicked);
 
-        GetHomePanels();
-        SpawnCharacters();
-        InitializeBounties();
-
         canvasInPlay.GetComponent<Canvas>().enabled = true;
         canvasInBattle.GetComponent<Canvas>().enabled = false;        
         canvasFightChoice.GetComponent<Canvas>().enabled = false;
@@ -209,7 +207,7 @@ public class GameManager : MonoBehaviour {
 
         currentPhase = TurnPhases.INITIAL;
         currentInitialSubPhase = InitialSubPhases.SETUP;
-        currentBattlePhase = BattlePhases.PLAYERATTACK;        
+        currentBattlePhase = BattlePhases.PLAYERATTACK;
     }
 	
 	void Update() {
@@ -280,37 +278,34 @@ public class GameManager : MonoBehaviour {
             characterScript.DrawItemCards(1);
             characterScript.DrawArtifactCards(1);
         }
+        if (Input.GetKeyDown("1"))
+        {
+            diceRoll += 1;
+        }
+        if (Input.GetKeyDown("2"))
+        {
+            diceRoll -= 1;
+        }
         //DEBUGGING
     }
 
-    void GetHomePanels()
-    {
-        homePanels.Add(boardMap.GetPanel("PanelHome1(Clone)"));
-        homePanels.Add(boardMap.GetPanel("PanelHome2(Clone)"));
-    }
-
-    void SpawnCharacters()
+    public void SpawnCharacters()
     {
         for (int i = 0; i < characterPrefabs.Length; i++)
         {
             characters.Add(Instantiate(characterPrefabs[i]));
-            homePanelIdentifier = characters[i].GetComponent<HomePanelIdentifier>();
-            characterScript = characters[i].GetComponent<Character>();            
+            characterScript = characters[i].GetComponent<Character>();      
+            
+            GameObject currentHomePanel = GameObject.Find(homePanels[i].name + "(Clone)");
 
-            foreach (GameObject panel in boardMap.board)
-            {
-                if (panel.name.Contains(homePanelIdentifier.homePanel.name))
-                {
-                    panelScript = panel.GetComponent<Panel>();
-                    characterScript.boardX = panelScript.boardX;
-                    characterScript.boardY = panelScript.boardY;
-                    characters[i].transform.position = new Vector3(
-                        characterScript.boardX, 0.9f, characterScript.boardY);
+            panelScript = currentHomePanel.GetComponent<Panel>();
+            characterScript.boardX = (int)currentHomePanel.transform.position.x;
+            characterScript.boardY = (int)currentHomePanel.transform.position.z;
+            characters[i].transform.position = new Vector3(
+                characterScript.boardX, 0.9f, characterScript.boardY);
 
-                    characterScript.SetCurrentPanel(panel);
-                    characterScript.card = new CharacterCard(i);
-                }
-            }
+            characterScript.SetCurrentPanel(currentHomePanel);
+            characterScript.card = new CharacterCard(i);
         }
     }
 
@@ -330,21 +325,6 @@ public class GameManager : MonoBehaviour {
                     }
                 }
 
-                if (characterScript.card.fighterName == "White Hood")
-                {
-                    blackHoodSprite.GetComponent<CanvasGroup>().alpha = 0.2f;
-                    whiteHoodSprite.GetComponent<CanvasGroup>().alpha = 1f;
-                    DisplayStats(characterScript.card, "whiteHood");
-                    DisplayStats(opponentScript.card, "blackHood");
-                }
-                else
-                {
-                    blackHoodSprite.GetComponent<CanvasGroup>().alpha = 1f;
-                    whiteHoodSprite.GetComponent<CanvasGroup>().alpha = 0.2f;
-                    DisplayStats(characterScript.card, "blackHood");
-                    DisplayStats(opponentScript.card, "whiteHood");
-                }
-
                 DisplayText("system", "You can change equipped artifact or use a item before rolling. Press Right Click to roll.");
 
                 EquipArtifactButton.gameObject.SetActive(true);
@@ -359,6 +339,21 @@ public class GameManager : MonoBehaviour {
                 break;
 
             case InitialSubPhases.STANDBY:
+
+                if (characterScript.card.fighterName == "White Hood")
+                {
+                    blackHoodSprite.GetComponent<CanvasGroup>().alpha = 0.2f;
+                    whiteHoodSprite.GetComponent<CanvasGroup>().alpha = 1f;
+                    DisplayStats(characterScript.card, "whiteHood");
+                    DisplayStats(opponentScript.card, "blackHood");
+                }
+                else
+                {
+                    blackHoodSprite.GetComponent<CanvasGroup>().alpha = 1f;
+                    whiteHoodSprite.GetComponent<CanvasGroup>().alpha = 0.2f;
+                    DisplayStats(characterScript.card, "blackHood");
+                    DisplayStats(opponentScript.card, "whiteHood");
+                }
 
                 if (!initialSetupDone && !reviving)
                 {

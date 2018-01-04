@@ -19,11 +19,8 @@ public class PanelMonster : Panel {
         GameObject monsterCardPile = GameObject.Find("MonsterCardPile");
         MonsterPile monsterCardPileScript = monsterCardPile.GetComponent<MonsterPile>();
 
-        activeMonsterScript.CheckIfMonsterIsAlive();
-
-        if (!activeMonsterScript.isMonsterActive)
+        if (activeMonsterScript.bossCard == null || activeMonsterScript.bossCard.isAlive == false)
         {
-            activeMonsterScript.isMonsterActive = true;
             monsterCardPileScript.FlipNewActiveMonster();
 
             foreach (GameObject prefab in managerScript.monsterSprites)
