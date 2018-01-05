@@ -114,10 +114,14 @@ public class GameManager : MonoBehaviour {
     public Canvas canvasInitial;
     public Canvas canvasArtifactCards;
     public Canvas canvasItemCards;
+    public Canvas canvasMorphBall;
     //Buttons        
     public Button DefendButton;
     public Button EvadeButton;
     public Button EquipArtifactButton;
+    public Button MorphBallAttackButton;
+    public Button MorphBallDefenseButton;
+    public Button MorphBallEvasionButton;
     public Button UseItemButton;
     public Button RollButton;
     public Button FightPlayerButton;
@@ -196,8 +200,12 @@ public class GameManager : MonoBehaviour {
         FightPlayerButton.onClick.AddListener(FightPlayerPicked);
         FightBossButton.onClick.AddListener(FightBossPicked);
         IgnoreFightButton.onClick.AddListener(IgnoreFightPicked);
+        MorphBallAttackButton.onClick.AddListener(PickAttackMorph);
+        MorphBallDefenseButton.onClick.AddListener(PickDefenseMorph);
+        MorphBallEvasionButton.onClick.AddListener(PickEvasionMorph);
 
         canvasInPlay.GetComponent<Canvas>().enabled = true;
+        canvasMorphBall.GetComponent<Canvas>().enabled = false;
         canvasInBattle.GetComponent<Canvas>().enabled = false;        
         canvasFightChoice.GetComponent<Canvas>().enabled = false;
         DefendButton.gameObject.SetActive(false);
@@ -1683,7 +1691,17 @@ public class GameManager : MonoBehaviour {
         {
             int cardToEquipIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
 
-            characterScript.Equip(characterScript.artifactsOwned[cardToEquipIndex]);
+            if(characterScript.artifactsOwned[cardToEquipIndex].artifactName.Contains("Morph"))
+            {
+                if (!characterScript.equippedArtifact.artifactName.Contains("Morph"))
+                    canvasMorphBall.GetComponent<Canvas>().enabled = true;
+            }
+            else
+            {
+                canvasMorphBall.GetComponent<Canvas>().enabled = false;
+                characterScript.Equip(characterScript.artifactsOwned[cardToEquipIndex]);
+            }
+                
         }
     }
 
@@ -1860,8 +1878,40 @@ public class GameManager : MonoBehaviour {
         {
             int lostCardIndex = Random.Range(0, opponentScript.artifactsOwned.Count);
 
-            characterScript.artifactsOwned.Add(characterScript.artifactsOwned[lostCardIndex]);
+            characterScript.artifactsOwned.Add(opponentScript.artifactsOwned[lostCardIndex]);
             opponentScript.LoseArtifact(lostCardIndex);
         }
     }
+
+    public void PickAttackMorph()
+    {
+        int cardToEquipIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
+        characterScript.artifactsOwned[cardToEquipIndex].stats.attack = 1;
+        characterScript.artifactsOwned[cardToEquipIndex].stats.defense = 0;
+        characterScript.artifactsOwned[cardToEquipIndex].stats.evasion = 0;
+        characterScript.Equip(characterScript.artifactsOwned[cardToEquipIndex]);
+        canvasMorphBall.GetComponent<Canvas>().enabled = false;
+    }
+
+    public void PickDefenseMorph()
+    {
+        int cardToEquipIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
+        characterScript.artifactsOwned[cardToEquipIndex].stats.attack = 0;
+        characterScript.artifactsOwned[cardToEquipIndex].stats.defense = 1;
+        characterScript.artifactsOwned[cardToEquipIndex].stats.evasion = 0;
+        characterScript.Equip(characterScript.artifactsOwned[cardToEquipIndex]);
+        canvasMorphBall.GetComponent<Canvas>().enabled = false;
+
+    }
+
+    public void PickEvasionMorph()
+    {
+        int cardToEquipIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
+        characterScript.artifactsOwned[cardToEquipIndex].stats.attack = 0;
+        characterScript.artifactsOwned[cardToEquipIndex].stats.defense = 0;
+        characterScript.artifactsOwned[cardToEquipIndex].stats.evasion = 1;
+        characterScript.Equip(characterScript.artifactsOwned[cardToEquipIndex]);
+        canvasMorphBall.GetComponent<Canvas>().enabled = false;
+    }
+
 }
