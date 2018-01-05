@@ -35,6 +35,7 @@ public class Character : Fighter
             {
                 card.abilities.Add(artifactCard.ability);
             }
+
             card.artifactCounters.attack += artifactCard.stats.attack;
             card.artifactCounters.defense += artifactCard.stats.defense;
             card.artifactCounters.evasion += artifactCard.stats.evasion;
@@ -50,14 +51,14 @@ public class Character : Fighter
             if (card.abilities[i] == artifactCard.ability)
             {
                 card.abilities.RemoveAt(i);
-            }
-
-            card.artifactCounters.attack -= artifactCard.stats.attack;
-            card.artifactCounters.defense -= artifactCard.stats.defense;
-            card.artifactCounters.evasion -= artifactCard.stats.evasion;
-            card.artifactCounters.maxHp -= artifactCard.stats.maxHp;
-            card.GetDamaged(artifactCard.stats.maxHp);
+            }            
         }
+
+        card.artifactCounters.attack -= artifactCard.stats.attack;
+        card.artifactCounters.defense -= artifactCard.stats.defense;
+        card.artifactCounters.evasion -= artifactCard.stats.evasion;
+        card.artifactCounters.maxHp -= artifactCard.stats.maxHp;
+        card.GetDamaged(artifactCard.stats.maxHp);
     }
 
     public void SetCurrentPanel(GameObject _currentPanel)

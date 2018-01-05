@@ -297,6 +297,24 @@ public class GameManager : MonoBehaviour {
         }
         //DEBUGGING
 
+        if(currentPhase != TurnPhases.BATTLE)
+        {
+            if (characterScript.card.fighterName == "White Hood")
+            {
+                blackHoodSprite.GetComponent<CanvasGroup>().alpha = 0.2f;
+                whiteHoodSprite.GetComponent<CanvasGroup>().alpha = 1f;
+                DisplayStats(characterScript.card, "whiteHood");
+                DisplayStats(opponentScript.card, "blackHood");
+            }
+            else
+            {
+                blackHoodSprite.GetComponent<CanvasGroup>().alpha = 1f;
+                whiteHoodSprite.GetComponent<CanvasGroup>().alpha = 0.2f;
+                DisplayStats(characterScript.card, "blackHood");
+                DisplayStats(opponentScript.card, "whiteHood");
+            }
+        }
+
         if (canRollDice)
             RollButton.gameObject.SetActive(true);
         else
@@ -358,21 +376,6 @@ public class GameManager : MonoBehaviour {
                 break;
 
             case InitialSubPhases.STANDBY:
-
-                if (characterScript.card.fighterName == "White Hood")
-                {
-                    blackHoodSprite.GetComponent<CanvasGroup>().alpha = 0.2f;
-                    whiteHoodSprite.GetComponent<CanvasGroup>().alpha = 1f;
-                    DisplayStats(characterScript.card, "whiteHood");
-                    DisplayStats(opponentScript.card, "blackHood");
-                }
-                else
-                {
-                    blackHoodSprite.GetComponent<CanvasGroup>().alpha = 1f;
-                    whiteHoodSprite.GetComponent<CanvasGroup>().alpha = 0.2f;
-                    DisplayStats(characterScript.card, "blackHood");
-                    DisplayStats(opponentScript.card, "whiteHood");
-                }
 
                 if (!initialSetupDone)
                 {                    
@@ -1689,19 +1692,31 @@ public class GameManager : MonoBehaviour {
     {
         if(selectedArtifactCard != null)
         {
-            int cardToEquipIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
+            int selectedArtifactIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
 
-            if(characterScript.artifactsOwned[cardToEquipIndex].artifactName.Contains("Morph"))
+            Debug.Log(characterScript.artifactsOwned[selectedArtifactIndex].ability);
+
+            if (characterScript.artifactsOwned[selectedArtifactIndex] != characterScript.equippedArtifact ||
+                characterScript.equippedArtifact == null)
             {
-                if (!characterScript.equippedArtifact.artifactName.Contains("Morph"))
-                    canvasMorphBall.GetComponent<Canvas>().enabled = true;
+                if (characterScript.artifactsOwned[selectedArtifactIndex].ability != "")
+                {
+                    string abilityName = characterScript.artifactsOwned[selectedArtifactIndex].ability.Split(' ')[0];
+
+                    if (abilityName == "morph")
+                    {
+                        canvasMorphBall.GetComponent<Canvas>().enabled = true;
+                    }
+                    else
+                    {
+                        characterScript.Equip(characterScript.artifactsOwned[selectedArtifactIndex]);
+                    }
+                }
+                else
+                {
+                    characterScript.Equip(characterScript.artifactsOwned[selectedArtifactIndex]);
+                }
             }
-            else
-            {
-                canvasMorphBall.GetComponent<Canvas>().enabled = false;
-                characterScript.Equip(characterScript.artifactsOwned[cardToEquipIndex]);
-            }
-                
         }
     }
 
@@ -1885,32 +1900,38 @@ public class GameManager : MonoBehaviour {
 
     public void PickAttackMorph()
     {
-        int cardToEquipIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
-        characterScript.artifactsOwned[cardToEquipIndex].stats.attack = 1;
-        characterScript.artifactsOwned[cardToEquipIndex].stats.defense = 0;
-        characterScript.artifactsOwned[cardToEquipIndex].stats.evasion = 0;
-        characterScript.Equip(characterScript.artifactsOwned[cardToEquipIndex]);
+        int morphIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
+
+        characterScript.artifactsOwned[morphIndex].stats.attack = 1;
+        characterScript.artifactsOwned[morphIndex].stats.defense = 0;
+        characterScript.artifactsOwned[morphIndex].stats.evasion = 0;
+        characterScript.Equip(characterScript.artifactsOwned[morphIndex]);
+
         canvasMorphBall.GetComponent<Canvas>().enabled = false;
     }
 
     public void PickDefenseMorph()
     {
-        int cardToEquipIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
-        characterScript.artifactsOwned[cardToEquipIndex].stats.attack = 0;
-        characterScript.artifactsOwned[cardToEquipIndex].stats.defense = 1;
-        characterScript.artifactsOwned[cardToEquipIndex].stats.evasion = 0;
-        characterScript.Equip(characterScript.artifactsOwned[cardToEquipIndex]);
+        int morphIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
+
+        characterScript.artifactsOwned[morphIndex].stats.attack = 0;
+        characterScript.artifactsOwned[morphIndex].stats.defense = 1;
+        characterScript.artifactsOwned[morphIndex].stats.evasion = 0;
+        characterScript.Equip(characterScript.artifactsOwned[morphIndex]);
+
         canvasMorphBall.GetComponent<Canvas>().enabled = false;
 
     }
 
     public void PickEvasionMorph()
     {
-        int cardToEquipIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
-        characterScript.artifactsOwned[cardToEquipIndex].stats.attack = 0;
-        characterScript.artifactsOwned[cardToEquipIndex].stats.defense = 0;
-        characterScript.artifactsOwned[cardToEquipIndex].stats.evasion = 1;
-        characterScript.Equip(characterScript.artifactsOwned[cardToEquipIndex]);
+        int morphIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
+
+        characterScript.artifactsOwned[morphIndex].stats.attack = 0;
+        characterScript.artifactsOwned[morphIndex].stats.defense = 0;
+        characterScript.artifactsOwned[morphIndex].stats.evasion = 1;
+        characterScript.Equip(characterScript.artifactsOwned[morphIndex]);
+
         canvasMorphBall.GetComponent<Canvas>().enabled = false;
     }
 
