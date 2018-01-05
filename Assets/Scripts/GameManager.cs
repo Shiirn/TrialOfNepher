@@ -333,12 +333,15 @@ public class GameManager : MonoBehaviour {
                 
                 ShowArtifacts();
                 ShowItems();
+                
 
                 currentInitialSubPhase = InitialSubPhases.STANDBY;
 
                 break;
 
             case InitialSubPhases.STANDBY:
+
+                previousPhase = TurnPhases.INITIAL;
 
                 if (characterScript.card.fighterName == "White Hood")
                 {
@@ -355,7 +358,7 @@ public class GameManager : MonoBehaviour {
                     DisplayStats(opponentScript.card, "whiteHood");
                 }
 
-                if (!initialSetupDone && !reviving)
+                if (!initialSetupDone)
                 {
                     canRollDice = false;
                     yield return null;
@@ -365,10 +368,9 @@ public class GameManager : MonoBehaviour {
                     currentEndSubPhase = EndSubPhases.DISCARD;
                     currentPhase = TurnPhases.MOVEMENT;
                 }
-                else if (!characterScript.card.isAlive)
+                if (!characterScript.card.isAlive)
                 {
                     DisplayText("system", "Roll to revive");
-                    reviving = true;
 
                     if (wasDiceRolled)
                     {
@@ -392,11 +394,10 @@ public class GameManager : MonoBehaviour {
                         }
 
                         wasDiceRolled = false;
-                        reviving = false;
                     }
                     else
                     {
-                        DieRollState();
+                        yield return null;
                     }
                 }
                 break;
@@ -448,7 +449,7 @@ public class GameManager : MonoBehaviour {
             DisplayStats(bossScript.bossCard, "enemy");
 
             attackerStats.SetActive(true);
-            enemyStats.SetActive(true);            
+            enemyStats.SetActive(true);
             activeBossSprite.SetActive(true);
 
             if (!wasDiceRolled && !rollingInBattle)
@@ -459,9 +460,9 @@ public class GameManager : MonoBehaviour {
             else if (wasDiceRolled || rollingInBattle)
             {
                 if (!rollingInBattle)
-                wasDiceRolled = false;
+                    wasDiceRolled = false;
 
-                rollingInBattle = true;                
+                rollingInBattle = true;
 
                 switch (currentBattlePhase)
                 {
@@ -505,6 +506,8 @@ public class GameManager : MonoBehaviour {
                                 {
                                     bossScript.bossCard.GetDamaged(1);
                                 }
+
+                                CheckThornmail();
                             }
                             if (bossScript.bossCard.nature == Nature.Evader)
                             {
@@ -515,6 +518,7 @@ public class GameManager : MonoBehaviour {
                                 if (currentAttack >= currentEvasion)
                                 {
                                     bossScript.bossCard.GetDamaged(currentAttack);
+                                    CheckThornmail();
                                 }
                             }
 
@@ -546,13 +550,13 @@ public class GameManager : MonoBehaviour {
                             die.GetComponent<ApplyRandomForce>().RollDie();
                         }
                         else
-                        {                           
+                        {
                             currentAttack = bossScript.bossCard.GetCurrentStats().attack + diceRoll;
                             DisplayText("systemInBattle", bossScript.bossCard.fighterName + " attacks with " + currentAttack);
 
                             wasDiceRolled = false;
                             currentBattlePhase = BattlePhases.WAITFORTARGET2;
-                        }                        
+                        }
 
                         break;
 
@@ -588,6 +592,8 @@ public class GameManager : MonoBehaviour {
                                     {
                                         characterScript.card.GetDamaged(1);
                                     }
+
+                                    CheckThornmail();
                                 }
 
                                 if (isEvading)
@@ -598,6 +604,7 @@ public class GameManager : MonoBehaviour {
                                     if (currentAttack >= currentEvasion)
                                     {
                                         characterScript.card.GetDamaged(currentAttack);
+                                        CheckThornmail();
                                     }
                                 }
 
@@ -607,8 +614,8 @@ public class GameManager : MonoBehaviour {
                                 wasDiceRolled = false;
 
                                 currentBattlePhase = BattlePhases.ENDOFBATTLE;
-                            }                         
-                                                        
+                            }
+
                         }
 
                         else
@@ -641,7 +648,6 @@ public class GameManager : MonoBehaviour {
                         ResetBattleCounters();
 
                         characterScript.card.ResetBuffs();
-                        opponentScript.card.ResetBuffs();
 
                         canvasInPlay.GetComponent<Canvas>().enabled = true;
                         canvasInBattle.GetComponent<Canvas>().enabled = false;
@@ -653,7 +659,7 @@ public class GameManager : MonoBehaviour {
                         attackerStats.SetActive(false);
                         enemyStats.SetActive(false);
 
-                        rollingInBattle = false;                        
+                        rollingInBattle = false;
                         enemyIsDefendingOrEvading = false;
 
                         currentBattlePhase = BattlePhases.PLAYERATTACK;
@@ -663,7 +669,7 @@ public class GameManager : MonoBehaviour {
                         break;
                 }
             }
-            
+
         }
         else if (characterScript.currentPanel.name.Contains("Monster") && !mustFightOpponent)
         {
@@ -697,7 +703,7 @@ public class GameManager : MonoBehaviour {
 
                             currentAttack = characterScript.card.GetCurrentStats().attack + diceRoll;
                             DisplayText("systemInBattle", characterScript.card.fighterName + " attacks with " + currentAttack);
-                            
+
                             if (monsterScript.monsterCard.nature == Nature.Defender)
                             {
                                 DisplayText("systemInBattle", "Monster is rolling for Defense");
@@ -727,6 +733,8 @@ public class GameManager : MonoBehaviour {
                                 {
                                     monsterScript.monsterCard.GetDamaged(1);
                                 }
+
+                                CheckThornmail();
                             }
                             if (monsterScript.monsterCard.nature == Nature.Evader)
                             {
@@ -736,6 +744,7 @@ public class GameManager : MonoBehaviour {
                                 if (currentAttack >= currentEvasion)
                                 {
                                     monsterScript.monsterCard.GetDamaged(currentAttack);
+                                    CheckThornmail();
                                 }
                             }
 
@@ -811,6 +820,7 @@ public class GameManager : MonoBehaviour {
                                     {
                                         characterScript.card.GetDamaged(1);
                                     }
+                                    CheckThornmail();
                                 }
 
                                 if (isEvading)
@@ -821,6 +831,7 @@ public class GameManager : MonoBehaviour {
                                     if (currentAttack >= currentEvasion)
                                     {
                                         characterScript.card.GetDamaged(currentAttack);
+                                        CheckThornmail();
                                     }
                                 }
 
@@ -864,7 +875,6 @@ public class GameManager : MonoBehaviour {
                         ResetBattleCounters();
 
                         characterScript.card.ResetBuffs();
-                        opponentScript.card.ResetBuffs();
 
                         canvasInPlay.GetComponent<Canvas>().enabled = true;
                         canvasInBattle.GetComponent<Canvas>().enabled = false;
@@ -934,8 +944,8 @@ public class GameManager : MonoBehaviour {
 
                         currentAttack = characterScript.card.GetCurrentStats().attack + diceRoll;
                         DisplayText("systemInBattle", characterScript.card.fighterName + " attacks with " + currentAttack);
-                        currentBattlePhase = BattlePhases.WAITFORTARGET;         
-                        
+                        currentBattlePhase = BattlePhases.WAITFORTARGET;
+
                         break;
 
                     case BattlePhases.WAITFORTARGET:
@@ -963,11 +973,12 @@ public class GameManager : MonoBehaviour {
                                     {
                                         opponentScript.card.GetDamaged(currentAttack - currentDefense);
                                     }
-
                                     else
                                     {
                                         opponentScript.card.GetDamaged(1);
                                     }
+
+                                    CheckThornmail();
                                 }
                                 if (isEvading)
                                 {
@@ -977,6 +988,7 @@ public class GameManager : MonoBehaviour {
                                     if (currentAttack >= currentEvasion)
                                     {
                                         opponentScript.card.GetDamaged(currentAttack);
+                                        CheckThornmail();
                                     }
                                 }
 
@@ -993,7 +1005,7 @@ public class GameManager : MonoBehaviour {
                                 {
                                     currentBattlePhase = BattlePhases.ENDOFBATTLE;
                                 }
-                            }                            
+                            }
                         }
 
                         else
@@ -1021,7 +1033,7 @@ public class GameManager : MonoBehaviour {
                             wasDiceRolled = false;
 
                             currentBattlePhase = BattlePhases.WAITFORTARGET2;
-                        }                        
+                        }
 
                         break;
 
@@ -1052,9 +1064,9 @@ public class GameManager : MonoBehaviour {
                                     }
                                     else
                                     {
-                                        if (characterScript.card.level < 2)
-                                            characterScript.card.GetDamaged(1);
+                                        characterScript.card.GetDamaged(1);
                                     }
+                                    CheckThornmail();
                                 }
 
                                 if (isEvading)
@@ -1065,6 +1077,7 @@ public class GameManager : MonoBehaviour {
                                     if (currentAttack >= currentEvasion)
                                     {
                                         characterScript.card.GetDamaged(currentAttack);
+                                        CheckThornmail();
                                     }
                                 }
 
@@ -1075,7 +1088,7 @@ public class GameManager : MonoBehaviour {
                                 if (!characterScript.card.isAlive)
                                 {
                                     opponentScript.card.LevelUp(1);
-                                    DisplayText("systemInBattle", "Your opponent level is " + opponentScript.card.level + "\n" + "Your opponent current stats are " 
+                                    DisplayText("systemInBattle", "Your opponent level is " + opponentScript.card.level + "\n" + "Your opponent current stats are "
                                         + (opponentScript.card.levelCounters.attack + opponentScript.card.buffCounters.attack)
                                         + (opponentScript.card.levelCounters.defense + opponentScript.card.buffCounters.defense)
                                          + (opponentScript.card.levelCounters.evasion + opponentScript.card.buffCounters.evasion));
@@ -1083,7 +1096,7 @@ public class GameManager : MonoBehaviour {
 
                                 currentBattlePhase = BattlePhases.ENDOFBATTLE;
                             }
-                        }                            
+                        }
 
                         else
                         {
@@ -1095,11 +1108,13 @@ public class GameManager : MonoBehaviour {
 
                         if (!opponentScript.card.isAlive)
                         {
-                            Debug.Log("This is happening, right?");
-
                             if (artifactPileScript.cards.Count > 0)
                             {
                                 characterScript.DrawArtifactCards(characterBounty.artifacts);
+                            }
+                            else
+                            {
+                                StealArtifactFromOpponent();
                             }
 
                             characterScript.DrawItemCards(characterBounty.items);
@@ -1114,11 +1129,13 @@ public class GameManager : MonoBehaviour {
 
                         if (!characterScript.card.isAlive)
                         {
-                            Debug.Log("This is happening, right?");
-
                             if (artifactPileScript.cards.Count > 0)
                             {
                                 opponentScript.DrawArtifactCards(characterBounty.artifacts);
+                            }
+                            else
+                            {
+                                LoseArtifactToOpponent();
                             }
 
                             opponentScript.DrawItemCards(characterBounty.items);
@@ -1142,13 +1159,13 @@ public class GameManager : MonoBehaviour {
                         canvasInBattle.GetComponent<Canvas>().enabled = false;
                         DefendButton.gameObject.SetActive(false);
                         EvadeButton.gameObject.SetActive(false);
-                        
+
                         if (characterScript.card.fighterName == "White Hood")
-                        {                            
+                        {
                             blackHoodSpriteInBattle.transform.Translate(-285, 0, 0);
                         }
                         else
-                        {                            
+                        {
                             whiteHoodSpriteInBattle.transform.Translate(-285, 0, 0);
                         }
                         pvpCardsAreSet = false;
@@ -1175,12 +1192,10 @@ public class GameManager : MonoBehaviour {
                         break;
                 }
             }
-
-            
         }
         yield return null;
     }
-   
+
     IEnumerator EndPhase()
     {
         switch(currentEndSubPhase)
@@ -1689,7 +1704,7 @@ public class GameManager : MonoBehaviour {
         die.GetComponent<ApplyRandomForce>().RollDie();
     }
 
-    void DieRollState()
+    public void DieRollState()
     {
         previousPhase = currentPhase;
         currentPhase = TurnPhases.ROLLINGDIE;
@@ -1782,5 +1797,51 @@ public class GameManager : MonoBehaviour {
         characterBounty.items = 1;
         characterBounty.artifacts = 1;
         characterBounty.levels = 1;
+    }
+
+    void CheckThornmail()
+    {
+        if (targetCard.abilities.Count > 0)
+        {
+            Debug.Log(targetCard.fighterName);
+            foreach (string ability in targetCard.abilities)
+            {
+                string[] separator = new string[] { " " };
+
+                string abilityName = ability.Split(separator, System.StringSplitOptions.None)[0];
+                int modifier = System.Convert.ToInt32(ability.Split(separator, System.StringSplitOptions.None)[1]);
+
+                if (abilityName == "thornmail")
+                {
+                    AbilityScript.ActivateArtifactAbility(ability);
+                }
+            }
+        }
+    }
+
+    public void LoseArtifactToOpponent()
+    {
+        if (characterScript.artifactsOwned.Count > 0 && characterScript.artifactsOwned.Count != 4)
+        {
+            int lostCardIndex = Random.Range(0, characterScript.artifactsOwned.Count);
+
+            opponentScript.artifactsOwned.Add(characterScript.artifactsOwned[lostCardIndex]);
+            characterScript.LoseArtifact(lostCardIndex);
+        }
+    }
+
+    public void StealArtifactFromOpponent()
+    {
+        if (artifactPile.GetComponent<ArtifactPile>().cards.Count > 0)
+        {
+            characterScript.DrawArtifactCards(1);
+        }
+        else if (opponentScript.artifactsOwned.Count > 0 && opponentScript.artifactsOwned.Count != 4)
+        {
+            int lostCardIndex = Random.Range(0, opponentScript.artifactsOwned.Count);
+
+            characterScript.artifactsOwned.Add(characterScript.artifactsOwned[lostCardIndex]);
+            opponentScript.LoseArtifact(lostCardIndex);
+        }
     }
 }

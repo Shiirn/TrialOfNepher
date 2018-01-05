@@ -11,14 +11,10 @@ public class PanelRegen : Panel {
 
         Character activeCharacter = managerScript.characters[managerScript.activePlayer].GetComponent<Character>();
 
-        activeCharacter.card.hp++;
+        activeCharacter.Heal(1);
         if (activeCharacter.card.hp > activeCharacter.card.stats.maxHp)
             activeCharacter.card.hp = activeCharacter.card.stats.maxHp;
 
-        //DEBUGGYYYY
-        Debug.Log("HP + 1! Current HP: " + activeCharacter.card.hp);
-
-        Debug.Log("Moving on to the End Phase");
         manager.GetComponent<GameManager>().currentPhase = GameManager.TurnPhases.END;
     }
 

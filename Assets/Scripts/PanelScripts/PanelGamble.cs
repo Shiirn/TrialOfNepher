@@ -6,11 +6,23 @@ public class PanelGamble : Panel {
 
     public override void PanelEffect()
     {
-        GameObject manager = GameObject.Find("Manager");
-        Debug.Log("You'll roll a dice, if you roll 1 you lose an artifact, or if you roll 6 you get one.");
+        GameManager managerScript = GameObject.Find("Manager").GetComponent<GameManager>();
 
-        Debug.Log("Moving on to the End Phase");
-        manager.GetComponent<GameManager>().currentPhase = GameManager.TurnPhases.END;
+        if (!managerScript.wasDiceRolled)
+        {
+            managerScript.canRollDice = true;
+        }
+        else
+        {
+            if (managerScript.diceRoll == 1)
+            {
+                managerScript.LoseArtifactToOpponent();
+            }
+            if (managerScript.diceRoll == 6)
+            {
+                managerScript.StealArtifactFromOpponent();
+            }
+            managerScript.currentPhase = GameManager.TurnPhases.END;
+        }
     }
-
 }

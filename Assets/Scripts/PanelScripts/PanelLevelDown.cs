@@ -13,11 +13,6 @@ public class PanelLevelDown : Panel {
 
         activeCharacter.card.LevelDown(1);
 
-        //DEBYGGYIU
-        Debug.Log(activeCharacter.card.level);
-
-
-        Debug.Log("Moving on to the End Phase");
         manager.GetComponent<GameManager>().currentPhase = GameManager.TurnPhases.END;
     }
 

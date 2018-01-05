@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class AbilityScript {
+public static class AbilityScript
+{
 
     static GameObject manager = GameObject.Find("Manager");
     static GameManager managerScript = manager.GetComponent<GameManager>();
@@ -14,7 +15,7 @@ public static class AbilityScript {
         string abilityName = ability.Split(separator, System.StringSplitOptions.None)[0];
         int modifier = System.Convert.ToInt32(ability.Split(separator, System.StringSplitOptions.None)[1]);
 
-        
+
         switch (abilityName)
         {
             case "thornmail":
@@ -22,7 +23,7 @@ public static class AbilityScript {
                 break;
 
             case "draw":
-                //fai pescare modifier carte al giocatore attivo
+                Draw(modifier);
                 break;
 
             case "regen":
@@ -35,23 +36,32 @@ public static class AbilityScript {
         }
     }
 
-    static void Thornmail(int modifier)
+    public static void ActivateItemAbility(string ability)
     {
-        managerScript.attackerCard.GetDamaged(modifier);
+
     }
 
-    static void Regen(int modifier)
+    static void Thornmail(int modifier)
     {
-        managerScript.characterScript.card.hp += modifier;
-        if (managerScript.characterScript.card.hp > managerScript.characterScript.card.stats.maxHp)
+        if (managerScript.attackerCard.hp > 1)
         {
-            managerScript.characterScript.card.hp = managerScript.characterScript.card.stats.maxHp;
+            managerScript.attackerCard.GetDamaged(modifier);
         }
+    }
+
+    public static int Regen(int modifier)
+    {
+        return modifier;
     }
 
     static void MovementBoost(int modifier)
     {
         managerScript.diceRoll += modifier;
+    }
+
+    public static int Draw(int modifier)
+    {
+        return modifier;
     }
 }
 

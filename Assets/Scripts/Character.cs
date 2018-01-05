@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Character : Fighter {
+public class Character : Fighter
+{
 
     public int boardX;
     public int boardY;
     public GameObject currentPanel;
     public bool isMoving = false;
     public GameObject board;
+
+    string[] stringSeparator = new string[] { " " };
 
     public CharacterCard card;
 
@@ -19,19 +22,22 @@ public class Character : Fighter {
 
     public void Equip(ArtifactCard artifactCard)
     {
-        if (equippedArtifact != null)
+        if (artifactCard.nature == ArtifactNature.Equippable)
         {
-            Unequip(equippedArtifact);
+            if (equippedArtifact != null)
+            {
+                Unequip(equippedArtifact);
+            }
+
+            equippedArtifact = artifactCard;
+
+            card.abilities.Add(artifactCard.ability);
+            card.artifactCounters.attack += artifactCard.stats.attack;
+            card.artifactCounters.defense += artifactCard.stats.defense;
+            card.artifactCounters.evasion += artifactCard.stats.evasion;
+            card.artifactCounters.maxHp += artifactCard.stats.maxHp;
+            card.hp += artifactCard.stats.maxHp;
         }
-
-        equippedArtifact = artifactCard;
-
-        card.abilities.Add(artifactCard.ability);
-        card.artifactCounters.attack += artifactCard.stats.attack;
-        card.artifactCounters.defense += artifactCard.stats.defense;
-        card.artifactCounters.evasion += artifactCard.stats.evasion;
-        card.artifactCounters.maxHp += artifactCard.stats.maxHp;
-        card.hp += artifactCard.stats.maxHp;
     }
 
     public void Unequip(ArtifactCard artifactCard)
@@ -62,7 +68,7 @@ public class Character : Fighter {
 
         for (int i = 0; i < itemsOwned.Count; i++)
         {
-            if(itemsOwned[i].id == id)
+            if (itemsOwned[i].id == id)
             {
                 indexToRemove = i;
                 break;
@@ -87,27 +93,20 @@ public class Character : Fighter {
 
     public void DrawItemCards(int cardsToDraw)
     {
-        Debug.Log("drawing " + cardsToDraw);
-
-        string[] stringSeparator = new string[] { " " };
-
         foreach (string ability in card.abilities)
         {
             string[] splitString = ability.Split(stringSeparator, System.StringSplitOptions.None);
 
             if (splitString[0] == "draw")
             {
-                cardsToDraw += System.Convert.ToInt32(splitString[1]);
+                cardsToDraw += AbilityScript.Draw(System.Convert.ToInt32(splitString[1]));
             }
         }
 
-        Debug.Log("still drawing " + cardsToDraw);
-
         ItemPile itemPileScript = GameObject.Find("ItemCardPile").GetComponent<ItemPile>();
 
-        for(int i = 0; i < cardsToDraw; i++)
+        for (int i = 0; i < cardsToDraw; i++)
         {
-            Debug.Log("Drawing one");
             itemsOwned.Add(itemPileScript.Draw());
         }
     }
@@ -121,7 +120,59 @@ public class Character : Fighter {
             if (artifactPileScript.cards.Count > 0)
             {
                 artifactsOwned.Add(artifactPileScript.Draw());
+
+                if (artifactsOwned[artifactsOwned.Count - 1].nature == ArtifactNature.Passive)
+                {
+                    card.abilities.Add(artifactsOwned[artifactsOwned.Count - 1].ability);
+                }
             }
+        }
+    }
+
+    public void LoseArtifact(int lostArtifactIndex)
+    {
+        if (artifactsOwned[lostArtifactIndex].nature == ArtifactNature.Passive)
+        {
+            for (int i = 0; i < card.abilities.Count; i++)
+            {
+                if (card.abilities[i] == artifactsOwned[lostArtifactIndex].ability)
+                {
+                    card.abilities.RemoveAt(i);
+                    artifactsOwned.RemoveAt(lostArtifactIndex);
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < artifactsOwned.Count; i++)
+            {
+                if (artifactsOwned[i] == equippedArtifact)
+                {
+                    Unequip(equippedArtifact);
+                    artifactsOwned.RemoveAt(lostArtifactIndex);
+                }
+            }
+
+        }
+    }
+
+    public void Heal(int healAmount)
+    {
+        foreach (string ability in card.abilities)
+        {
+            string[] splitString = ability.Split(stringSeparator, System.StringSplitOptions.None);
+
+            if (splitString[0] == "regen")
+            {
+                healAmount += AbilityScript.Regen(System.Convert.ToInt32(splitString[1]));
+            }
+        }
+
+        card.hp += healAmount;
+
+        if (card.hp > card.GetCurrentStats().maxHp)
+        {
+            card.hp = card.GetCurrentStats().maxHp;
         }
     }
 }

@@ -11,12 +11,9 @@ public class PanelDraw : Panel {
 
         GameObject itemPile = GameObject.Find("ItemCardPile");
         ItemPile itemPileScript = itemPile.GetComponent<ItemPile>();
-        
-        managerScript.characterScript.itemsOwned.Add(itemPileScript.Draw());
 
-        Debug.Log("You draw a card.");
+        managerScript.characterScript.DrawItemCards(1);
 
-        Debug.Log("Moving on to the End Phase");
         managerScript.currentPhase = GameManager.TurnPhases.END;
     }
 

@@ -24,9 +24,9 @@ public class PanelMonster : Panel {
             monsterCardPileScript.FlipNewActiveMonster();
 
             foreach (GameObject prefab in managerScript.monsterSprites)
-            {                
+            {
                 if (prefab.name == activeMonsterScript.monsterCard.spriteName)
-                {                    
+                {
                     GameObject activeMonsterSprite = Instantiate(prefab);
                     managerScript.SetCard("monster", activeMonsterSprite);
 
@@ -39,10 +39,10 @@ public class PanelMonster : Panel {
                     {
                         activePlayerCard = managerScript.blackHoodSprite;
                         managerScript.SetCard("activePlayer", activePlayerCard);
-                    }                   
+                    }
                 }
             }
-            
+
         }
 
         managerScript.monsterScript = activeMonsterScript;

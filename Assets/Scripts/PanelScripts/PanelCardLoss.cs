@@ -6,10 +6,13 @@ public class PanelCardLoss : Panel {
 
     public override void PanelEffect()
     {
-        GameObject manager = GameObject.Find("Manager");
-        Debug.Log("If you had at least a card, now you lost one");
+        GameManager managerScript = GameObject.Find("Manager").GetComponent<GameManager>();
 
-        Debug.Log("Moving on to the End Phase");
-        manager.GetComponent<GameManager>().currentPhase = GameManager.TurnPhases.END;
+        if (managerScript.characterScript.itemsOwned.Count > 0)
+        {
+            managerScript.characterScript.DiscardCardAt(Random.Range(0, managerScript.characterScript.itemsOwned.Count));
+        }
+
+        managerScript.currentPhase = GameManager.TurnPhases.END;
     }
 }
