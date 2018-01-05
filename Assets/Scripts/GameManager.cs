@@ -342,8 +342,6 @@ public class GameManager : MonoBehaviour {
 
             case InitialSubPhases.STANDBY:
 
-                previousPhase = TurnPhases.INITIAL;
-
                 if (characterScript.card.fighterName == "White Hood")
                 {
                     blackHoodSprite.GetComponent<CanvasGroup>().alpha = 0.2f;
@@ -369,15 +367,13 @@ public class GameManager : MonoBehaviour {
                     currentEndSubPhase = EndSubPhases.DISCARD;
                     currentPhase = TurnPhases.MOVEMENT;
                 }
-                if (!characterScript.card.isAlive)
+                else if (!characterScript.card.isAlive)
                 {
-                    Debug.Log("AAAAAAAAA");
                     DisplayText("system", "Roll to revive");
 
-                    if (wasDiceRolled)
+                    if (!wasDiceRolled)
                     {
                         DieRollState();
-                        yield return null;
                     }
                     else
                     {
@@ -387,6 +383,7 @@ public class GameManager : MonoBehaviour {
                             characterScript.card.isAlive = true;
                             characterScript.card.hp = characterScript.card.GetCurrentStats().maxHp;
 
+                            Debug.Log("You rolled a " + reviveDiceRoll + "! You successfully revived!");
                             DisplayText("system", "You rolled a " + reviveDiceRoll + "! You successfully revived!");
 
                             currentPhase = TurnPhases.END;
@@ -394,13 +391,12 @@ public class GameManager : MonoBehaviour {
                         }
                         else
                         {
+                            Debug.Log("You rolled a " + reviveDiceRoll + ". You couldn't revive.");
                             DisplayText("system", "You rolled a " + reviveDiceRoll + ". You couldn't revive.");
 
                             currentPhase = TurnPhases.END;
                             currentEndSubPhase = EndSubPhases.DISCARD;
                         }
-
-                        wasDiceRolled = false;
                         yield return null;
                     }
                 }
@@ -1244,8 +1240,21 @@ public class GameManager : MonoBehaviour {
                 ResetBattleCounters();
 
                 turn++;
+
+                canvasInPlay.GetComponent<Canvas>().enabled = true;
+                canvasInBattle.GetComponent<Canvas>().enabled = false;
+                canvasFightChoice.GetComponent<Canvas>().enabled = false;
+                DefendButton.gameObject.SetActive(false);
+                EvadeButton.gameObject.SetActive(false);
+                EquipArtifactButton.gameObject.SetActive(false);
+                UseItemButton.gameObject.SetActive(false);
+                RollButton.gameObject.SetActive(false);
+
+                initialSetupDone = false;
+
                 currentPhase = TurnPhases.INITIAL;
                 currentInitialSubPhase = InitialSubPhases.SETUP;
+                currentBattlePhase = BattlePhases.PLAYERATTACK;
 
                 DisplayText("system", "Moving on to the Initial Phase");
                 break;
@@ -1266,7 +1275,10 @@ public class GameManager : MonoBehaviour {
         {
             CheckAndActivateAbility("movement");
 
-            currentPhase = previousPhase;
+            if (previousPhase != currentPhase)
+            {
+                currentPhase = previousPhase;
+            }
         }           
     }
 
@@ -1711,6 +1723,7 @@ public class GameManager : MonoBehaviour {
     public void DieRollState()
     {
         previousPhase = currentPhase;
+        Debug.Log(previousPhase);
         currentPhase = TurnPhases.ROLLINGDIE;
     }
 
