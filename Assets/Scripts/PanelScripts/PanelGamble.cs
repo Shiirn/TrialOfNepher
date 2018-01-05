@@ -10,7 +10,7 @@ public class PanelGamble : Panel {
 
         if (!managerScript.wasDiceRolled)
         {
-            managerScript.canRollDice = true;
+            managerScript.DieRollState();
         }
         else
         {
@@ -20,7 +20,14 @@ public class PanelGamble : Panel {
             }
             if (managerScript.diceRoll == 6)
             {
-                managerScript.StealArtifactFromOpponent();
+                if (GameObject.Find("ArtifactCardPile").GetComponent<ArtifactPile>().cards.Count > 0)
+                {
+                    managerScript.characterScript.DrawArtifactCards(1);
+                }
+                else
+                {
+                    managerScript.StealArtifactFromOpponent();
+                }
             }
             managerScript.currentPhase = GameManager.TurnPhases.END;
         }

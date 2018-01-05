@@ -31,7 +31,10 @@ public class Character : Fighter
 
             equippedArtifact = artifactCard;
 
-            card.abilities.Add(artifactCard.ability);
+            if (artifactCard.ability != "")
+            {
+                card.abilities.Add(artifactCard.ability);
+            }
             card.artifactCounters.attack += artifactCard.stats.attack;
             card.artifactCounters.defense += artifactCard.stats.defense;
             card.artifactCounters.evasion += artifactCard.stats.evasion;
@@ -138,9 +141,9 @@ public class Character : Fighter
                 if (card.abilities[i] == artifactsOwned[lostArtifactIndex].ability)
                 {
                     card.abilities.RemoveAt(i);
-                    artifactsOwned.RemoveAt(lostArtifactIndex);
                 }
             }
+            artifactsOwned.RemoveAt(lostArtifactIndex);
         }
         else
         {
@@ -149,10 +152,9 @@ public class Character : Fighter
                 if (artifactsOwned[i] == equippedArtifact)
                 {
                     Unequip(equippedArtifact);
-                    artifactsOwned.RemoveAt(lostArtifactIndex);
                 }
             }
-
+            artifactsOwned.RemoveAt(lostArtifactIndex);
         }
     }
 

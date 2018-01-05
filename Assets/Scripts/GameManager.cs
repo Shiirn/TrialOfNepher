@@ -330,10 +330,11 @@ public class GameManager : MonoBehaviour {
                 EquipArtifactButton.gameObject.SetActive(true);
                 UseItemButton.gameObject.SetActive(true);
                 RollButton.gameObject.SetActive(true);
-                
+                diceRoll = 0;
+                wasDiceRolled = false;
+
                 ShowArtifacts();
                 ShowItems();
-                
 
                 currentInitialSubPhase = InitialSubPhases.STANDBY;
 
@@ -370,15 +371,21 @@ public class GameManager : MonoBehaviour {
                 }
                 if (!characterScript.card.isAlive)
                 {
+                    Debug.Log("AAAAAAAAA");
                     DisplayText("system", "Roll to revive");
 
                     if (wasDiceRolled)
+                    {
+                        DieRollState();
+                        yield return null;
+                    }
+                    else
                     {
                         int reviveDiceRoll = diceRoll;
                         if (reviveDiceRoll >= 4)
                         {
                             characterScript.card.isAlive = true;
-                            characterScript.card.hp = characterScript.card.stats.maxHp;
+                            characterScript.card.hp = characterScript.card.GetCurrentStats().maxHp;
 
                             DisplayText("system", "You rolled a " + reviveDiceRoll + "! You successfully revived!");
 
@@ -394,9 +401,6 @@ public class GameManager : MonoBehaviour {
                         }
 
                         wasDiceRolled = false;
-                    }
-                    else
-                    {
                         yield return null;
                     }
                 }
@@ -1255,7 +1259,7 @@ public class GameManager : MonoBehaviour {
         if (!wasDiceRolled)
         {
             canRollDice = true;
-            KillDieIfRolled();
+            //KillDieIfRolled();
             yield return null;
         }
         else
@@ -1832,11 +1836,7 @@ public class GameManager : MonoBehaviour {
 
     public void StealArtifactFromOpponent()
     {
-        if (artifactPile.GetComponent<ArtifactPile>().cards.Count > 0)
-        {
-            characterScript.DrawArtifactCards(1);
-        }
-        else if (opponentScript.artifactsOwned.Count > 0 && opponentScript.artifactsOwned.Count != 4)
+        if (opponentScript.artifactsOwned.Count > 0 && opponentScript.artifactsOwned.Count != 4)
         {
             int lostCardIndex = Random.Range(0, opponentScript.artifactsOwned.Count);
 

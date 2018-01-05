@@ -43,6 +43,8 @@ public class DisplayDieValue : MonoBehaviour {
             stoppedRolling = false;
             diceWasRolled = false;
             rollComplete = true;
+            managerScript.canRollDice = false;
+            managerScript.wasDiceRolled = true;
         }
 	}
 }
