@@ -20,13 +20,7 @@ public class ApplyRandomForce : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (managerScript.canRollDice)
-        {
-            if (GetComponent<Rigidbody>().IsSleeping() && Input.GetButtonDown(buttonName))
-            {
-                RollDie();
-            }
-        }        
+            
     }
 
     public void RollDie()

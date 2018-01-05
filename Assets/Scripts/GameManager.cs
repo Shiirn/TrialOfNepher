@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour {
     public bool isChoosingToFightBoss = false;    
     //Die
     public int diceRoll;
+    public bool buttonRollPressed = false;
     public bool canRollDice = true;    
     public bool rollingInBattle = false;
     public bool wasDiceRolled = false;
@@ -287,6 +288,11 @@ public class GameManager : MonoBehaviour {
             diceRoll -= 1;
         }
         //DEBUGGING
+
+        if (canRollDice)
+            RollButton.gameObject.SetActive(true);
+        else
+            RollButton.gameObject.SetActive(false);
     }
 
     public void SpawnCharacters()
@@ -329,14 +335,17 @@ public class GameManager : MonoBehaviour {
 
                 EquipArtifactButton.gameObject.SetActive(true);
                 UseItemButton.gameObject.SetActive(true);
-                RollButton.gameObject.SetActive(true);
                 diceRoll = 0;
+
+                canRollDice = true;
                 wasDiceRolled = false;
+                initialSetupDone = false;
 
                 ShowArtifacts();
-                ShowItems();
+                ShowItems();                               
 
                 currentInitialSubPhase = InitialSubPhases.STANDBY;
+                previousPhase = TurnPhases.INITIAL;
 
                 break;
 
@@ -358,14 +367,15 @@ public class GameManager : MonoBehaviour {
                 }
 
                 if (!initialSetupDone)
-                {
-                    canRollDice = false;
+                {                    
                     yield return null;
                 }
                 else if (characterScript.card.isAlive)
                 {
                     currentEndSubPhase = EndSubPhases.DISCARD;
-                    currentPhase = TurnPhases.MOVEMENT;
+                    Debug.Log("spipo");
+                    DieRollState();
+                    currentPhase = TurnPhases.MOVEMENT;                                      
                 }
                 else if (!characterScript.card.isAlive)
                 {
@@ -407,8 +417,6 @@ public class GameManager : MonoBehaviour {
     IEnumerator MovementPhase()
     {
         ResetInitialObjects();
-
-        initialSetupDone = false;
 
         if (!wasDiceRolled && !waitingForMovement && !characterScript.isMoving)
         {
@@ -486,8 +494,7 @@ public class GameManager : MonoBehaviour {
                                 DisplayText("systemInBattle", "Roll for Boss Evasion");
                             }
                             DieRollState();
-                            canRollDice = false;
-                            die.GetComponent<ApplyRandomForce>().RollDie();
+                            GoToRoll();
                         }
 
                         else
@@ -546,8 +553,7 @@ public class GameManager : MonoBehaviour {
                         {
                             DisplayText("systemInBattle", "Roll for boss attack");
                             DieRollState();
-                            canRollDice = false;
-                            die.GetComponent<ApplyRandomForce>().RollDie();
+                            GoToRoll();
                         }
                         else
                         {
@@ -713,8 +719,7 @@ public class GameManager : MonoBehaviour {
                                 DisplayText("systemInBattle", "Roll for Monster Evasion");
                             }
                             DieRollState();
-                            canRollDice = false;
-                            die.GetComponent<ApplyRandomForce>().RollDie();
+                            GoToRoll();
                         }
 
                         else
@@ -772,8 +777,7 @@ public class GameManager : MonoBehaviour {
                         {
                             DisplayText("systemInBattle", "Roll for monster attack");
                             DieRollState();
-                            canRollDice = false;
-                            die.GetComponent<ApplyRandomForce>().RollDie();
+                            GoToRoll();
                         }
                         else
                         {
@@ -1264,17 +1268,21 @@ public class GameManager : MonoBehaviour {
     }    
 
     IEnumerator RollingDie(TurnPhases previousPhase)
-    {        
+    {
+        if (!buttonRollPressed)
+            canRollDice = true;
+
         if (!wasDiceRolled)
         {
-            canRollDice = true;
-            //KillDieIfRolled();
             yield return null;
         }
         else
         {
-            CheckAndActivateAbility("movement");
+            buttonRollPressed = false;
 
+            if (previousPhase == TurnPhases.MOVEMENT)
+                CheckAndActivateAbility("movement");
+            
             if (previousPhase != currentPhase)
             {
                 currentPhase = previousPhase;
@@ -1715,26 +1723,25 @@ public class GameManager : MonoBehaviour {
 
     void GoToRoll()
     {
-        initialSetupDone = true;        
+        buttonRollPressed = true;
         canRollDice = false;
-        die.GetComponent<ApplyRandomForce>().RollDie();
+
+        if (previousPhase == TurnPhases.INITIAL)
+            initialSetupDone = true;
+
+        if (dieScript.rollComplete && canRollDice)
+        {
+            wasDiceRolled = true;
+            dieScript.rollComplete = false;
+        }
+
+        die.GetComponent<ApplyRandomForce>().RollDie();        
     }
 
     public void DieRollState()
     {
         previousPhase = currentPhase;
-        Debug.Log(previousPhase);
         currentPhase = TurnPhases.ROLLINGDIE;
-    }
-
-    void KillDieIfRolled()
-    {
-        if (dieScript.rollComplete && canRollDice)
-        {
-            canRollDice = false;
-            wasDiceRolled = true;
-            dieScript.rollComplete = false;
-        }
     }
 
     public void SetCard(string _cardType, GameObject _card)
