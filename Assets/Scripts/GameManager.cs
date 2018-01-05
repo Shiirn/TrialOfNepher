@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour {
     public bool artifactCardsShown = false;
     public bool itemCardsShown = false;
     public bool initialSetupDone = false;
+    public bool initialSetupInBattleDone = false;
+    public bool firstPlayerIsChoosingItemsInBattle = true;
     //Battle
     public bool fightPlayer = false;
     public bool fightBoss = false;
@@ -48,6 +50,7 @@ public class GameManager : MonoBehaviour {
 
     public enum BattlePhases
     {
+        INITIAL,
         PLAYERATTACK,
         WAITFORTARGET,
         OPPONENTATTACK,
@@ -125,6 +128,8 @@ public class GameManager : MonoBehaviour {
     public Button MorphBallDefenseButton;
     public Button MorphBallEvasionButton;
     public Button UseItemButton;
+    public Button UseItemInBattleButton;
+    public Button DontUseItemInBattleButton;
     public Button RollButton;
     public Button FightPlayerButton;
     public Button FightBossButton;
@@ -165,7 +170,8 @@ public class GameManager : MonoBehaviour {
     public FighterCard targetCard;
 
     //Item Vars
-    public string pickedStat;
+    public string pickedStat = "";
+    public bool pickingStat;
 
     //Bounty Vars
     public struct Bounty
@@ -201,6 +207,7 @@ public class GameManager : MonoBehaviour {
         EvadeButton.onClick.AddListener(EvadePicked);
         EquipArtifactButton.onClick.AddListener(EquipSelectedArtifact);
         UseItemButton.onClick.AddListener(UseSelectedItem);
+        UseItemInBattleButton.onClick.AddListener(UseSelectedItem);
         RollButton.onClick.AddListener(GoToRoll);
         FightPlayerButton.onClick.AddListener(FightPlayerPicked);
         FightBossButton.onClick.AddListener(FightBossPicked);
@@ -208,6 +215,7 @@ public class GameManager : MonoBehaviour {
         MorphBallAttackButton.onClick.AddListener(PickAttackMorph);
         MorphBallDefenseButton.onClick.AddListener(PickDefenseMorph);
         MorphBallEvasionButton.onClick.AddListener(PickEvasionMorph);
+        DontUseItemInBattleButton.onClick.AddListener(ProceedInBattle);
 
         canvasInPlay.GetComponent<Canvas>().enabled = true;
         canvasMorphBall.GetComponent<Canvas>().enabled = false;
@@ -218,10 +226,11 @@ public class GameManager : MonoBehaviour {
         EquipArtifactButton.gameObject.SetActive(false);
         UseItemButton.gameObject.SetActive(false);
         RollButton.gameObject.SetActive(false);
+        DontUseItemInBattleButton.gameObject.SetActive(false);
 
         currentPhase = TurnPhases.INITIAL;
         currentInitialSubPhase = InitialSubPhases.SETUP;
-        currentBattlePhase = BattlePhases.PLAYERATTACK;
+        currentBattlePhase = BattlePhases.INITIAL;
     }
 	
 	void Update() {
@@ -371,9 +380,9 @@ public class GameManager : MonoBehaviour {
                 canRollDice = true;
                 wasDiceRolled = false;
                 initialSetupDone = false;
-
+                
                 ShowArtifacts();
-                ShowItems();                               
+                ShowItems(characterScript);                               
 
                 currentInitialSubPhase = InitialSubPhases.STANDBY;
                 previousPhase = TurnPhases.INITIAL;
@@ -471,7 +480,8 @@ public class GameManager : MonoBehaviour {
         canvasInPlay.GetComponent<Canvas>().enabled = false;
         canvasInBattle.GetComponent<Canvas>().enabled = true;
         DefendButton.gameObject.SetActive(true);
-        EvadeButton.gameObject.SetActive(true);
+        EvadeButton.gameObject.SetActive(true);        
+
         if (characterScript.card.fighterName == "White Hood")
         {
             whiteHoodSpriteInBattle.SetActive(true);
@@ -488,21 +498,38 @@ public class GameManager : MonoBehaviour {
             enemyStats.SetActive(true);
             activeBossSprite.SetActive(true);
 
-            if (!wasDiceRolled && !rollingInBattle)
+            switch (currentBattlePhase)
             {
-                DisplayText("system", "Roll to attack");
-                DieRollState();
-            }
-            else if (wasDiceRolled || rollingInBattle)
-            {
-                if (!rollingInBattle)
-                    wasDiceRolled = false;
+                case BattlePhases.INITIAL:
 
-                rollingInBattle = true;
+                    if (characterScript.itemsOwned.Count > 0)
+                    {
+                        DisplayText("System", "You can use a Card before fighting.\n" + characterScript.card.fighterName + " is picking.");
+                        if (!itemCardsShown)
+                        {
+                            ShowItems(characterScript);
+                            DontUseItemInBattleButton.gameObject.SetActive(true);
+                            UseItemInBattleButton.gameObject.SetActive(true);
+                        }
+                    }
+                    else
+                        currentBattlePhase = BattlePhases.PLAYERATTACK;
 
-                switch (currentBattlePhase)
-                {
-                    case BattlePhases.PLAYERATTACK:
+                    break;
+
+                case BattlePhases.PLAYERATTACK:
+
+                    if (!wasDiceRolled && !rollingInBattle)
+                    {
+                        DisplayText("system", "Roll to attack");
+                        DieRollState();
+                    }
+                    else if (wasDiceRolled || rollingInBattle)
+                    {
+                        if (!rollingInBattle)
+                            wasDiceRolled = false;
+
+                        rollingInBattle = true;
 
                         if (!wasDiceRolled)
                         {
@@ -524,7 +551,6 @@ public class GameManager : MonoBehaviour {
                             DieRollState();
                             GoToRoll();
                         }
-
                         else
                         {
                             if (bossScript.bossCard.nature == Nature.Defender)
@@ -572,138 +598,137 @@ public class GameManager : MonoBehaviour {
                             }
 
                         }
+                    }
 
-                        break;
+                    break;
 
-                    case BattlePhases.OPPONENTATTACK:
+                case BattlePhases.OPPONENTATTACK:
 
+                    if (!wasDiceRolled)
+                    {
+                        DisplayText("systemInBattle", "Roll for boss attack");
+                        DieRollState();
+                        GoToRoll();
+                    }
+                    else
+                    {
+                        currentAttack = bossScript.bossCard.GetCurrentStats().attack + diceRoll;
+                        DisplayText("systemInBattle", bossScript.bossCard.fighterName + " attacks with " + currentAttack);
+
+                        wasDiceRolled = false;
+                        currentBattlePhase = BattlePhases.WAITFORTARGET2;
+                    }
+
+                    break;
+
+                case BattlePhases.WAITFORTARGET2:
+
+                    DisplayText("systemInBattle", "Pick Defend or Evade");
+
+                    if (isDefending || isEvading)
+                    {
                         if (!wasDiceRolled)
                         {
-                            DisplayText("systemInBattle", "Roll for boss attack");
+                            attackerCard = bossScript.bossCard;
+                            targetCard = characterScript.card;
+
+                            if (isDefending)
+                                DisplayText("systemInBattle", "Roll for Defense");
+                            else
+                                DisplayText("systemInBattle", "Roll for Evasion");
                             DieRollState();
-                            GoToRoll();
                         }
                         else
                         {
-                            currentAttack = bossScript.bossCard.GetCurrentStats().attack + diceRoll;
-                            DisplayText("systemInBattle", bossScript.bossCard.fighterName + " attacks with " + currentAttack);
-
-                            wasDiceRolled = false;
-                            currentBattlePhase = BattlePhases.WAITFORTARGET2;
-                        }
-
-                        break;
-
-                    case BattlePhases.WAITFORTARGET2:
-
-                        DisplayText("systemInBattle", "Pick Defend or Evade");
-
-                        if (isDefending || isEvading)
-                        {
-                            if (!wasDiceRolled)
+                            if (isDefending)
                             {
-                                attackerCard = bossScript.bossCard;
-                                targetCard = characterScript.card;
+                                currentDefense = characterScript.card.GetCurrentStats().defense + diceRoll;
+                                DisplayText("systemInBattle", characterScript.card.fighterName + " defends with: " + currentDefense);
 
-                                if (isDefending)
-                                    DisplayText("systemInBattle", "Roll for Defense");
-                                else
-                                    DisplayText("systemInBattle", "Roll for Evasion");
-                                DieRollState();
-                            }
-                            else
-                            {
-                                if (isDefending)
+                                if (currentDefense < currentAttack)
                                 {
-                                    currentDefense = characterScript.card.GetCurrentStats().defense + diceRoll;
-                                    DisplayText("systemInBattle", characterScript.card.fighterName + " defends with: " + currentDefense);
+                                    characterScript.card.GetDamaged(currentAttack - currentDefense);
+                                }
+                                else
+                                {
+                                    characterScript.card.GetDamaged(1);
+                                }
 
-                                    if (currentDefense < currentAttack)
-                                    {
-                                        characterScript.card.GetDamaged(currentAttack - currentDefense);
-                                    }
-                                    else
-                                    {
-                                        characterScript.card.GetDamaged(1);
-                                    }
+                                CheckThornmail();
+                            }
 
+                            if (isEvading)
+                            {
+                                currentEvasion = characterScript.card.GetCurrentStats().evasion + diceRoll;
+                                DisplayText("systemInBattle", characterScript.card.fighterName + " evades with: " + currentEvasion);
+
+                                if (currentAttack >= currentEvasion)
+                                {
+                                    characterScript.card.GetDamaged(currentAttack);
                                     CheckThornmail();
                                 }
-
-                                if (isEvading)
-                                {
-                                    currentEvasion = characterScript.card.GetCurrentStats().evasion + diceRoll;
-                                    DisplayText("systemInBattle", characterScript.card.fighterName + " evades with: " + currentEvasion);
-
-                                    if (currentAttack >= currentEvasion)
-                                    {
-                                        characterScript.card.GetDamaged(currentAttack);
-                                        CheckThornmail();
-                                    }
-                                }
-
-                                DisplayText("systemInBattle", characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
-
-                                ResetBattleCounters();
-                                wasDiceRolled = false;
-
-                                currentBattlePhase = BattlePhases.ENDOFBATTLE;
                             }
 
+                            DisplayText("systemInBattle", characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
+
+                            ResetBattleCounters();
+                            wasDiceRolled = false;
+
+                            currentBattlePhase = BattlePhases.ENDOFBATTLE;
                         }
 
-                        else
+                    }
+
+                    else
+                    {
+                        yield return null;
+                    }
+                    break;
+
+                case BattlePhases.ENDOFBATTLE:
+
+                    if (!bossScript.bossCard.isAlive)
+                    {
+                        bossPileScript.Discard(bossScript.bossCard.id);
+
+                        if (artifactPileScript.cards.Count > 0)
                         {
-                            yield return null;
-                        }
-                        break;
-
-                    case BattlePhases.ENDOFBATTLE:
-
-                        if (!bossScript.bossCard.isAlive)
-                        {
-                            bossPileScript.Discard(bossScript.bossCard.id);
-
-                            if (artifactPileScript.cards.Count > 0)
-                            {
-                                characterScript.DrawArtifactCards(bossBounty.artifacts);
-                            }
-
-                            characterScript.DrawItemCards(bossBounty.items);
-
-                            characterScript.card.LevelUp(bossBounty.levels);
-
-                            DisplayText("systemInBattle", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are "
-                                 + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
-                                 + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
-                                 + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
+                            characterScript.DrawArtifactCards(bossBounty.artifacts);
                         }
 
-                        ResetBattleCounters();
+                        characterScript.DrawItemCards(bossBounty.items);
 
-                        characterScript.card.ResetBuffs();
+                        characterScript.card.LevelUp(bossBounty.levels);
 
-                        canvasInPlay.GetComponent<Canvas>().enabled = true;
-                        canvasInBattle.GetComponent<Canvas>().enabled = false;
-                        DefendButton.gameObject.SetActive(false);
-                        EvadeButton.gameObject.SetActive(false);
-                        activeBossSprite.SetActive(false);
-                        whiteHoodSpriteInBattle.SetActive(false);
-                        blackHoodSpriteInBattle.SetActive(false);
-                        attackerStats.SetActive(false);
-                        enemyStats.SetActive(false);
+                        DisplayText("systemInBattle", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are "
+                             + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
+                             + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
+                             + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
+                    }
 
-                        rollingInBattle = false;
-                        enemyIsDefendingOrEvading = false;
+                    ResetBattleCounters();
 
-                        currentBattlePhase = BattlePhases.PLAYERATTACK;
+                    characterScript.card.ResetBuffs();
 
-                        currentPhase = TurnPhases.END;
-                        currentEndSubPhase = EndSubPhases.DISCARD;
-                        break;
-                }
+                    canvasInPlay.GetComponent<Canvas>().enabled = true;
+                    canvasInBattle.GetComponent<Canvas>().enabled = false;
+                    DefendButton.gameObject.SetActive(false);
+                    EvadeButton.gameObject.SetActive(false);
+                    activeBossSprite.SetActive(false);
+                    whiteHoodSpriteInBattle.SetActive(false);
+                    blackHoodSpriteInBattle.SetActive(false);
+                    attackerStats.SetActive(false);
+                    enemyStats.SetActive(false);
+
+                    rollingInBattle = false;
+                    enemyIsDefendingOrEvading = false;
+
+                    currentBattlePhase = BattlePhases.INITIAL;
+
+                    currentPhase = TurnPhases.END;
+                    currentEndSubPhase = EndSubPhases.DISCARD;
+                    break;
             }
-
         }
         else if (characterScript.currentPanel.name.Contains("Monster") && !mustFightOpponent)
         {
@@ -714,21 +739,42 @@ public class GameManager : MonoBehaviour {
             enemyStats.SetActive(true);
             activeMonsterSprite.SetActive(true);
 
-            if (!wasDiceRolled && !rollingInBattle)
-            {
-                DisplayText("systemInBattle", "Roll to attack");
-                DieRollState();
-            }
-            else if (wasDiceRolled || rollingInBattle)
-            {
-                if (!rollingInBattle)
-                    wasDiceRolled = false;
 
-                rollingInBattle = true;
+            switch (currentBattlePhase)
+            {
+                case BattlePhases.INITIAL:
 
-                switch (currentBattlePhase)
-                {
-                    case BattlePhases.PLAYERATTACK:
+                    if (characterScript.itemsOwned.Count > 0)
+                    {
+                        DisplayText("System", "You can use a Card before fighting.\n" + characterScript.card.fighterName + " is picking.");
+                        if (!itemCardsShown)
+                        {
+                            ShowItems(characterScript);
+                            DontUseItemInBattleButton.gameObject.SetActive(true);
+                            UseItemInBattleButton.gameObject.SetActive(true);
+                        }
+
+                    }
+                    else
+                    {
+                        currentBattlePhase = BattlePhases.PLAYERATTACK;
+                    }
+
+                    break;
+
+                case BattlePhases.PLAYERATTACK:
+
+                    if (!wasDiceRolled && !rollingInBattle)
+                    {
+                        DisplayText("system", "Roll to attack");
+                        DieRollState();
+                    }
+                    else if (wasDiceRolled || rollingInBattle)
+                    {
+                        if (!rollingInBattle)
+                            wasDiceRolled = false;
+
+                        rollingInBattle = true;
 
                         if (!wasDiceRolled)
                         {
@@ -736,6 +782,7 @@ public class GameManager : MonoBehaviour {
                             targetCard = monsterScript.monsterCard;
 
                             currentAttack = characterScript.card.GetCurrentStats().attack + diceRoll;
+
                             DisplayText("systemInBattle", characterScript.card.fighterName + " attacks with " + currentAttack);
 
                             if (monsterScript.monsterCard.nature == Nature.Defender)
@@ -749,7 +796,6 @@ public class GameManager : MonoBehaviour {
                             DieRollState();
                             GoToRoll();
                         }
-
                         else
                         {
                             if (monsterScript.monsterCard.nature == Nature.Defender)
@@ -794,142 +840,142 @@ public class GameManager : MonoBehaviour {
                             {
                                 currentBattlePhase = BattlePhases.ENDOFBATTLE;
                             }
-
                         }
+                    }
 
-                        break;
+                    break;
 
-                    case BattlePhases.OPPONENTATTACK:
+                case BattlePhases.OPPONENTATTACK:
 
+                    if (!wasDiceRolled)
+                    {
+                        DisplayText("systemInBattle", "Roll for monster attack");
+                        DieRollState();
+                        GoToRoll();
+                    }
+                    else
+                    {
+                        attackerCard = monsterScript.monsterCard;
+                        targetCard = characterScript.card;
+
+                        currentAttack = monsterScript.monsterCard.GetCurrentStats().attack + diceRoll;
+                        DisplayText("systemInBattle", monsterScript.monsterCard.fighterName + " attacks with " + currentAttack);
+
+                        wasDiceRolled = false;
+                        currentBattlePhase = BattlePhases.WAITFORTARGET2;
+                    }
+
+                    break;
+
+                case BattlePhases.WAITFORTARGET2:
+
+                    DisplayText("systemInBattle", "Pick Defend or Evade");
+
+                    if (isDefending || isEvading)
+                    {
                         if (!wasDiceRolled)
                         {
-                            DisplayText("systemInBattle", "Roll for monster attack");
+                            if (isDefending)
+                                DisplayText("system", "Roll for Defense");
+                            else
+                                DisplayText("system", "Roll for Evasion");
+
                             DieRollState();
-                            GoToRoll();
                         }
                         else
                         {
-                            attackerCard = monsterScript.monsterCard;
-                            targetCard = characterScript.card;
-
-                            currentAttack = monsterScript.monsterCard.GetCurrentStats().attack + diceRoll;
-                            DisplayText("systemInBattle", monsterScript.monsterCard.fighterName + " attacks with " + currentAttack);
-
-                            wasDiceRolled = false;
-                            currentBattlePhase = BattlePhases.WAITFORTARGET2;
-                        }
-
-                        break;
-
-                    case BattlePhases.WAITFORTARGET2:
-
-                        DisplayText("systemInBattle", "Pick Defend or Evade");
-
-                        if (isDefending || isEvading)
-                        {
-                            if (!wasDiceRolled)
+                            if (isDefending)
                             {
-                                if (isDefending)
-                                    DisplayText("system", "Roll for Defense");
-                                else
-                                    DisplayText("system", "Roll for Evasion");
+                                currentDefense = characterScript.card.GetCurrentStats().defense + diceRoll;
 
-                                DieRollState();
-                            }
-                            else
-                            {
-                                if (isDefending)
+                                DisplayText("systemInBattle", characterScript.card.fighterName + " defends with: " + currentDefense);
+
+                                if (currentDefense < currentAttack)
                                 {
-                                    currentDefense = characterScript.card.GetCurrentStats().defense + diceRoll;
+                                    characterScript.card.GetDamaged(currentAttack - currentDefense);
+                                }
+                                else
+                                {
+                                    characterScript.card.GetDamaged(1);
+                                }
+                                CheckThornmail();
+                            }
 
-                                    DisplayText("systemInBattle", characterScript.card.fighterName + " defends with: " + currentDefense);
+                            if (isEvading)
+                            {
+                                currentEvasion = characterScript.card.GetCurrentStats().evasion + diceRoll;
+                                DisplayText("systemInBattle", characterScript.card.fighterName + " evades with: " + currentEvasion);
 
-                                    if (currentDefense < currentAttack)
-                                    {
-                                        characterScript.card.GetDamaged(currentAttack - currentDefense);
-                                    }
-                                    else
-                                    {
-                                        characterScript.card.GetDamaged(1);
-                                    }
+                                if (currentAttack >= currentEvasion)
+                                {
+                                    characterScript.card.GetDamaged(currentAttack);
                                     CheckThornmail();
                                 }
-
-                                if (isEvading)
-                                {
-                                    currentEvasion = characterScript.card.GetCurrentStats().evasion + diceRoll;
-                                    DisplayText("systemInBattle", characterScript.card.fighterName + " evades with: " + currentEvasion);
-
-                                    if (currentAttack >= currentEvasion)
-                                    {
-                                        characterScript.card.GetDamaged(currentAttack);
-                                        CheckThornmail();
-                                    }
-                                }
-
-                                DisplayText("system", characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
-
-                                ResetBattleCounters();
-                                wasDiceRolled = false;
-
-                                currentBattlePhase = BattlePhases.ENDOFBATTLE;
                             }
 
+                            DisplayText("system", characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
+
+                            ResetBattleCounters();
+                            wasDiceRolled = false;
+
+                            currentBattlePhase = BattlePhases.ENDOFBATTLE;
                         }
 
-                        else
+                    }
+
+                    else
+                    {
+                        yield return null;
+                    }
+                    break;
+
+                case BattlePhases.ENDOFBATTLE:
+
+                    if (!monsterScript.monsterCard.isAlive)
+                    {
+                        monsterPileScript.Discard(monsterScript.monsterCard.id);
+
+                        if (artifactPileScript.cards.Count > 0)
                         {
-                            yield return null;
-                        }
-                        break;
-
-                    case BattlePhases.ENDOFBATTLE:
-
-                        if (!monsterScript.monsterCard.isAlive)
-                        {
-                            monsterPileScript.Discard(monsterScript.monsterCard.id);
-
-                            if (artifactPileScript.cards.Count > 0)
-                            {
-                                characterScript.DrawArtifactCards(monsterBounty.artifacts);
-                            }
-
-                            characterScript.DrawItemCards(monsterBounty.items);
-
-                            characterScript.card.LevelUp(monsterBounty.levels);
-
-                            DisplayText("systemInBattle", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are "
-                                 + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
-                                 + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
-                                 + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
+                            characterScript.DrawArtifactCards(monsterBounty.artifacts);
                         }
 
-                        ResetBattleCounters();
+                        characterScript.DrawItemCards(monsterBounty.items);
 
-                        characterScript.card.ResetBuffs();
+                        characterScript.card.LevelUp(monsterBounty.levels);
 
-                        canvasInPlay.GetComponent<Canvas>().enabled = true;
-                        canvasInBattle.GetComponent<Canvas>().enabled = false;
-                        DefendButton.gameObject.SetActive(false);
-                        EvadeButton.gameObject.SetActive(false);
-                        activeMonsterSprite.SetActive(false);
-                        whiteHoodSpriteInBattle.SetActive(false);
-                        blackHoodSpriteInBattle.SetActive(false);
-                        attackerStats.SetActive(false);
-                        enemyStats.SetActive(false);
+                        DisplayText("systemInBattle", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are "
+                                + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
+                                + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
+                                + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
+                    }
 
-                        rollingInBattle = false;
-                        enemyIsDefendingOrEvading = false;
+                    ResetBattleCounters();
 
-                        currentBattlePhase = BattlePhases.PLAYERATTACK;
+                    characterScript.card.ResetBuffs();
 
-                        currentPhase = TurnPhases.END;
-                        currentEndSubPhase = EndSubPhases.DISCARD;
-                        break;
-                }
+                    canvasInPlay.GetComponent<Canvas>().enabled = true;
+                    canvasInBattle.GetComponent<Canvas>().enabled = false;
+                    DefendButton.gameObject.SetActive(false);
+                    EvadeButton.gameObject.SetActive(false);
+                    activeMonsterSprite.SetActive(false);
+                    whiteHoodSpriteInBattle.SetActive(false);
+                    blackHoodSpriteInBattle.SetActive(false);
+                    attackerStats.SetActive(false);
+                    enemyStats.SetActive(false);
+
+                    rollingInBattle = false;
+                    enemyIsDefendingOrEvading = false;
+
+                    currentBattlePhase = BattlePhases.INITIAL;
+
+                    currentPhase = TurnPhases.END;
+                    currentEndSubPhase = EndSubPhases.DISCARD;
+                    break;
             }
-
         }
+
+
         else if (mustFightOpponent)
         {
             if (!pvpCardsAreSet)
@@ -945,6 +991,10 @@ public class GameManager : MonoBehaviour {
                     whiteHoodSpriteInBattle.transform.Translate(+285, 0, 0);
                 }
 
+
+                attackerCard = characterScript;
+                targetCard = opponentScript;
+
                 pvpCardsAreSet = true;
             }
 
@@ -952,280 +1002,315 @@ public class GameManager : MonoBehaviour {
             DisplayStats(opponentScript.card, "enemy");
 
             attackerStats.SetActive(true);
-            enemyStats.SetActive(true);
+            enemyStats.SetActive(true);           
 
-            if (!wasDiceRolled && !rollingInBattle)
+
+            switch (currentBattlePhase)
             {
-                DisplayText("systemInBattle", "Roll to attack");
-                DieRollState();
-            }
+                case BattlePhases.INITIAL:
 
-            if (wasDiceRolled || rollingInBattle)
-            {
-                if (!rollingInBattle)
-                    wasDiceRolled = false;
+                    if (firstPlayerIsChoosingItemsInBattle)
+                    {
+                        if (characterScript.itemsOwned.Count > 0)
+                        {
+                            DisplayText("System", "You can use a Card before fighting.\n" + attackerCard.fighterName + " is picking.");
+                            if (!itemCardsShown)
+                            {
+                                ShowItems(attackerCard);
+                                DontUseItemInBattleButton.gameObject.SetActive(true);
+                                UseItemInBattleButton.gameObject.SetActive(true);
+                            }
+                        }
+                        else
+                        {
+                            currentBattlePhase = BattlePhases.PLAYERATTACK;
+                        }
+                    }
+                    else
+                    {
+                        if (characterScript.itemsOwned.Count > 0)
+                        {
+                            DisplayText("System", "You can use a Card before fighting.\n" + targetCard.fighterName + " is picking.");
+                            if (!itemCardsShown)
+                            {
+                                ShowItems(targetCard);
+                                DontUseItemInBattleButton.gameObject.SetActive(true);
+                                UseItemInBattleButton.gameObject.SetActive(true);
+                            }
 
-                rollingInBattle = true;
+                        }
+                        else
+                        {
+                            currentBattlePhase = BattlePhases.PLAYERATTACK;
+                        }
+                    }
 
-                switch (currentBattlePhase)
-                {
-                    case BattlePhases.PLAYERATTACK:
+                    break;
 
-                        attackerCard = characterScript.card;
-                        targetCard = opponentScript.card;
+                case BattlePhases.PLAYERATTACK:                                       
 
+                    if (!wasDiceRolled && !rollingInBattle)
+                    {
+                        DisplayText("systemInBattle", "Roll to attack");
+                        DieRollState();
+                    }
+
+                    if (wasDiceRolled)
+                    {
                         currentAttack = characterScript.card.GetCurrentStats().attack + diceRoll;
                         DisplayText("systemInBattle", characterScript.card.fighterName + " attacks with " + currentAttack);
                         currentBattlePhase = BattlePhases.WAITFORTARGET;
+                    }
 
-                        break;
+                    break;
 
-                    case BattlePhases.WAITFORTARGET:
+                case BattlePhases.WAITFORTARGET:
 
-                        if (isDefending || isEvading)
-                        {
-                            if (!wasDiceRolled)
-                            {
-                                DisplayText("systemInBattle", "Pick Defend or Evade");
-                                if (isDefending)
-                                    DisplayText("systemInBattle", "Roll for Defense");
-                                else
-                                    DisplayText("systemInBattle", "Roll for Evasion");
-                                DieRollState();
-                            }
-                            else
-                            {
-                                if (isDefending)
-                                {
-                                    currentDefense = opponentScript.card.GetCurrentStats().defense + diceRoll;
-
-                                    DisplayText("systemInBattle", opponentScript.card.fighterName + " defends with: " + currentDefense);
-
-                                    if (currentDefense < currentAttack)
-                                    {
-                                        opponentScript.card.GetDamaged(currentAttack - currentDefense);
-                                    }
-                                    else
-                                    {
-                                        opponentScript.card.GetDamaged(1);
-                                    }
-
-                                    CheckThornmail();
-                                }
-                                if (isEvading)
-                                {
-                                    currentEvasion = opponentScript.card.GetCurrentStats().evasion + diceRoll;
-                                    DisplayText("systemInBattle", opponentScript.card.fighterName + " evades with: " + currentEvasion);
-
-                                    if (currentAttack >= currentEvasion)
-                                    {
-                                        opponentScript.card.GetDamaged(currentAttack);
-                                        CheckThornmail();
-                                    }
-                                }
-
-                                DisplayText("systemInBattle", opponentScript.card.fighterName + " is left with " + opponentScript.card.hp + " HPs");
-
-                                ResetBattleCounters();
-                                wasDiceRolled = false;
-
-                                if (opponentScript.card.isAlive)
-                                {
-                                    currentBattlePhase = BattlePhases.OPPONENTATTACK;
-                                }
-                                else if (!opponentScript.card.isAlive)
-                                {
-                                    currentBattlePhase = BattlePhases.ENDOFBATTLE;
-                                }
-                            }
-                        }
-
-                        else
-                        {
-                            yield return null;
-                        }
-                        break;
-
-                    case BattlePhases.OPPONENTATTACK:
-
+                    if (isDefending || isEvading)
+                    {
                         if (!wasDiceRolled)
                         {
-                            DisplayText("systemInBattle", "Roll for enemy attack");
+                            DisplayText("systemInBattle", "Pick Defend or Evade");
+
+                            if (isDefending)
+                                DisplayText("systemInBattle", "Roll for Defense");
+                            else
+                                DisplayText("systemInBattle", "Roll for Evasion");
+
                             DieRollState();
                         }
                         else
                         {
-                            attackerCard = opponentScript.card;
-                            targetCard = characterScript.card;
+                            if (isDefending)
+                            {
+                                currentDefense = opponentScript.card.GetCurrentStats().defense + diceRoll;
 
-                            currentAttack = opponentScript.card.GetCurrentStats().attack + diceRoll;
-                            DisplayText("systemInBattle", opponentScript.card.fighterName + " attacks with " + currentAttack);
+                                DisplayText("systemInBattle", opponentScript.card.fighterName + " defends with: " + currentDefense);
+
+                                if (currentDefense < currentAttack)
+                                {
+                                    opponentScript.card.GetDamaged(currentAttack - currentDefense);
+                                }
+                                else
+                                {
+                                    opponentScript.card.GetDamaged(1);
+                                }
+
+                                CheckThornmail();
+                            }
+                            if (isEvading)
+                            {
+                                currentEvasion = opponentScript.card.GetCurrentStats().evasion + diceRoll;
+                                DisplayText("systemInBattle", opponentScript.card.fighterName + " evades with: " + currentEvasion);
+
+                                if (currentAttack >= currentEvasion)
+                                {
+                                    opponentScript.card.GetDamaged(currentAttack);
+                                    CheckThornmail();
+                                }
+                            }
+
+                            DisplayText("systemInBattle", opponentScript.card.fighterName + " is left with " + opponentScript.card.hp + " HPs");
 
                             ResetBattleCounters();
                             wasDiceRolled = false;
 
-                            currentBattlePhase = BattlePhases.WAITFORTARGET2;
-                        }
-
-                        break;
-
-                    case BattlePhases.WAITFORTARGET2:
-
-                        if (isDefending || isEvading)
-                        {
-                            if (!wasDiceRolled)
+                            if (opponentScript.card.isAlive)
                             {
-                                DisplayText("systemInBattle", "Pick Defend or Evade");
-                                if (isDefending)
-                                    DisplayText("systemInBattle", "Roll for Defense");
-                                else
-                                    DisplayText("systemInBattle", "Roll for Evasion");
-                                DieRollState();
+                                currentBattlePhase = BattlePhases.OPPONENTATTACK;
                             }
-                            else
+                            else if (!opponentScript.card.isAlive)
                             {
-                                if (isDefending)
-                                {
-                                    currentDefense = characterScript.card.GetCurrentStats().defense + diceRoll;
-
-                                    DisplayText("systemInBattle", characterScript.card.fighterName + " defends with: " + currentDefense);
-
-                                    if (currentDefense < currentAttack)
-                                    {
-                                        characterScript.card.GetDamaged(currentAttack - currentDefense);
-                                    }
-                                    else
-                                    {
-                                        characterScript.card.GetDamaged(1);
-                                    }
-                                    CheckThornmail();
-                                }
-
-                                if (isEvading)
-                                {
-                                    currentEvasion = characterScript.card.GetCurrentStats().evasion + diceRoll;
-                                    DisplayText("systemInBattle", characterScript.card.fighterName + " evades with: " + currentEvasion);
-
-                                    if (currentAttack >= currentEvasion)
-                                    {
-                                        characterScript.card.GetDamaged(currentAttack);
-                                        CheckThornmail();
-                                    }
-                                }
-
-                                DisplayText("systemInBattle", characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
-
-                                ResetBattleCounters();
-                                wasDiceRolled = false;
-                                if (!characterScript.card.isAlive)
-                                {
-                                    opponentScript.card.LevelUp(1);
-                                    DisplayText("systemInBattle", "Your opponent level is " + opponentScript.card.level + "\n" + "Your opponent current stats are "
-                                        + (opponentScript.card.levelCounters.attack + opponentScript.card.buffCounters.attack)
-                                        + (opponentScript.card.levelCounters.defense + opponentScript.card.buffCounters.defense)
-                                         + (opponentScript.card.levelCounters.evasion + opponentScript.card.buffCounters.evasion));
-                                }
-
                                 currentBattlePhase = BattlePhases.ENDOFBATTLE;
                             }
                         }
+                    }
 
-                        else
-                        {
-                            yield return null;
-                        }
-                        break;
+                    else
+                    {
+                        yield return null;
+                    }
+                    break;
 
-                    case BattlePhases.ENDOFBATTLE:
+                case BattlePhases.OPPONENTATTACK:
 
-                        if (!opponentScript.card.isAlive)
-                        {
-                            if (artifactPileScript.cards.Count > 0)
-                            {
-                                characterScript.DrawArtifactCards(characterBounty.artifacts);
-                            }
-                            else
-                            {
-                                StealArtifactFromOpponent();
-                            }
+                    if (!wasDiceRolled)
+                    {
+                        DisplayText("systemInBattle", "Roll for enemy attack");
+                        DieRollState();
+                    }
+                    else
+                    {
+                        attackerCard = opponentScript.card;
+                        targetCard = characterScript.card;
 
-                            characterScript.DrawItemCards(characterBounty.items);
-
-                            characterScript.card.LevelUp(characterBounty.levels);
-
-                            DisplayText("systemInBattle", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are "
-                                 + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
-                                 + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
-                                 + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
-                        }
-
-                        if (!characterScript.card.isAlive)
-                        {
-                            if (artifactPileScript.cards.Count > 0)
-                            {
-                                opponentScript.DrawArtifactCards(characterBounty.artifacts);
-                            }
-                            else
-                            {
-                                LoseArtifactToOpponent();
-                            }
-
-                            opponentScript.DrawItemCards(characterBounty.items);
-
-                            opponentScript.card.LevelUp(characterBounty.levels);
-
-                            DisplayText("systemInBattle", "Your current level is " + opponentScript.card.level + "\n" + "Your current stats are "
-                                 + (opponentScript.card.levelCounters.attack + opponentScript.card.buffCounters.attack)
-                                 + (opponentScript.card.levelCounters.defense + +opponentScript.card.buffCounters.defense)
-                                 + (opponentScript.card.levelCounters.evasion + opponentScript.card.buffCounters.evasion));
-                        }
+                        currentAttack = opponentScript.card.GetCurrentStats().attack + diceRoll;
+                        DisplayText("systemInBattle", opponentScript.card.fighterName + " attacks with " + currentAttack);
 
                         ResetBattleCounters();
+                        wasDiceRolled = false;
 
-                        characterScript.card.ResetBuffs();
-                        opponentScript.card.ResetBuffs();
+                        currentBattlePhase = BattlePhases.WAITFORTARGET2;
+                    }
 
-                        mustFightOpponent = false;
+                    break;
 
-                        canvasInPlay.GetComponent<Canvas>().enabled = true;
-                        canvasInBattle.GetComponent<Canvas>().enabled = false;
-                        DefendButton.gameObject.SetActive(false);
-                        EvadeButton.gameObject.SetActive(false);
+                case BattlePhases.WAITFORTARGET2:
 
-                        if (characterScript.card.fighterName == "White Hood")
+                    if (isDefending || isEvading)
+                    {
+                        if (!wasDiceRolled)
                         {
-                            blackHoodSpriteInBattle.transform.Translate(-285, 0, 0);
+                            DisplayText("systemInBattle", "Pick Defend or Evade");
+                            if (isDefending)
+                                DisplayText("systemInBattle", "Roll for Defense");
+                            else
+                                DisplayText("systemInBattle", "Roll for Evasion");
+                            DieRollState();
                         }
                         else
                         {
-                            whiteHoodSpriteInBattle.transform.Translate(-285, 0, 0);
+                            if (isDefending)
+                            {
+                                currentDefense = characterScript.card.GetCurrentStats().defense + diceRoll;
+
+                                DisplayText("systemInBattle", characterScript.card.fighterName + " defends with: " + currentDefense);
+
+                                if (currentDefense < currentAttack)
+                                {
+                                    characterScript.card.GetDamaged(currentAttack - currentDefense);
+                                }
+                                else
+                                {
+                                    characterScript.card.GetDamaged(1);
+                                }
+                                CheckThornmail();
+                            }
+
+                            if (isEvading)
+                            {
+                                currentEvasion = characterScript.card.GetCurrentStats().evasion + diceRoll;
+                                DisplayText("systemInBattle", characterScript.card.fighterName + " evades with: " + currentEvasion);
+
+                                if (currentAttack >= currentEvasion)
+                                {
+                                    characterScript.card.GetDamaged(currentAttack);
+                                    CheckThornmail();
+                                }
+                            }
+
+                            DisplayText("systemInBattle", characterScript.card.fighterName + " is left with " + characterScript.card.hp + " HPs");
+
+                            ResetBattleCounters();
+                            wasDiceRolled = false;
+                            if (!characterScript.card.isAlive)
+                            {
+                                opponentScript.card.LevelUp(1);
+                                DisplayText("systemInBattle", "Your opponent level is " + opponentScript.card.level + "\n" + "Your opponent current stats are "
+                                    + (opponentScript.card.levelCounters.attack + opponentScript.card.buffCounters.attack)
+                                    + (opponentScript.card.levelCounters.defense + opponentScript.card.buffCounters.defense)
+                                     + (opponentScript.card.levelCounters.evasion + opponentScript.card.buffCounters.evasion));
+                            }
+
+                            currentBattlePhase = BattlePhases.ENDOFBATTLE;
                         }
-                        pvpCardsAreSet = false;
-                        whiteHoodSpriteInBattle.SetActive(false);
-                        blackHoodSpriteInBattle.SetActive(false);
-                        attackerStats.SetActive(true);
-                        enemyStats.SetActive(true);
+                    }
 
-                        enemyIsDefendingOrEvading = false;
-                        rollingInBattle = false;
+                    else
+                    {
+                        yield return null;
+                    }
+                    break;
 
-                        currentBattlePhase = BattlePhases.PLAYERATTACK;
+                case BattlePhases.ENDOFBATTLE:
 
-                        if (characterScript.card.isAlive)
+                    if (!opponentScript.card.isAlive)
+                    {
+                        if (artifactPileScript.cards.Count > 0)
                         {
-                            currentPhase = TurnPhases.PANEL;
+                            characterScript.DrawArtifactCards(characterBounty.artifacts);
                         }
                         else
                         {
-                            currentPhase = TurnPhases.END;
-                            currentEndSubPhase = EndSubPhases.DISCARD;
+                            StealArtifactFromOpponent();
                         }
 
-                        break;
-                }
+                        characterScript.DrawItemCards(characterBounty.items);
+
+                        characterScript.card.LevelUp(characterBounty.levels);
+
+                        DisplayText("systemInBattle", "Your current level is " + characterScript.card.level + "\n" + "Your current stats are "
+                             + (characterScript.card.levelCounters.attack + characterScript.card.buffCounters.attack)
+                             + (characterScript.card.levelCounters.defense + +characterScript.card.buffCounters.defense)
+                             + (characterScript.card.levelCounters.evasion + characterScript.card.buffCounters.evasion));
+                    }
+
+                    if (!characterScript.card.isAlive)
+                    {
+                        if (artifactPileScript.cards.Count > 0)
+                        {
+                            opponentScript.DrawArtifactCards(characterBounty.artifacts);
+                        }
+                        else
+                        {
+                            LoseArtifactToOpponent();
+                        }
+
+                        opponentScript.DrawItemCards(characterBounty.items);
+
+                        opponentScript.card.LevelUp(characterBounty.levels);
+
+                        DisplayText("systemInBattle", "Your current level is " + opponentScript.card.level + "\n" + "Your current stats are "
+                             + (opponentScript.card.levelCounters.attack + opponentScript.card.buffCounters.attack)
+                             + (opponentScript.card.levelCounters.defense + +opponentScript.card.buffCounters.defense)
+                             + (opponentScript.card.levelCounters.evasion + opponentScript.card.buffCounters.evasion));
+                    }
+
+                    ResetBattleCounters();
+
+                    characterScript.card.ResetBuffs();
+                    opponentScript.card.ResetBuffs();
+
+                    mustFightOpponent = false;
+
+                    canvasInPlay.GetComponent<Canvas>().enabled = true;
+                    canvasInBattle.GetComponent<Canvas>().enabled = false;
+                    DefendButton.gameObject.SetActive(false);
+                    EvadeButton.gameObject.SetActive(false);
+
+                    if (characterScript.card.fighterName == "White Hood")
+                    {
+                        blackHoodSpriteInBattle.transform.Translate(-285, 0, 0);
+                    }
+                    else
+                    {
+                        whiteHoodSpriteInBattle.transform.Translate(-285, 0, 0);
+                    }
+                    pvpCardsAreSet = false;
+                    whiteHoodSpriteInBattle.SetActive(false);
+                    blackHoodSpriteInBattle.SetActive(false);
+                    attackerStats.SetActive(true);
+                    enemyStats.SetActive(true);
+
+                    enemyIsDefendingOrEvading = false;
+                    rollingInBattle = false;
+
+                    currentBattlePhase = BattlePhases.INITIAL;
+
+                    if (characterScript.card.isAlive)
+                    {
+                        currentPhase = TurnPhases.PANEL;
+                    }
+                    else
+                    {
+                        currentPhase = TurnPhases.END;
+                        currentEndSubPhase = EndSubPhases.DISCARD;
+                    }
+
+                    break;
             }
+            yield return null;
         }
-        yield return null;
     }
 
     IEnumerator EndPhase()
@@ -1286,7 +1371,7 @@ public class GameManager : MonoBehaviour {
 
                 currentPhase = TurnPhases.INITIAL;
                 currentInitialSubPhase = InitialSubPhases.SETUP;
-                currentBattlePhase = BattlePhases.PLAYERATTACK;
+                currentBattlePhase = BattlePhases.INITIAL;
 
                 DisplayText("system", "Moving on to the Initial Phase");
                 break;
@@ -1737,13 +1822,13 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    public void ShowItems()
+    public void ShowItems(Character character)
     {
-        for (int i = 0; i < characterScript.itemsOwned.Count; i++)
+        for (int i = 0; i < character.itemsOwned.Count; i++)
         {
             foreach (GameObject itemCard in itemCardSprites)
             {
-                if (itemCard.name == characterScript.itemsOwned[i].spriteName)
+                if (itemCard.name == character.itemsOwned[i].spriteName)
                 {
                     GameObject currentCard = Instantiate(itemCard);
                     currentCard.transform.SetParent(canvasItemCards.transform, false);
@@ -1782,6 +1867,37 @@ public class GameManager : MonoBehaviour {
     void ActivateItem(int _selectedItemIndex)
     {
         UseItemButton.gameObject.SetActive(false);
+
+        if (currentPhase == TurnPhases.BATTLE)
+        {
+            if (mustFightOpponent)
+            {
+                if (firstPlayerIsChoosingItemsInBattle)
+                {                    
+                    DontUseItemInBattleButton.gameObject.SetActive(false);
+                    UseItemInBattleButton.gameObject.SetActive(false);
+
+                    firstPlayerIsChoosingItemsInBattle = false;
+                    SwitchPlayerControl();
+                }
+                else
+                {                    
+                    DontUseItemInBattleButton.gameObject.SetActive(false);
+                    UseItemInBattleButton.gameObject.SetActive(false);
+
+                    firstPlayerIsChoosingItemsInBattle = true;
+                    SwitchPlayerControl();
+                    currentBattlePhase = BattlePhases.PLAYERATTACK;
+                }
+            }
+            else
+            {                
+                DontUseItemInBattleButton.gameObject.SetActive(false);
+                UseItemInBattleButton.gameObject.SetActive(false);
+
+                currentBattlePhase = BattlePhases.PLAYERATTACK;
+            }
+        }        
 
         FunctionScript.ActivateItemFunction(characterScript.itemsOwned[_selectedItemIndex].function);
 
@@ -1943,39 +2059,104 @@ public class GameManager : MonoBehaviour {
 
     public void PickAttackMorph()
     {
-        int morphIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
+        if (pickingStat)
+        {
+            pickedStat = "attack";
+            canvasMorphBall.GetComponent<Canvas>().enabled = false;
+        }
+        else
+        {
+            int morphIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
 
-        characterScript.artifactsOwned[morphIndex].stats.attack = 1;
-        characterScript.artifactsOwned[morphIndex].stats.defense = 0;
-        characterScript.artifactsOwned[morphIndex].stats.evasion = 0;
-        characterScript.Equip(characterScript.artifactsOwned[morphIndex]);
+            characterScript.artifactsOwned[morphIndex].stats.attack = 1;
+            characterScript.artifactsOwned[morphIndex].stats.defense = 0;
+            characterScript.artifactsOwned[morphIndex].stats.evasion = 0;
+            characterScript.Equip(characterScript.artifactsOwned[morphIndex]);
 
-        canvasMorphBall.GetComponent<Canvas>().enabled = false;
+            canvasMorphBall.GetComponent<Canvas>().enabled = false;
+        }
     }
 
     public void PickDefenseMorph()
     {
-        int morphIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
+        if (pickingStat)
+        {
+            pickedStat = "defense";
+            canvasMorphBall.GetComponent<Canvas>().enabled = false;
+        }
+        else
+        {
+            int morphIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
 
-        characterScript.artifactsOwned[morphIndex].stats.attack = 0;
-        characterScript.artifactsOwned[morphIndex].stats.defense = 1;
-        characterScript.artifactsOwned[morphIndex].stats.evasion = 0;
-        characterScript.Equip(characterScript.artifactsOwned[morphIndex]);
+            characterScript.artifactsOwned[morphIndex].stats.attack = 0;
+            characterScript.artifactsOwned[morphIndex].stats.defense = 1;
+            characterScript.artifactsOwned[morphIndex].stats.evasion = 0;
+            characterScript.Equip(characterScript.artifactsOwned[morphIndex]);
 
-        canvasMorphBall.GetComponent<Canvas>().enabled = false;
+            canvasMorphBall.GetComponent<Canvas>().enabled = false;
+        }
 
     }
 
     public void PickEvasionMorph()
     {
-        int morphIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
+        if (pickingStat)
+        {
+            pickedStat = "attack";
+            canvasMorphBall.GetComponent<Canvas>().enabled = false;
+        }
+        else
+        {
+            int morphIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
 
-        characterScript.artifactsOwned[morphIndex].stats.attack = 0;
-        characterScript.artifactsOwned[morphIndex].stats.defense = 0;
-        characterScript.artifactsOwned[morphIndex].stats.evasion = 1;
-        characterScript.Equip(characterScript.artifactsOwned[morphIndex]);
+            characterScript.artifactsOwned[morphIndex].stats.attack = 0;
+            characterScript.artifactsOwned[morphIndex].stats.defense = 0;
+            characterScript.artifactsOwned[morphIndex].stats.evasion = 1;
+            characterScript.Equip(characterScript.artifactsOwned[morphIndex]);
 
-        canvasMorphBall.GetComponent<Canvas>().enabled = false;
+            canvasMorphBall.GetComponent<Canvas>().enabled = false;
+        }
+
     }
 
+    public void ProceedInBattle()
+    {        
+        if(mustFightOpponent)
+        {
+            if (!firstPlayerIsChoosingItemsInBattle)
+            {                
+                DontUseItemInBattleButton.gameObject.SetActive(false);
+                UseItemInBattleButton.gameObject.SetActive(false);
+
+                SwitchPlayerControl();
+                currentBattlePhase = BattlePhases.PLAYERATTACK;
+            }
+            else
+            {                
+                DontUseItemInBattleButton.gameObject.SetActive(false);
+                UseItemInBattleButton.gameObject.SetActive(false);
+
+                SwitchPlayerControl();
+            }
+        }
+        else
+        {            
+            DontUseItemInBattleButton.gameObject.SetActive(false);
+            UseItemInBattleButton.gameObject.SetActive(false);
+
+            currentBattlePhase = BattlePhases.PLAYERATTACK;
+        }        
+    }
+
+    public void SwitchPlayerControl()
+    {
+        Character tempCharacterScript = characterScript;
+        characterScript = opponentScript;
+        opponentScript = tempCharacterScript;
+
+        if (!firstPlayerIsChoosingItemsInBattle)
+            firstPlayerIsChoosingItemsInBattle = true;
+        else
+            firstPlayerIsChoosingItemsInBattle = false;
+    }
 }

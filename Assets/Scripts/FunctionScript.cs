@@ -143,32 +143,39 @@ public class FunctionScript {
 
     static void Buff(int modifier)
     {
-        if (managerScript.pickedStat != "")
+        Stats buff;
+
+        buff.attack = 0;
+        buff.defense = 0;
+        buff.evasion = 0;
+        buff.maxHp = 0;
+
+        if (managerScript.pickedStat == "")
         {
-            Stats buff;
-
-            buff.attack = 0;
-            buff.defense = 0;
-            buff.evasion = 0;
-            buff.maxHp = 0;
-
-            switch (managerScript.pickedStat)
+            managerScript.pickingStat = true;
+            managerScript.canvasMorphBall.enabled = true;
+            Buff(modifier);
+        }
+        else
+        {
+            switch(managerScript.pickedStat)
             {
                 case "attack":
                     buff.attack = modifier;
-                    break;
+                break;
 
                 case "defense":
                     buff.defense = modifier;
-                    break;
+                break;
 
                 case "evasion":
                     buff.evasion = modifier;
-                    break;
+                break;
             }
 
             managerScript.opponentScript.card.Buff(buff);
             managerScript.pickedStat = "";
         }
+        
     }
 }
