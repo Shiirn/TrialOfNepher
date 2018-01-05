@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour {
     public bool buttonRollPressed = false;
     public bool canRollDice = true;    
     public bool rollingInBattle = false;
+    public bool rollingForItem = false;
     public bool wasDiceRolled = false;
 
     public TurnPhases currentPhase;
@@ -57,7 +58,8 @@ public class GameManager : MonoBehaviour {
     public enum InitialSubPhases
     {
         SETUP,
-        STANDBY
+        STANDBY,
+        USINGITEM
     }
 
     public enum EndSubPhases
@@ -161,6 +163,9 @@ public class GameManager : MonoBehaviour {
     //Temporary Battle Scripts
     public FighterCard attackerCard;
     public FighterCard targetCard;
+
+    //Item Vars
+    public string pickedStat;
 
     //Bounty Vars
     public struct Bounty
@@ -420,6 +425,18 @@ public class GameManager : MonoBehaviour {
                         }
                         yield return null;
                     }
+                }
+                break;
+
+            case InitialSubPhases.USINGITEM:
+                if(!rollingForItem)
+                {
+                    currentInitialSubPhase = InitialSubPhases.STANDBY;
+                }
+                else
+                {
+                    UseSelectedItem();
+                    yield return null;
                 }
                 break;
         }
@@ -1668,7 +1685,7 @@ public class GameManager : MonoBehaviour {
         ignoreFight = true;
     }
 
-    void ShowArtifacts()
+    public void ShowArtifacts()
     {
         for (int i = 0; i < characterScript.artifactsOwned.Count; i++)
         {
@@ -1720,7 +1737,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    void ShowItems()
+    public void ShowItems()
     {
         for (int i = 0; i < characterScript.itemsOwned.Count; i++)
         {
@@ -1743,7 +1760,33 @@ public class GameManager : MonoBehaviour {
     {
         if (selectedItemCard != null)
         {
-            Debug.Log("queso" + selectedItemCard.name);
+            int selectedItemIndex = selectedItemCard.GetComponent<InHandCardScript>().inHandIndex;
+
+            if (currentPhase == TurnPhases.INITIAL &&
+                characterScript.itemsOwned[selectedItemIndex].nature == ItemNature.Turn)
+            {
+                ActivateItem(selectedItemIndex);
+            }
+            else if (currentPhase == TurnPhases.BATTLE &&
+                    characterScript.itemsOwned[selectedItemIndex].nature == ItemNature.Battle)
+            {
+                ActivateItem(selectedItemIndex);
+            }
+            else
+            {
+                Debug.Log("This card is not meant for this turn phase.");
+            }
+        }
+    }
+
+    void ActivateItem(int _selectedItemIndex)
+    {
+        UseItemButton.gameObject.SetActive(false);
+
+        FunctionScript.ActivateItemFunction(characterScript.itemsOwned[_selectedItemIndex].function);
+
+        if (!rollingForItem)
+        {
             UseItemButton.gameObject.SetActive(false);
             characterScript.DiscardCardAt(selectedItemCard.GetComponent<InHandCardScript>().inHandIndex);
             foreach (Transform child in canvasItemCards.transform)
@@ -1759,7 +1802,7 @@ public class GameManager : MonoBehaviour {
         buttonRollPressed = true;
         canRollDice = false;
 
-        if (previousPhase == TurnPhases.INITIAL)
+        if (previousPhase == TurnPhases.INITIAL && !rollingForItem)
             initialSetupDone = true;
 
         if (dieScript.rollComplete && canRollDice)

@@ -36,11 +36,6 @@ public static class AbilityScript
         }
     }
 
-    public static void ActivateItemAbility(string ability)
-    {
-
-    }
-
     static void Thornmail(int modifier)
     {
         if (managerScript.attackerCard.hp > 1)
@@ -64,4 +59,3 @@ public static class AbilityScript
         return modifier;
     }
 }
-
