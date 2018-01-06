@@ -86,7 +86,7 @@ public class FunctionScript {
                 else
                 {
                     managerScript.characterScript.DrawItemCards(1);
-                    managerScript.ShowItems();
+                    managerScript.ShowItems(managerScript.characterScript);
                 }
             }
 

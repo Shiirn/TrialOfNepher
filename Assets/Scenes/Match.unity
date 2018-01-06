@@ -408,7 +408,6 @@ MonoBehaviour:
   itemCardsShown: 0
   initialSetupDone: 0
   initialSetupInBattleDone: 0
-  firstPlayerIsChoosingItemsInBattle: 1
   fightPlayer: 0
   fightBoss: 0
   ignoreFight: 0
@@ -510,6 +509,7 @@ MonoBehaviour:
   whiteHoodStats: {fileID: 1271772200}
   attackerStats: {fileID: 1036037215}
   enemyStats: {fileID: 1497778063}
+  currentPlayerPickingCards: 0
   pickedStat: 
   pickingStat: 0
 --- !u!1 &271049720

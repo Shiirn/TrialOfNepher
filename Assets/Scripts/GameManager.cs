@@ -16,7 +16,6 @@ public class GameManager : MonoBehaviour {
     public bool itemCardsShown = false;
     public bool initialSetupDone = false;
     public bool initialSetupInBattleDone = false;
-    public bool firstPlayerIsChoosingItemsInBattle = true;
     //Battle
     public bool fightPlayer = false;
     public bool fightBoss = false;
@@ -165,6 +164,7 @@ public class GameManager : MonoBehaviour {
     int currentAttack = 0;
     int currentDefense = 0;
     int currentEvasion = 0;
+    public int currentPlayerPickingCards = 0;
     //Temporary Battle Scripts
     public FighterCard attackerCard;
     public FighterCard targetCard;
@@ -261,8 +261,69 @@ public class GameManager : MonoBehaviour {
                 break;
 
             case TurnPhases.BATTLE:
-                //TEMPORARY
                 StartCoroutine(BattlePhase());
+
+                if(currentBattlePhase == BattlePhases.INITIAL)
+                {
+                    if (mustFightOpponent)
+                    {
+                        if (currentPlayerPickingCards == activePlayer)
+                        {
+                            if (characterScript.itemsOwned.Count > 0)
+                            {
+                                UseItemInBattleButton.gameObject.SetActive(true);
+                                DontUseItemInBattleButton.gameObject.SetActive(true);
+                                ShowItems(characterScript);
+                            }
+                            else
+                            {
+                                currentPlayerPickingCards += 1;
+                            }
+                        }
+                        else if (currentPlayerPickingCards == (activePlayer + 1))
+                        {
+                            if (opponentScript.itemsOwned.Count > 0)
+                            {
+                                UseItemInBattleButton.gameObject.SetActive(true);
+                                DontUseItemInBattleButton.gameObject.SetActive(true);
+                                ShowItems(opponentScript);
+                            }
+                            else
+                            {
+                                currentPlayerPickingCards += 1;
+                            }
+                        }
+                        else if (currentPlayerPickingCards > (activePlayer + 1))
+                        {
+                            UseItemInBattleButton.gameObject.SetActive(false);
+                            DontUseItemInBattleButton.gameObject.SetActive(false);
+                            currentBattlePhase = BattlePhases.PLAYERATTACK;
+                        }
+                    }
+                    else
+                    {
+                        if (currentPlayerPickingCards == activePlayer)
+                        {
+                            if (characterScript.itemsOwned.Count > 0)
+                            {
+                                UseItemInBattleButton.gameObject.SetActive(true);
+                                DontUseItemInBattleButton.gameObject.SetActive(true);
+                                ShowItems(characterScript);
+                            }
+                            else
+                            {
+                                currentPlayerPickingCards += 1;
+                            }
+                        }
+                        else
+                        {
+                            UseItemInBattleButton.gameObject.SetActive(false);
+                            DontUseItemInBattleButton.gameObject.SetActive(false);
+                            currentPlayerPickingCards = 0;
+                            currentBattlePhase = BattlePhases.PLAYERATTACK;
+                        }
+                    }
+                }
                 break;
 
             case TurnPhases.END:
@@ -327,6 +388,11 @@ public class GameManager : MonoBehaviour {
                 DisplayStats(characterScript.card, "blackHood");
                 DisplayStats(opponentScript.card, "whiteHood");
             }
+        }
+
+        if(!mustFightOpponent)
+        {
+            currentPlayerPickingCards = activePlayer;
         }
 
         if (canRollDice)
@@ -501,19 +567,6 @@ public class GameManager : MonoBehaviour {
             switch (currentBattlePhase)
             {
                 case BattlePhases.INITIAL:
-
-                    if (characterScript.itemsOwned.Count > 0)
-                    {
-                        DisplayText("System", "You can use a Card before fighting.\n" + characterScript.card.fighterName + " is picking.");
-                        if (!itemCardsShown)
-                        {
-                            ShowItems(characterScript);
-                            DontUseItemInBattleButton.gameObject.SetActive(true);
-                            UseItemInBattleButton.gameObject.SetActive(true);
-                        }
-                    }
-                    else
-                        currentBattlePhase = BattlePhases.PLAYERATTACK;
 
                     break;
 
@@ -744,22 +797,6 @@ public class GameManager : MonoBehaviour {
             {
                 case BattlePhases.INITIAL:
 
-                    if (characterScript.itemsOwned.Count > 0)
-                    {
-                        DisplayText("System", "You can use a Card before fighting.\n" + characterScript.card.fighterName + " is picking.");
-                        if (!itemCardsShown)
-                        {
-                            ShowItems(characterScript);
-                            DontUseItemInBattleButton.gameObject.SetActive(true);
-                            UseItemInBattleButton.gameObject.SetActive(true);
-                        }
-
-                    }
-                    else
-                    {
-                        currentBattlePhase = BattlePhases.PLAYERATTACK;
-                    }
-
                     break;
 
                 case BattlePhases.PLAYERATTACK:
@@ -974,8 +1011,6 @@ public class GameManager : MonoBehaviour {
                     break;
             }
         }
-
-
         else if (mustFightOpponent)
         {
             if (!pvpCardsAreSet)
@@ -990,10 +1025,9 @@ public class GameManager : MonoBehaviour {
                     whiteHoodSpriteInBattle.SetActive(true);
                     whiteHoodSpriteInBattle.transform.Translate(+285, 0, 0);
                 }
-
-
-                attackerCard = characterScript;
-                targetCard = opponentScript;
+                
+                attackerCard = characterScript.card;
+                targetCard = opponentScript.card;
 
                 pvpCardsAreSet = true;
             }
@@ -1009,41 +1043,7 @@ public class GameManager : MonoBehaviour {
             {
                 case BattlePhases.INITIAL:
 
-                    if (firstPlayerIsChoosingItemsInBattle)
-                    {
-                        if (characterScript.itemsOwned.Count > 0)
-                        {
-                            DisplayText("System", "You can use a Card before fighting.\n" + attackerCard.fighterName + " is picking.");
-                            if (!itemCardsShown)
-                            {
-                                ShowItems(attackerCard);
-                                DontUseItemInBattleButton.gameObject.SetActive(true);
-                                UseItemInBattleButton.gameObject.SetActive(true);
-                            }
-                        }
-                        else
-                        {
-                            currentBattlePhase = BattlePhases.PLAYERATTACK;
-                        }
-                    }
-                    else
-                    {
-                        if (characterScript.itemsOwned.Count > 0)
-                        {
-                            DisplayText("System", "You can use a Card before fighting.\n" + targetCard.fighterName + " is picking.");
-                            if (!itemCardsShown)
-                            {
-                                ShowItems(targetCard);
-                                DontUseItemInBattleButton.gameObject.SetActive(true);
-                                UseItemInBattleButton.gameObject.SetActive(true);
-                            }
-
-                        }
-                        else
-                        {
-                            currentBattlePhase = BattlePhases.PLAYERATTACK;
-                        }
-                    }
+                    
 
                     break;
 
@@ -1059,6 +1059,7 @@ public class GameManager : MonoBehaviour {
                     {
                         currentAttack = characterScript.card.GetCurrentStats().attack + diceRoll;
                         DisplayText("systemInBattle", characterScript.card.fighterName + " attacks with " + currentAttack);
+                        wasDiceRolled = false;
                         currentBattlePhase = BattlePhases.WAITFORTARGET;
                     }
 
@@ -1321,17 +1322,15 @@ public class GameManager : MonoBehaviour {
 
                 if (characterScript.itemsOwned.Count > 3)
                 {
-                    if (!itemCardsShown)
-                    {
-                        ShowItems();
-                    }
+                    
+                    ShowItems(characterScript);
+                    
 
                     if (selectedItemCard != null)
                     {
-                        if (!itemCardsShown)
-                        {
-                            ShowItems();
-                        }
+                        
+                        ShowItems(characterScript);
+                        
 
                         Debug.Log("Spipolo" + selectedItemCard.name);
 
@@ -1417,14 +1416,14 @@ public class GameManager : MonoBehaviour {
 
     void ResetInitialObjects()
     {
-        artifactCardsShown = false;
-        itemCardsShown = false;
         selectedItemCard = null;
         selectedArtifactCard = null;
         EquipArtifactButton.gameObject.SetActive(false);
         UseItemButton.gameObject.SetActive(false);
         RollButton.gameObject.SetActive(false);
 
+        artifactCardsShown = false;
+        itemCardsShown = false;
         foreach (Transform child in canvasArtifactCards.transform)
         {
             GameObject.Destroy(child.gameObject);
@@ -1824,21 +1823,23 @@ public class GameManager : MonoBehaviour {
 
     public void ShowItems(Character character)
     {
-        for (int i = 0; i < character.itemsOwned.Count; i++)
+        if (!itemCardsShown)
         {
-            foreach (GameObject itemCard in itemCardSprites)
+            for (int i = 0; i < character.itemsOwned.Count; i++)
             {
-                if (itemCard.name == character.itemsOwned[i].spriteName)
+                foreach (GameObject itemCard in itemCardSprites)
                 {
-                    GameObject currentCard = Instantiate(itemCard);
-                    currentCard.transform.SetParent(canvasItemCards.transform, false);
-                    currentCard.GetComponent<InHandCardScript>().inHandIndex = i;
-                    currentCard.transform.Translate(135 * i, 0, 0);
+                    if (itemCard.name == character.itemsOwned[i].spriteName)
+                    {
+                        GameObject currentCard = Instantiate(itemCard);
+                        currentCard.transform.SetParent(canvasItemCards.transform, false);
+                        currentCard.GetComponent<InHandCardScript>().inHandIndex = i;
+                        currentCard.transform.Translate(135 * i, 0, 0);
+                    }
                 }
             }
+            itemCardsShown = true;
         }
-
-        itemCardsShown = true;
     }
 
     void UseSelectedItem()
@@ -1848,12 +1849,12 @@ public class GameManager : MonoBehaviour {
             int selectedItemIndex = selectedItemCard.GetComponent<InHandCardScript>().inHandIndex;
 
             if (currentPhase == TurnPhases.INITIAL &&
-                characterScript.itemsOwned[selectedItemIndex].nature == ItemNature.Turn)
+                characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemIndex].nature == ItemNature.Turn)
             {
                 ActivateItem(selectedItemIndex);
             }
             else if (currentPhase == TurnPhases.BATTLE &&
-                    characterScript.itemsOwned[selectedItemIndex].nature == ItemNature.Battle)
+                    characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemIndex].nature == ItemNature.Battle)
             {
                 ActivateItem(selectedItemIndex);
             }
@@ -1866,50 +1867,27 @@ public class GameManager : MonoBehaviour {
 
     void ActivateItem(int _selectedItemIndex)
     {
+        Character playerUsingItemScript = characters[currentPlayerPickingCards % 2].GetComponent<Character>();
+
         UseItemButton.gameObject.SetActive(false);
 
-        if (currentPhase == TurnPhases.BATTLE)
-        {
-            if (mustFightOpponent)
-            {
-                if (firstPlayerIsChoosingItemsInBattle)
-                {                    
-                    DontUseItemInBattleButton.gameObject.SetActive(false);
-                    UseItemInBattleButton.gameObject.SetActive(false);
-
-                    firstPlayerIsChoosingItemsInBattle = false;
-                    SwitchPlayerControl();
-                }
-                else
-                {                    
-                    DontUseItemInBattleButton.gameObject.SetActive(false);
-                    UseItemInBattleButton.gameObject.SetActive(false);
-
-                    firstPlayerIsChoosingItemsInBattle = true;
-                    SwitchPlayerControl();
-                    currentBattlePhase = BattlePhases.PLAYERATTACK;
-                }
-            }
-            else
-            {                
-                DontUseItemInBattleButton.gameObject.SetActive(false);
-                UseItemInBattleButton.gameObject.SetActive(false);
-
-                currentBattlePhase = BattlePhases.PLAYERATTACK;
-            }
-        }        
-
-        FunctionScript.ActivateItemFunction(characterScript.itemsOwned[_selectedItemIndex].function);
+        FunctionScript.ActivateItemFunction(playerUsingItemScript.itemsOwned[_selectedItemIndex].function);
 
         if (!rollingForItem)
         {
             UseItemButton.gameObject.SetActive(false);
-            characterScript.DiscardCardAt(selectedItemCard.GetComponent<InHandCardScript>().inHandIndex);
+            playerUsingItemScript.DiscardCardAt(selectedItemCard.GetComponent<InHandCardScript>().inHandIndex);
             foreach (Transform child in canvasItemCards.transform)
             {
                 GameObject.Destroy(child.gameObject);
             }
-            ShowItems();
+            ShowItems(playerUsingItemScript);
+        }
+
+        if(currentPhase == TurnPhases.BATTLE && currentBattlePhase == BattlePhases.INITIAL)
+        {
+            ResetInitialObjects();
+            currentPlayerPickingCards += 1;
         }
     }
 
@@ -2120,43 +2098,10 @@ public class GameManager : MonoBehaviour {
     }
 
     public void ProceedInBattle()
-    {        
-        if(mustFightOpponent)
-        {
-            if (!firstPlayerIsChoosingItemsInBattle)
-            {                
-                DontUseItemInBattleButton.gameObject.SetActive(false);
-                UseItemInBattleButton.gameObject.SetActive(false);
-
-                SwitchPlayerControl();
-                currentBattlePhase = BattlePhases.PLAYERATTACK;
-            }
-            else
-            {                
-                DontUseItemInBattleButton.gameObject.SetActive(false);
-                UseItemInBattleButton.gameObject.SetActive(false);
-
-                SwitchPlayerControl();
-            }
-        }
-        else
-        {            
-            DontUseItemInBattleButton.gameObject.SetActive(false);
-            UseItemInBattleButton.gameObject.SetActive(false);
-
-            currentBattlePhase = BattlePhases.PLAYERATTACK;
-        }        
-    }
-
-    public void SwitchPlayerControl()
     {
-        Character tempCharacterScript = characterScript;
-        characterScript = opponentScript;
-        opponentScript = tempCharacterScript;
+        DontUseItemInBattleButton.gameObject.SetActive(false);
 
-        if (!firstPlayerIsChoosingItemsInBattle)
-            firstPlayerIsChoosingItemsInBattle = true;
-        else
-            firstPlayerIsChoosingItemsInBattle = false;
+        currentPlayerPickingCards += 1;
+        ResetInitialObjects();
     }
 }

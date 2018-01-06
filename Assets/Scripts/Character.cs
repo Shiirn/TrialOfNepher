@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Character : Fighter
 {
-
     public int boardX;
     public int boardY;
     public GameObject currentPanel;
