@@ -351,6 +351,117 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &206139967
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 206139968}
+  - component: {fileID: 206139971}
+  - component: {fileID: 206139970}
+  - component: {fileID: 206139969}
+  m_Layer: 5
+  m_Name: FightFinalBossButton
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &206139968
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 206139967}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 733116147}
+  m_Father: {fileID: 2011781443}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -144.19995, y: -167.89996}
+  m_SizeDelta: {x: 160, y: 30}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &206139969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 206139967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 206139970}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+--- !u!114 &206139970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 206139967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.16911763, g: 0.16647623, b: 0.15170847, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+--- !u!222 &206139971
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 206139967}
 --- !u!1 &235550752
 GameObject:
   m_ObjectHideFlags: 0
@@ -410,10 +521,12 @@ MonoBehaviour:
   initialSetupInBattleDone: 0
   fightPlayer: 0
   fightBoss: 0
+  fightFinalBoss: 0
   ignoreFight: 0
   enemyIsDefendingOrEvading: 0
   isChoosingToFightOpponent: 0
   isChoosingToFightBoss: 0
+  isChoosingTofightFinalBoss: 0
   diceRoll: 0
   buttonRollPressed: 0
   canRollDice: 0
@@ -434,6 +547,7 @@ MonoBehaviour:
   opponentScript: {fileID: 0}
   monsterScript: {fileID: 0}
   bossScript: {fileID: 0}
+  finalBossScript: {fileID: 0}
   board: {fileID: 1225306294}
   homePanels:
   - {fileID: 1092824430448638, guid: 22342cce52aa16d4297b4a046816e490, type: 2}
@@ -446,7 +560,7 @@ MonoBehaviour:
   canvasInitial: {fileID: 1956354980}
   canvasArtifactCards: {fileID: 853112133}
   canvasItemCards: {fileID: 1194300371}
-  canvasMorphBall: {fileID: 722391941}
+  canvasPickStat: {fileID: 722391941}
   DefendButton: {fileID: 2095282644}
   EvadeButton: {fileID: 1324696301}
   EquipArtifactButton: {fileID: 1644490981}
@@ -459,6 +573,7 @@ MonoBehaviour:
   RollButton: {fileID: 2109398891}
   FightPlayerButton: {fileID: 398223129}
   FightBossButton: {fileID: 985323848}
+  fightFinalBossButton: {fileID: 206139969}
   IgnoreFightButton: {fileID: 1906627618}
   selectedItemCard: {fileID: 0}
   selectedArtifactCard: {fileID: 0}
@@ -474,6 +589,9 @@ MonoBehaviour:
   - {fileID: 1679230263708156, guid: 2c20380f4007b4a4f842e69cae2b9843, type: 2}
   - {fileID: 1975955420787538, guid: e9bc5c7f44d6d774299e8f832a70efea, type: 2}
   activeBossSprite: {fileID: 0}
+  finalBossSprites:
+  - {fileID: 1877717235860288, guid: 13975fd3df1908947b1256570db4b775, type: 2}
+  activeFinalBossSprite: {fileID: 0}
   blackHoodSprite: {fileID: 354063110}
   whiteHoodSprite: {fileID: 688981196}
   blackHoodSpriteInBattle: {fileID: 1426203476}
@@ -509,9 +627,13 @@ MonoBehaviour:
   whiteHoodStats: {fileID: 1271772200}
   attackerStats: {fileID: 1036037215}
   enemyStats: {fileID: 1497778063}
+  mustFightOpponent: 0
   currentPlayerPickingCards: 0
+  isFleeing: 0
   pickedStat: 
   pickingStat: 0
+  tempBuffModifier: 0
+  tempMovementBuff: 0
 --- !u!1 &271049720
 GameObject:
   m_ObjectHideFlags: 0
@@ -1809,7 +1931,7 @@ GameObject:
   - component: {fileID: 722391940}
   - component: {fileID: 722391939}
   m_Layer: 5
-  m_Name: CanvasMorphBall
+  m_Name: CanvasPickStat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1828,8 +1950,8 @@ RectTransform:
   - {fileID: 693022608}
   - {fileID: 480779848}
   - {fileID: 1020156452}
-  m_Father: {fileID: 1956354977}
-  m_RootOrder: 5
+  m_Father: {fileID: 841302545}
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -1893,6 +2015,80 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!1 &733116146
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 733116147}
+  - component: {fileID: 733116149}
+  - component: {fileID: 733116148}
+  m_Layer: 5
+  m_Name: Text
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &733116147
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 733116146}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 206139968}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &733116148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 733116146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 14
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 40
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: Fight Nepher
+--- !u!222 &733116149
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 733116146}
 --- !u!1 &739126348
 GameObject:
   m_ObjectHideFlags: 0
@@ -2096,6 +2292,7 @@ RectTransform:
   - {fileID: 688981197}
   - {fileID: 1956354977}
   - {fileID: 2011781443}
+  - {fileID: 722391938}
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2363,7 +2560,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.44117647, g: 0.07785467, b: 0.07785467, a: 1}
+  m_Color: {r: 0.71323526, g: 0.16257566, b: 0.16257566, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -4579,6 +4776,46 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1723052016}
+--- !u!1 &1724206263
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1724206265}
+  - component: {fileID: 1724206264}
+  m_Layer: 0
+  m_Name: ActiveFinalBoss
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1724206264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1724206263}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5bf8ff8f4deb4f40b4a074629c05fd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1724206265
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1724206263}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 917.5419, y: 96.25023, z: 54.68839}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 20
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1730145805
 GameObject:
   m_ObjectHideFlags: 0
@@ -5244,7 +5481,6 @@ RectTransform:
   - {fileID: 2109398890}
   - {fileID: 1194300368}
   - {fileID: 853112130}
-  - {fileID: 722391938}
   m_Father: {fileID: 841302545}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5341,6 +5577,7 @@ RectTransform:
   - {fileID: 985323847}
   - {fileID: 398223128}
   - {fileID: 1906627617}
+  - {fileID: 206139968}
   m_Father: {fileID: 841302545}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

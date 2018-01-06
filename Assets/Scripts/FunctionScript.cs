@@ -49,9 +49,15 @@ public class FunctionScript {
                 break;
 
             case "smite":
+                Smite(modifier);
+                break;
+
+            case "movement":
+                TemporaryMovementUp(modifier);
                 break;
 
             case "flee":
+                Flee();
                 break;
         }        
     }
@@ -127,6 +133,14 @@ public class FunctionScript {
         fullDebuff.maxHp = 0;
 
         managerScript.opponentScript.card.Buff(fullDebuff);
+
+        managerScript.characterScript.card.GetDamaged(2);
+
+        if (!managerScript.characterScript.card.isAlive)
+        {
+            managerScript.currentPhase = GameManager.TurnPhases.END;
+            managerScript.currentEndSubPhase = GameManager.EndSubPhases.DISCARD;
+        }
     }
 
     static void FullBuff(int modifier)
@@ -138,44 +152,34 @@ public class FunctionScript {
         fullBuff.evasion = modifier;
         fullBuff.maxHp = 0;
 
-        managerScript.opponentScript.card.Buff(fullBuff);
+        managerScript.characterScript.card.Buff(fullBuff);
     }
 
     static void Buff(int modifier)
     {
-        Stats buff;
+        managerScript.currentBattlePhase = GameManager.BattlePhases.USINGITEM;
+        managerScript.tempBuffModifier = modifier;
+        managerScript.canvasPickStat.enabled = true;
+    }
 
-        buff.attack = 0;
-        buff.defense = 0;
-        buff.evasion = 0;
-        buff.maxHp = 0;
+    static void TemporaryMovementUp(int modifier)
+    {
+        managerScript.tempMovementBuff += modifier;
+    }
 
-        if (managerScript.pickedStat == "")
+    static void Smite(int modifier)
+    {
+        managerScript.targetCard.GetDamaged(modifier);
+        managerScript.DisplayStats(managerScript.targetCard, "enemy");
+        if(!managerScript.targetCard.isAlive)
         {
-            managerScript.pickingStat = true;
-            managerScript.canvasMorphBall.enabled = true;
-            Buff(modifier);
+            managerScript.currentBattlePhase = GameManager.BattlePhases.ENDOFBATTLE;
         }
-        else
-        {
-            switch(managerScript.pickedStat)
-            {
-                case "attack":
-                    buff.attack = modifier;
-                break;
+    }
 
-                case "defense":
-                    buff.defense = modifier;
-                break;
-
-                case "evasion":
-                    buff.evasion = modifier;
-                break;
-            }
-
-            managerScript.opponentScript.card.Buff(buff);
-            managerScript.pickedStat = "";
-        }
-        
+    static void Flee()
+    {
+        managerScript.isFleeing = true;
+        managerScript.currentBattlePhase = GameManager.BattlePhases.ENDOFBATTLE;
     }
 }

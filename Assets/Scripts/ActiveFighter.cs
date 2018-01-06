@@ -8,4 +8,5 @@ public class ActiveFighter : MonoBehaviour {
     
     public FighterCard monsterCard;
     public FighterCard bossCard;
+    public FighterCard finalBossCard;
 }

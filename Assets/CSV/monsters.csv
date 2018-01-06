@@ -7,4 +7,4 @@ ID,name,type,nature,description,attack,defense,evasion,hp,sprite
 5,Mummytaur,MidBoss,Defender,A dead minotaur taken back by Nepher. Its attacks are devastating.,2,1,0,7,Mummytaur
 6,Dream Harpy,MidBoss,Evader,Cuts your dreams in half in the blink of an eye.,1,0,2,5,Harpy
 7,Cyclops Gazer,MidBoss,Defender,A sturdy beast armed with all-seeing eyes.,1,-1,0,12,Gazer
-8,Nepher,Boss,Special,When attacking this card: if you roll a 1 or a 2 - Nepher dodges the attack. If you roll a 3 or higher - he defends regularly. This doesn't take stat modifiers into account.,2,0,2,15,Nepher
+8,Nepher,Boss,Special,When attacking this card: if you roll a 1 or a 2 - Nepher dodges the attack. If you roll a 3 or higher - Nepher defends regularly. This doesn't take stat modifiers into account.,2,0,2,15,Nepher
