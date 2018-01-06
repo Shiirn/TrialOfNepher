@@ -277,7 +277,6 @@ public class GameManager : MonoBehaviour {
                 }
                 else
                 {
-                    UseItemInBattleButton.gameObject.SetActive(true);
                     UseItemInBattleButton.gameObject.transform.position = new Vector3(selectedItemCard.transform.position.x,
                                                                                 selectedItemCard.transform.position.y - 100,
                                                                                 selectedItemCard.transform.position.z);
@@ -328,25 +327,7 @@ public class GameManager : MonoBehaviour {
                     canRollDice = false;
                 }
 
-                if (!characterScript.card.isAlive)
-                {
-                    EquipArtifactButton.gameObject.SetActive(false);
-
-                    if (selectedItemCard != null)
-                    {
-                        if (!characterScript.itemsOwned[selectedItemCard.GetComponent<InHandCardScript>().inHandIndex].function.Contains("revive"))
-                            UseItemButton.gameObject.SetActive(false);
-                        else
-                            UseItemButton.gameObject.SetActive(true);
-                    }
-                }
-                else
-                {
-                    if (selectedItemCard != null)
-                    {
-                        UseItemButton.gameObject.SetActive(true);
-                    }
-                }
+                CheckCardUsability();
 
                 break;
 
@@ -376,6 +357,8 @@ public class GameManager : MonoBehaviour {
 
             case TurnPhases.BATTLE:
                 StartCoroutine(BattlePhase());
+
+                CheckCardUsability();
 
                 if (currentBattlePhase == BattlePhases.USINGITEM)
                 {
@@ -2360,9 +2343,11 @@ public class GameManager : MonoBehaviour {
             int selectedItemIndex = selectedItemCard.GetComponent<InHandCardScript>().inHandIndex;
 
             if (currentPhase == TurnPhases.INITIAL &&
-                characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemIndex].nature == ItemNature.Turn)
+                characterScript.itemsOwned[selectedItemIndex].nature == ItemNature.Turn)
             {
+                
                 ActivateItem(selectedItemIndex);
+                
             }
             else if (currentPhase == TurnPhases.BATTLE &&
                     characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemIndex].nature == ItemNature.Battle)
@@ -2718,5 +2703,110 @@ public class GameManager : MonoBehaviour {
 
         currentPlayerPickingCards += 1;
         ResetInitialObjects();
+    }
+
+    public void CheckCardUsability()
+    {
+        if (selectedItemCard != null)
+        {
+            if (currentPhase == TurnPhases.INITIAL)
+            {
+                if (characterScript.itemsOwned[selectedItemCard.GetComponent<InHandCardScript>().inHandIndex].nature == ItemNature.Turn)
+                {
+                    if (!characterScript.card.isAlive)
+                    {
+                        EquipArtifactButton.gameObject.SetActive(false);
+
+                        if (selectedItemCard != null)
+                        {
+                            if (!characterScript.itemsOwned[selectedItemCard.GetComponent<InHandCardScript>().inHandIndex].function.Contains("revive"))
+                                UseItemButton.gameObject.SetActive(false);
+                            else
+                                UseItemButton.gameObject.SetActive(true);
+                        }
+                    }
+                    else
+                    {
+                        if (selectedItemCard != null)
+                        {
+                            if (characterScript.itemsOwned[selectedItemCard.GetComponent<InHandCardScript>().inHandIndex].function.Contains("heal"))
+                            {
+                                if (characterScript.card.hp < characterScript.card.stats.maxHp)
+                                {
+                                    UseItemButton.gameObject.SetActive(true);
+                                }
+                                else
+                                {
+                                    UseItemButton.gameObject.SetActive(false);
+                                }
+                            }
+                            else if (characterScript.itemsOwned[selectedItemCard.GetComponent<InHandCardScript>().inHandIndex].function.Contains("hit"))
+                            {
+                                if (opponentScript.card.isAlive)
+                                {
+                                    UseItemButton.gameObject.SetActive(true);
+                                }
+                                else
+                                {
+                                    UseItemButton.gameObject.SetActive(false);
+                                }
+                            }
+                            else if (characterScript.itemsOwned[selectedItemCard.GetComponent<InHandCardScript>().inHandIndex].function.Contains("steal"))
+                            {
+                                if (opponentScript.artifactsOwned.Count > 0)
+                                {
+                                    UseItemButton.gameObject.SetActive(true);
+                                }
+                                else
+                                {
+                                    UseItemButton.gameObject.SetActive(false);
+                                }
+                            }
+                            else if (characterScript.itemsOwned[selectedItemCard.GetComponent<InHandCardScript>().inHandIndex].function.Contains("fullDebuff"))
+                            {
+                                if (characterScript.card.hp > 2)
+                                {
+                                    UseItemButton.gameObject.SetActive(true);
+                                }
+                                else
+                                {
+                                    UseItemButton.gameObject.SetActive(false);
+                                }
+                            }
+                            else if (characterScript.itemsOwned[selectedItemCard.GetComponent<InHandCardScript>().inHandIndex].function.Contains("revive"))
+                            {
+                                if (!characterScript.card.isAlive)
+                                {
+                                    UseItemButton.gameObject.SetActive(true);
+                                }
+                                else
+                                {
+                                    UseItemButton.gameObject.SetActive(false);
+                                }
+                            }
+                            else
+                            {
+                                UseItemButton.gameObject.SetActive(true);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    UseItemButton.gameObject.SetActive(false);
+                }
+            }
+            else if (currentPhase == TurnPhases.BATTLE)
+            {
+                if (characterScript.itemsOwned[selectedItemCard.GetComponent<InHandCardScript>().inHandIndex].nature == ItemNature.Battle)
+                {
+                    UseItemInBattleButton.gameObject.SetActive(true);
+                }
+                else
+                {
+                    UseItemInBattleButton.gameObject.SetActive(false);
+                }
+            }
+        }
     }
 }
