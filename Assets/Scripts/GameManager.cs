@@ -141,6 +141,7 @@ public class GameManager : MonoBehaviour {
     //UI Surrogate Vars
     public GameObject selectedItemCard;
     public GameObject selectedArtifactCard;
+    public bool hoveringOntoCard = false;
 
     //Cards
     public GameObject[] monsterSprites;
@@ -158,6 +159,7 @@ public class GameManager : MonoBehaviour {
     //Text    
     public GameObject system;
     public GameObject systemInBattle;
+    public GameObject cardDescription;
     public GameObject blackHoodStats;
     public GameObject whiteHoodStats;
     public GameObject attackerStats;
@@ -245,22 +247,75 @@ public class GameManager : MonoBehaviour {
         currentInitialSubPhase = InitialSubPhases.SETUP;
         currentBattlePhase = BattlePhases.INITIAL;
     }
-	
-	void Update() {
+
+    void Update() {
+
+        if(selectedItemCard == null && selectedArtifactCard == null && !hoveringOntoCard)
+        {
+            cardDescription.SetActive(false);
+        }
+        else
+        {
+            cardDescription.SetActive(true);
+        }
 
         if (selectedItemCard == null)
         {
             UseItemButton.gameObject.SetActive(false);
+            UseItemInBattleButton.gameObject.SetActive(false);
+        }
+        else
+        {
+            if (currentPhase != TurnPhases.END)
+            {
+                if (currentPhase != TurnPhases.BATTLE)
+                {
+                    UseItemButton.gameObject.transform.position = new Vector3(selectedItemCard.transform.position.x,
+                                                                                selectedItemCard.transform.position.y - 100,
+                                                                                selectedItemCard.transform.position.z);
+                    UseItemButton.gameObject.transform.SetAsLastSibling();
+                }
+                else
+                {
+                    UseItemInBattleButton.gameObject.SetActive(true);
+                    UseItemInBattleButton.gameObject.transform.position = new Vector3(selectedItemCard.transform.position.x,
+                                                                                selectedItemCard.transform.position.y - 100,
+                                                                                selectedItemCard.transform.position.z);
+                    UseItemInBattleButton.gameObject.transform.SetAsLastSibling();
+                }
+            }
+
+            int selectedItemIndex = selectedItemCard.GetComponent<InHandCardScript>().inHandIndex;
+            DisplayText("cardDescription",
+                        characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemIndex].itemName +
+                        "\n" +
+                        characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemIndex].description);
         }
 
-        if (selectedArtifactCard == null ||
-            characterScript.artifactsOwned[selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex].nature == ArtifactNature.Passive)
+        if (selectedArtifactCard != null)
+        {
+            if (characterScript.artifactsOwned[selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex].nature == ArtifactNature.Passive)
+            {
+                EquipArtifactButton.gameObject.SetActive(false);
+            }
+            else if (characterScript.artifactsOwned[selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex].nature == ArtifactNature.Equippable)
+            {
+                EquipArtifactButton.gameObject.SetActive(true);
+
+                EquipArtifactButton.gameObject.transform.position = new Vector3(selectedArtifactCard.transform.position.x,
+                                                                                    selectedArtifactCard.transform.position.y + 100,
+                                                                                    selectedArtifactCard.transform.position.z);
+                EquipArtifactButton.gameObject.transform.SetAsLastSibling();
+            }
+
+            int selectedArtifactIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
+            DisplayText("cardDescription", characters[currentPlayerPickingCards % 2].GetComponent<Character>().artifactsOwned[selectedArtifactIndex].artifactName +
+                        "\n" +
+                        characters[currentPlayerPickingCards % 2].GetComponent<Character>().artifactsOwned[selectedArtifactIndex].description);
+        }
+        else
         {
             EquipArtifactButton.gameObject.SetActive(false);
-        }
-        else if (characterScript.artifactsOwned[selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex].nature == ArtifactNature.Equippable)
-        {
-            EquipArtifactButton.gameObject.SetActive(true);
         }
 
         switch (currentPhase)
@@ -336,9 +391,7 @@ public class GameManager : MonoBehaviour {
                         {
                             if (characterScript.itemsOwned.Count > 0)
                             {
-                                
-                                    UseItemInBattleButton.gameObject.SetActive(true);
-                                    DontUseItemInBattleButton.gameObject.SetActive(true);
+                                DontUseItemInBattleButton.gameObject.SetActive(true);
                                 
                                 ShowItems(characterScript);
                             }
@@ -351,9 +404,7 @@ public class GameManager : MonoBehaviour {
                         {
                             if (opponentScript.itemsOwned.Count > 0)
                             {
-                                
-                                    UseItemInBattleButton.gameObject.SetActive(true);
-                                    DontUseItemInBattleButton.gameObject.SetActive(true);
+                                DontUseItemInBattleButton.gameObject.SetActive(true);
                                 
                                 ShowItems(opponentScript);
                             }
@@ -364,9 +415,7 @@ public class GameManager : MonoBehaviour {
                         }
                         else if (currentPlayerPickingCards > (activePlayer + 1))
                         {
-                            
-                                UseItemInBattleButton.gameObject.SetActive(true);
-                                DontUseItemInBattleButton.gameObject.SetActive(true);
+                            DontUseItemInBattleButton.gameObject.SetActive(true);
                             
                             if(!isFleeing)
                                 currentBattlePhase = BattlePhases.PLAYERATTACK;
@@ -376,7 +425,6 @@ public class GameManager : MonoBehaviour {
                     {
                         if (characterScript.itemsOwned.Count > 0 && currentPlayerPickingCards == activePlayer)
                         {
-                            UseItemInBattleButton.gameObject.SetActive(true);
                             DontUseItemInBattleButton.gameObject.SetActive(true);
                                 
                             ShowItems(characterScript);
@@ -614,8 +662,6 @@ public class GameManager : MonoBehaviour {
     {
         canvasInPlay.GetComponent<Canvas>().enabled = false;
         canvasInBattle.GetComponent<Canvas>().enabled = true;
-        DefendButton.gameObject.SetActive(true);
-        EvadeButton.gameObject.SetActive(true);        
 
         if (characterScript.card.fighterName == "White Hood")
         {
@@ -731,6 +777,8 @@ public class GameManager : MonoBehaviour {
                         DisplayText("systemInBattle", finalBossScript.finalBossCard.fighterName + " attacks with " + currentAttack);
 
                         wasDiceRolled = false;
+                        DefendButton.gameObject.SetActive(true);
+                        EvadeButton.gameObject.SetActive(true);
                         currentBattlePhase = BattlePhases.WAITFORTARGET2;
                     }
 
@@ -957,6 +1005,8 @@ public class GameManager : MonoBehaviour {
                         DisplayText("systemInBattle", bossScript.bossCard.fighterName + " attacks with " + currentAttack);
 
                         wasDiceRolled = false;
+                        DefendButton.gameObject.SetActive(true);
+                        EvadeButton.gameObject.SetActive(true);
                         currentBattlePhase = BattlePhases.WAITFORTARGET2;
                     }
 
@@ -1201,6 +1251,8 @@ public class GameManager : MonoBehaviour {
                         DisplayText("systemInBattle", monsterScript.monsterCard.fighterName + " attacks with " + currentAttack);
 
                         wasDiceRolled = false;
+                        DefendButton.gameObject.SetActive(true);
+                        EvadeButton.gameObject.SetActive(true);
                         currentBattlePhase = BattlePhases.WAITFORTARGET2;
                     }
 
@@ -1368,6 +1420,8 @@ public class GameManager : MonoBehaviour {
                         currentAttack = characterScript.card.GetCurrentStats().attack + diceRoll;
                         DisplayText("systemInBattle", characterScript.card.fighterName + " attacks with " + currentAttack);
                         wasDiceRolled = false;
+                        DefendButton.gameObject.SetActive(true);
+                        EvadeButton.gameObject.SetActive(true);
                         currentBattlePhase = BattlePhases.WAITFORTARGET;
                     }
 
@@ -1461,6 +1515,9 @@ public class GameManager : MonoBehaviour {
                         isDefending = false;
                         isEvading = false;
                         wasDiceRolled = false;
+
+                        DefendButton.gameObject.SetActive(true);
+                        EvadeButton.gameObject.SetActive(true);
 
                         currentBattlePhase = BattlePhases.WAITFORTARGET2;
                     }
@@ -2189,12 +2246,16 @@ public class GameManager : MonoBehaviour {
 
     void DefendPicked()
     {
+        DefendButton.gameObject.SetActive(false);
+        EvadeButton.gameObject.SetActive(false);
         isDefending = true;
         isEvading = false;
     }
     
     void EvadePicked()
     {
+        DefendButton.gameObject.SetActive(false);
+        EvadeButton.gameObject.SetActive(false);
         isEvading = true;
         isDefending = false;
     }    
@@ -2412,6 +2473,9 @@ public class GameManager : MonoBehaviour {
                 break;
             case "systemInBattle":
                 systemInBattle.GetComponent<Text>().text = text;
+                break;
+            case "cardDescription":
+                cardDescription.GetComponent<Text>().text = text;
                 break;
         }
     }

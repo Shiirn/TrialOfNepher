@@ -1,10 +1,10 @@
 ID,name,type,nature,description,attack,defense,evasion,hp,sprite,ability
 0,Golden Pendant,Artifact,Passive,Max Cards +1,0,0,0,0,Pendant,maxCards 1
 1,Golden Armor,Artifact,Equippable,Whenever you're damaged by an Attack in Battle: your opponent loses 1HP,0,0,0,0,Armor,thornmail 1
-2,Golden Shield,Artifact,Equippable,,0,1,0,0,Shield,
+2,Golden Shield,Artifact,Equippable,Defense +1,0,1,0,0,Shield,
 3,Golden Cards,Artifact,Equippable,Draw +1,0,0,0,0,Cards,draw 1
-4,Golden Bracelet,Artifact,Equippable,,1,0,0,0,Bracelet,
+4,Golden Bracelet,Artifact,Equippable,Attack +1,1,0,0,0,Bracelet,
 5,Golden Crown,Artifact,Equippable,Regen +1,0,0,0,0,Crown,regen 1
-6,Golden Feather,Artifact,Equippable,,0,0,1,0,Feather,
+6,Golden Feather,Artifact,Equippable,Evasion +1,0,0,1,0,Feather,
 7,Golden Pocket Watch,Artifact,Equippable,Movement +1,0,0,0,0,PocketWatch,movement 1
 8,Golden Morphing Ball,Artifact,Equippable,When equipping this Card: pick a stat. You gain +1 on that stat as long as this Card is equipped.,0,0,0,0,MorphingBall,morph 1

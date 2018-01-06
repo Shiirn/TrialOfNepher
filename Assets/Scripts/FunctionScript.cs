@@ -77,6 +77,7 @@ public class FunctionScript {
         if (!managerScript.wasDiceRolled)
         {
             managerScript.rollingForItem = true;
+            managerScript.UseItemButton.gameObject.SetActive(false);
             managerScript.currentInitialSubPhase = GameManager.InitialSubPhases.USINGITEM;
             managerScript.DieRollState();
         }

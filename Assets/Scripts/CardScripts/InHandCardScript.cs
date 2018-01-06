@@ -9,43 +9,79 @@ public class InHandCardScript : MonoBehaviour, IPointerEnterHandler, IPointerExi
     public int inHandIndex;
     Color cardColor;
     GameManager managerScript;
+    GameObject itemCanvas;
+    GameObject artifactCanvas;
 
     private void Start()
     {
         managerScript = GameObject.Find("Manager").GetComponent<GameManager>();
         cardColor = gameObject.GetComponent<Image>().color;
+        itemCanvas = GameObject.Find("CanvasItemCards");
+        artifactCanvas = GameObject.Find("CanvasArtifactCards");
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        transform.localScale *= 2.5f;
+        transform.localScale *= 1.5f;
         transform.SetAsLastSibling();
         gameObject.GetComponentInParent<Canvas>().transform.SetAsLastSibling();
+
+        if(managerScript.selectedItemCard == null && managerScript.selectedArtifactCard == null)
+        {
+            managerScript.hoveringOntoCard = true;
+            Character characterChoosingCards = managerScript.characters[managerScript.currentPlayerPickingCards % 2].GetComponent<Character>();
+            managerScript.cardDescription.SetActive(false);
+
+            if (gameObject.GetComponentInParent<Canvas>().name == "CanvasItemCards")
+            {
+                managerScript.DisplayText("cardDescription", characterChoosingCards.itemsOwned[inHandIndex].itemName
+                                            + "\n" +
+                                            characterChoosingCards.itemsOwned[inHandIndex].description);
+            }
+            else if (gameObject.GetComponentInParent<Canvas>().name == "CanvasArtifactCards")
+            {
+                managerScript.DisplayText("cardDescription", characterChoosingCards.artifactsOwned[inHandIndex].artifactName
+                                            + "\n" +
+                                            characterChoosingCards.artifactsOwned[inHandIndex].description);
+            }
+        }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        transform.localScale /= 2.5f;
+        transform.localScale /= 1.5f;
+        if (managerScript.selectedItemCard == null && managerScript.selectedArtifactCard == null)
+        {
+            managerScript.hoveringOntoCard = false;
+            managerScript.cardDescription.SetActive(false);
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(gameObject.GetComponentInParent<Canvas>().name == "CanvasItemCards")
+        managerScript.hoveringOntoCard = false;
+
+        if (gameObject.GetComponentInParent<Canvas>().name == "CanvasItemCards")
         {
             managerScript.selectedItemCard = gameObject;
+            managerScript.selectedArtifactCard = null;
         }
         else if (gameObject.GetComponentInParent<Canvas>().name == "CanvasArtifactCards")
         {
             managerScript.selectedArtifactCard = gameObject;
+            managerScript.selectedItemCard = null;
         }
+        
         MakeOthersTransparent();
     }
 
     public void MakeOthersTransparent()
     {
-        Canvas cardCanvas = gameObject.GetComponentInParent<Canvas>();
-
-        foreach (Transform child in cardCanvas.transform)
+        foreach (Transform child in artifactCanvas.transform)
+        {
+            child.gameObject.GetComponent<Image>().color = new Color(cardColor.r, cardColor.g, cardColor.b, cardColor.a / 5);
+        }
+        foreach (Transform child in itemCanvas.transform)
         {
             child.gameObject.GetComponent<Image>().color = new Color(cardColor.r, cardColor.g, cardColor.b, cardColor.a / 5);
         }
