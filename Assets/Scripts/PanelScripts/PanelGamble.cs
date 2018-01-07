@@ -23,6 +23,7 @@ public class PanelGamble : Panel {
             {
                 if (GameObject.Find("ArtifactCardPile").GetComponent<ArtifactPile>().cards.Count > 0)
                 {
+                    managerScript.CreateFadingSystemText("Artifact Card Obtained!");
                     managerScript.characterScript.DrawArtifactCards(1);
                 }
                 else

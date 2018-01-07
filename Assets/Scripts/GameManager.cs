@@ -290,11 +290,14 @@ public class GameManager : MonoBehaviour {
                 }
             }
 
-            int selectedItemIndex = selectedItemCard.GetComponent<InHandCardScript>().inHandIndex;
-            DisplayText("cardDescription",
-                        characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemIndex].itemName +
-                        "\n" +
-                        characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemIndex].description);
+            if (currentPlayerPickingCards < 2)
+            {
+                int selectedItemIndex = selectedItemCard.GetComponent<InHandCardScript>().inHandIndex;
+                DisplayText("cardDescription",
+                            characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemIndex].itemName +
+                            "\n" +
+                            characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemIndex].description);
+            }
         }
 
         if (selectedArtifactCard != null)
@@ -313,10 +316,13 @@ public class GameManager : MonoBehaviour {
                 EquipArtifactButton.gameObject.transform.SetAsLastSibling();
             }
 
-            int selectedArtifactIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
-            DisplayText("cardDescription", characters[currentPlayerPickingCards % 2].GetComponent<Character>().artifactsOwned[selectedArtifactIndex].artifactName +
-                        "\n" +
-                        characters[currentPlayerPickingCards % 2].GetComponent<Character>().artifactsOwned[selectedArtifactIndex].description);
+            if (currentPlayerPickingCards < 2)
+            {
+                int selectedArtifactIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
+                DisplayText("cardDescription", characters[currentPlayerPickingCards % 2].GetComponent<Character>().artifactsOwned[selectedArtifactIndex].artifactName +
+                            "\n" +
+                            characters[currentPlayerPickingCards % 2].GetComponent<Character>().artifactsOwned[selectedArtifactIndex].description);
+            }
         }
         else
         {
@@ -631,8 +637,10 @@ public class GameManager : MonoBehaviour {
                     UseSelectedItem();
                     yield return null;
                 }
-                break;
+                break;                
         }
+
+        yield return null;
     }
 
     IEnumerator MovementPhase()
@@ -649,6 +657,9 @@ public class GameManager : MonoBehaviour {
             RollForMovement();
             wasDiceRolled = false;
         }
+        
+        yield return null;
+        
     }
 
     IEnumerator PanelPhase()
@@ -783,8 +794,6 @@ public class GameManager : MonoBehaviour {
                     break;
 
                 case BattlePhases.WAITFORTARGET2:
-
-                    CreateFadingSystemText("Pick Defend or Evade");
 
                     if (isDefending || isEvading)
                     {
@@ -1018,8 +1027,6 @@ public class GameManager : MonoBehaviour {
 
                 case BattlePhases.WAITFORTARGET2:
 
-                    CreateFadingSystemText("Pick Defend or Evade");
-
                     if (isDefending || isEvading)
                     {
                         if (!wasDiceRolled)
@@ -1187,7 +1194,7 @@ public class GameManager : MonoBehaviour {
                             }
                             else if (monsterScript.monsterCard.nature == Nature.Evader)
                             {
-                                CreateFadingSystemText("Roll for Monster Evasion");
+                                CreateFadingSystemText("Monster is rolling for Evasion");
                             }
                             DieRollState();
                             GoToRoll();
@@ -1265,8 +1272,6 @@ public class GameManager : MonoBehaviour {
                     break;
 
                 case BattlePhases.WAITFORTARGET2:
-
-                    CreateFadingSystemText("Pick Defend or Evade");
 
                     if (isDefending || isEvading)
                     {
@@ -1442,8 +1447,6 @@ public class GameManager : MonoBehaviour {
                     {
                         if (!wasDiceRolled)
                         {
-                            CreateFadingSystemText("Pick Defend or Evade");
-
                             if (isDefending)
                             {
                                 RollButton.GetComponentInChildren<Text>().text = "Defend";
@@ -1545,7 +1548,6 @@ public class GameManager : MonoBehaviour {
                     {
                         if (!wasDiceRolled)
                         {
-                            CreateFadingSystemText("Pick Defend or Evade");
                             if (isDefending)
                             {
                                 RollButton.GetComponentInChildren<Text>().text = "Defend";
@@ -1692,6 +1694,9 @@ public class GameManager : MonoBehaviour {
             }
             yield return null;
         }
+
+        
+        yield return null;
     }
 
     IEnumerator EndPhase()
@@ -1753,6 +1758,9 @@ public class GameManager : MonoBehaviour {
                 wasDiceRolled = false;
                 isChoosingToFightOpponent = false;
                 isChoosingToFightBoss = false;
+                isChoosingToFightFinalBoss = false;
+                fightBoss = false;
+                fightFinalBoss = false;
 
                 ResetInitialObjects();
                 ResetBattleCounters();
@@ -1800,7 +1808,9 @@ public class GameManager : MonoBehaviour {
             {
                 currentPhase = previousPhase;
             }
-        }           
+        }
+
+        yield return null;
     }
 
     void ResetBattleCounters()
@@ -1919,6 +1929,7 @@ public class GameManager : MonoBehaviour {
             yield return null;
         }
 
+        yield return null;
     }
 
     IEnumerator Move(int x, int y)
@@ -2038,6 +2049,8 @@ public class GameManager : MonoBehaviour {
             characterScript.isMoving = false;
             currentPhase = TurnPhases.PANEL;
         }
+
+        yield return null;
     }
 
     IEnumerator FightOpponentChoice()
@@ -2119,6 +2132,8 @@ public class GameManager : MonoBehaviour {
         {
             yield return null;
         }
+
+        yield return null;
     }
 
     IEnumerator FightBossChoice()
@@ -2137,14 +2152,12 @@ public class GameManager : MonoBehaviour {
 
             characterScript.isMoving = false;
             currentPhase = TurnPhases.PANEL;
-
         }
         else if (ignoreFight)
         {
             ignoreFight = false;
             canvasFightChoice.GetComponent<Canvas>().enabled = false;
             isChoosingToFightBoss = false;
-            diceRoll--;
             if (diceRoll > 0)
             {
                 RollForMovement();
@@ -2159,6 +2172,8 @@ public class GameManager : MonoBehaviour {
         {
             yield return null;
         }
+
+        yield return null;
     }
 
     public IEnumerator FightFinalBossChoice()
@@ -2199,6 +2214,8 @@ public class GameManager : MonoBehaviour {
         {
             yield return null;
         }
+
+        yield return null;
     }
 
     void PickDirection(string _direction)
@@ -2380,9 +2397,7 @@ public class GameManager : MonoBehaviour {
             if (currentPhase == TurnPhases.INITIAL &&
                 characterScript.itemsOwned[selectedItemIndex].nature == ItemNature.Turn)
             {
-                
                 ActivateItem(selectedItemIndex);
-                
             }
             else if (currentPhase == TurnPhases.BATTLE &&
                     characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemIndex].nature == ItemNature.Battle)
@@ -2562,7 +2577,7 @@ public class GameManager : MonoBehaviour {
     {
         if (targetCard.abilities.Count > 0)
         {
-            Debug.Log(targetCard.fighterName);
+            Debug.Log(targetCard.fighterName + "has at least an ability");
             foreach (string ability in targetCard.abilities)
             {
                 string[] separator = new string[] { " " };
@@ -2649,7 +2664,7 @@ public class GameManager : MonoBehaviour {
             }
 
             CreateFadingSystemText(characters[currentPlayerPickingCards % 2].GetComponent<Character>().card.fighterName + " is Buffed! Attack UP.");
-
+            
             currentPlayerPickingCards += 1;
             ResetInitialObjects();
 

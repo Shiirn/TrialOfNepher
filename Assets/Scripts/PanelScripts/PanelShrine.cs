@@ -10,6 +10,8 @@ public class PanelShrine : Panel {
         GameObject manager = GameObject.Find("Manager");
         GameManager managerScript = manager.GetComponent<GameManager>();
 
+        managerScript.CreateFadingSystemText("Roll for a Buff/Debuff!");
+
         Character activeCharacter = managerScript.characters[managerScript.activePlayer].GetComponent<Character>();
 
         if (!managerScript.wasDiceRolled)
