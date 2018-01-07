@@ -145,9 +145,7 @@ public class GameManager : MonoBehaviour {
     public GameObject selectedArtifactCard;
     public GameObject[] artifactIndicators;
     GameObject equippedArtifactIndicator;
-    bool equippedArtifactIndicatorShown = false;
     GameObject passiveArtifactIndicator;
-    bool passiveArtifactIndicatorShown = false;
     public bool hoveringOntoCard = false;
 
     //Cards
@@ -385,7 +383,8 @@ public class GameManager : MonoBehaviour {
                             if (characterScript.itemsOwned.Count > 0)
                             {
                                 DontUseItemInBattleButton.gameObject.SetActive(true);
-                                
+                                CreateFadingSystemText(characterScript.card.fighterName + " is picking cards.");
+
                                 ShowItems(characterScript);
                             }
                             else
@@ -398,7 +397,8 @@ public class GameManager : MonoBehaviour {
                             if (opponentScript.itemsOwned.Count > 0)
                             {
                                 DontUseItemInBattleButton.gameObject.SetActive(true);
-                                
+                                CreateFadingSystemText(opponentScript.card.fighterName + " is picking cards.");
+
                                 ShowItems(opponentScript);
                             }
                             else
@@ -799,7 +799,7 @@ public class GameManager : MonoBehaviour {
                             }
                             else
                             {
-                                RollButton.GetComponentInChildren<Text>().text = "Defend";
+                                RollButton.GetComponentInChildren<Text>().text = "Evade";
                             }
 
                             DieRollState();
@@ -1813,6 +1813,7 @@ public class GameManager : MonoBehaviour {
         fightPlayer = false;
         fightBoss = false;
         ignoreFight = false;
+        RollButton.GetComponentInChildren<Text>().text = "Roll";
     }
 
     public void ResetInitialObjects()
@@ -2647,7 +2648,7 @@ public class GameManager : MonoBehaviour {
                 DisplayStats(characters[currentPlayerPickingCards % 2].GetComponent<Character>().card, "enemy");
             }
 
-            CreateFadingSystemText(characters[currentPlayerPickingCards % 2].GetComponent<Character>().card.fighterName + " is Buffed! Attack +1.");
+            CreateFadingSystemText(characters[currentPlayerPickingCards % 2].GetComponent<Character>().card.fighterName + " is Buffed! Attack UP.");
 
             currentPlayerPickingCards += 1;
             ResetInitialObjects();
@@ -2697,7 +2698,7 @@ public class GameManager : MonoBehaviour {
                 DisplayStats(characters[currentPlayerPickingCards % 2].GetComponent<Character>().card, "enemy");
             }
 
-            CreateFadingSystemText(characters[currentPlayerPickingCards % 2].GetComponent<Character>().card.fighterName + " is Buffed! Defense +1.");
+            CreateFadingSystemText(characters[currentPlayerPickingCards % 2].GetComponent<Character>().card.fighterName + " is Buffed! Defense UP.");
 
             currentPlayerPickingCards += 1;
             ResetInitialObjects();
@@ -2747,7 +2748,7 @@ public class GameManager : MonoBehaviour {
                 DisplayStats(characters[currentPlayerPickingCards % 2].GetComponent<Character>().card, "enemy");
             }
 
-            CreateFadingSystemText(characters[currentPlayerPickingCards % 2].GetComponent<Character>().card.fighterName + " is Buffed! Evasion +1.");
+            CreateFadingSystemText(characters[currentPlayerPickingCards % 2].GetComponent<Character>().card.fighterName + " is Buffed! Evasion UP.");
 
             currentPlayerPickingCards += 1;
             ResetInitialObjects();
@@ -2863,7 +2864,15 @@ public class GameManager : MonoBehaviour {
             {
                 if (characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemCard.GetComponent<InHandCardScript>().inHandIndex].nature == ItemNature.Battle)
                 {
-                    UseItemInBattleButton.gameObject.SetActive(true);
+                    if (mustFightOpponent &&
+                       characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemCard.GetComponent<InHandCardScript>().inHandIndex].function.Contains("smite"))
+                    {
+                        UseItemInBattleButton.gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        UseItemInBattleButton.gameObject.SetActive(true);
+                    }
                 }
                 else
                 {

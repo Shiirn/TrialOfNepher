@@ -17,7 +17,6 @@ public class FadingSystemText : MonoBehaviour {
     {
         isLastText = true;
         textScript = GetComponent<Text>();
-        Debug.Log(textScript.text);
         textScript.text = _text;
     }
 
