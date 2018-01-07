@@ -94,6 +94,7 @@ public class GameManager : MonoBehaviour {
     //Board Objects
     public GameObject board;
     public List<GameObject> homePanels;
+    public GameObject[] clouds;
     //Board Scripts
     BoardMap boardMap;
     Panel panelScript;
@@ -248,6 +249,7 @@ public class GameManager : MonoBehaviour {
         DontUseItemInBattleButton.gameObject.SetActive(false);
 
         systemTexts = new List<GameObject>();
+        InstantiateCloud(5);
 
         currentPhase = TurnPhases.INITIAL;
         currentInitialSubPhase = InitialSubPhases.SETUP;
@@ -2962,6 +2964,14 @@ public class GameManager : MonoBehaviour {
                     passiveArtifactIndicator.transform.SetAsLastSibling();
                 }
             }
+        }
+    }
+
+    public void InstantiateCloud(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            Instantiate(clouds[Random.Range(0, clouds.Length)]);
         }
     }
 }
