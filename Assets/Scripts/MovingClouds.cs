@@ -10,22 +10,23 @@ public class MovingClouds : MonoBehaviour {
     float travelSpeedValue;
     float alphaValue;
     float travelTime = 0;
+    float horizontalOffset = 0.0f;
 
 	void Start ()
     {
         managerScript = GameObject.Find("Manager").GetComponent<GameManager>();
 
-        objectPositionZ = Random.Range(-0.5f, 5.9f);
-        gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, objectPositionZ);
+        horizontalOffset = Random.Range(-10.0f, 0.0f);
 
-        travelSpeedValue = Random.Range(0.01f, 0.1f);
+        objectPositionZ = Random.Range(-0.8f, 7.2f);
+        gameObject.transform.position = new Vector3(gameObject.transform.position.x - horizontalOffset, gameObject.transform.position.y, objectPositionZ);
 
-        alphaValue = Random.Range(0.2f, 1f);
+        travelSpeedValue = Random.Range(0.01f, 0.013f);
+
+        alphaValue = Random.Range(0.1f, 0.3f);
         Color newColor = gameObject.GetComponent<SpriteRenderer>().color;
         newColor.a = alphaValue;
         gameObject.GetComponent<SpriteRenderer>().color = newColor;
-
-        
 	}
 		
 	void Update ()
@@ -33,7 +34,7 @@ public class MovingClouds : MonoBehaviour {
         gameObject.transform.Translate(-travelSpeedValue, 0, 0);
         travelTime += travelSpeedValue;
 
-        if(travelTime >= 15)
+        if(travelTime >= 26)
         {
             managerScript.InstantiateCloud(1);
             Destroy(gameObject);

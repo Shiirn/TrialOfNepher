@@ -728,6 +728,8 @@ public class GameManager : MonoBehaviour {
 
                             if (diceRoll <= 2)
                             {
+                                CreateFadingSystemText(finalBossScript.finalBossCard.fighterName + " evades your attack!");
+
                                 ResetBattleCounters();
                                 wasDiceRolled = false;
                                 currentBattlePhase = BattlePhases.OPPONENTATTACK;
@@ -2035,8 +2037,25 @@ public class GameManager : MonoBehaviour {
                 }
                 else if (diceRoll <= 0)
                 {
-                    characterScript.isMoving = false;
-                    currentPhase = TurnPhases.PANEL;
+                    foreach (GameObject character in characters)
+                    {
+                        if (characters[activePlayer].name != character.name)
+                        {
+                            opponentScript = character.GetComponent<Character>();
+
+                            if (characterScript.boardX == opponentScript.boardX &&
+                               characterScript.boardY == opponentScript.boardY &&
+                               opponentScript.card.isAlive)
+                            {
+                                isChoosingToFightOpponent = true;
+                            }
+                            else
+                            {
+                                characterScript.isMoving = false;
+                                currentPhase = TurnPhases.PANEL;
+                            }
+                        }
+                    }
                 }
             }            
         }
@@ -2051,7 +2070,6 @@ public class GameManager : MonoBehaviour {
             characterScript.isMoving = false;
             currentPhase = TurnPhases.PANEL;
         }
-
         yield return null;
     }
 
@@ -2971,6 +2989,7 @@ public class GameManager : MonoBehaviour {
     {
         for (int i = 0; i < count; i++)
         {
+
             Instantiate(clouds[Random.Range(0, clouds.Length)]);
         }
     }
