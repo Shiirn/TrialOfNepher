@@ -65,11 +65,13 @@ public class FunctionScript {
     static void Heal(int modifier)
     {
         managerScript.characterScript.Heal(modifier);
+        managerScript.CreateFadingSystemText("You recovered " + modifier + "HP.");
     }
 
     static void Hit(int modifier)
     {
         managerScript.opponentScript.card.GetDamaged(modifier);
+        managerScript.CreateFadingSystemText("The opponent lost " + modifier + "HP.");
     }
 
     static void LuckyRoll(int modifier)
@@ -87,11 +89,13 @@ public class FunctionScript {
             {
                 if(GameObject.Find("ArtifactCardPile").GetComponent<ArtifactPile>().cards.Count > 0)
                 {
-                    managerScript.characterScript.DrawArtifactCards(1);
+                    managerScript.CreateFadingSystemText("You succesfully obtained " + modifier + "artifact(s)!");
+                    managerScript.characterScript.DrawArtifactCards(modifier);
                     managerScript.ShowArtifacts();
                 }
                 else
                 {
+                    managerScript.CreateFadingSystemText("No artifacts left in the pile! You draw one item card.");
                     managerScript.characterScript.DrawItemCards(1);
                     managerScript.ShowItems(managerScript.characterScript);
                 }
@@ -107,8 +111,9 @@ public class FunctionScript {
     {
         for(int i = 0; i < modifier; i++)
         {
-            if(managerScript.opponentScript.artifactsOwned.Count > 0)
+            if(managerScript.opponentScript.artifactsOwned.Count > 0 && managerScript.opponentScript.artifactsOwned.Count != 4)
             {
+                managerScript.CreateFadingSystemText("You stole an artifact from the opponent.");
                 managerScript.StealArtifactFromOpponent();
                 managerScript.ShowArtifacts();
             }
@@ -119,6 +124,7 @@ public class FunctionScript {
     {
         if(!managerScript.characterScript.card.isAlive)
         {
+            managerScript.CreateFadingSystemText("You revived, and your HP are fully recovered.");
             managerScript.characterScript.card.isAlive = true;
             managerScript.characterScript.card.hp = managerScript.characterScript.card.GetCurrentStats().maxHp;
         }
@@ -139,6 +145,7 @@ public class FunctionScript {
 
         if (!managerScript.characterScript.card.isAlive)
         {
+            managerScript.CreateFadingSystemText("You lost 2 HP! The opponent is fully debuffed.");
             managerScript.currentPhase = GameManager.TurnPhases.END;
             managerScript.currentEndSubPhase = GameManager.EndSubPhases.DISCARD;
         }
@@ -153,6 +160,7 @@ public class FunctionScript {
         fullBuff.evasion = modifier;
         fullBuff.maxHp = 0;
 
+        managerScript.CreateFadingSystemText("You're fully buffed!");
         managerScript.characterScript.card.Buff(fullBuff);
     }
 
@@ -165,6 +173,7 @@ public class FunctionScript {
 
     static void TemporaryMovementUp(int modifier)
     {
+        managerScript.CreateFadingSystemText("You'll move one panel further this turn.");
         managerScript.tempMovementBuff += modifier;
     }
 
@@ -172,7 +181,8 @@ public class FunctionScript {
     {
         managerScript.targetCard.GetDamaged(modifier);
         managerScript.DisplayStats(managerScript.targetCard, "enemy");
-        if(!managerScript.targetCard.isAlive)
+        managerScript.CreateFadingSystemText("The enemy lost 3 HP.");
+        if (!managerScript.targetCard.isAlive)
         {
             managerScript.currentBattlePhase = GameManager.BattlePhases.ENDOFBATTLE;
         }
@@ -180,6 +190,7 @@ public class FunctionScript {
 
     static void Flee()
     {
+        managerScript.CreateFadingSystemText("Battle avoided!");
         managerScript.isFleeing = true;
         managerScript.currentBattlePhase = GameManager.BattlePhases.ENDOFBATTLE;
     }

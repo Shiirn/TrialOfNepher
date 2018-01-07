@@ -28,21 +28,27 @@ public class PanelShrine : Panel {
             {
                 case 1:
                     buff.attack--;
+                    managerScript.CreateFadingSystemText("Debuff: -1 Attack.");
                     break;
                 case 2:
                     buff.defense--;
+                    managerScript.CreateFadingSystemText("Debuff: -1 Defense.");
                     break;
                 case 3:
                     buff.evasion--;
+                    managerScript.CreateFadingSystemText("Debuff: -1 Evasion.");
                     break;
                 case 4:
                     buff.attack++;
+                    managerScript.CreateFadingSystemText("Buff: +1 Attack!");
                     break;
                 case 5:
                     buff.defense++;
+                    managerScript.CreateFadingSystemText("Buff: +1 Defense!");
                     break;
                 case 6:
                     buff.evasion++;
+                    managerScript.CreateFadingSystemText("Buff: +1 Evasion!");
                     break;
             }
 

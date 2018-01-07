@@ -15,6 +15,8 @@ public class PanelRegen : Panel {
         if (activeCharacter.card.hp > activeCharacter.card.stats.maxHp)
             activeCharacter.card.hp = activeCharacter.card.stats.maxHp;
 
+        managerScript.CreateFadingSystemText("Recovering HP!");
+
         manager.GetComponent<GameManager>().currentPhase = GameManager.TurnPhases.END;
     }
 

@@ -57,7 +57,8 @@ public class PanelBoss : Panel {
 
             managerScript.bossScript = activeBossScript;
             managerScript.wasFinalBossFightIgnored = false;
-            manager.GetComponent<GameManager>().currentPhase = GameManager.TurnPhases.BATTLE;
+            managerScript.CreateFadingSystemText("Fighting the Mid-Boss!");
+            managerScript.currentPhase = GameManager.TurnPhases.BATTLE;
         }
         else if(managerScript.fightFinalBoss && !managerScript.canvasFightChoice.isActiveAndEnabled)
         {
@@ -107,6 +108,7 @@ public class PanelBoss : Panel {
 
                 managerScript.finalBossScript = activeFinalBossScript;
                 managerScript.wasFinalBossFightIgnored = false;
+                managerScript.CreateFadingSystemText("Fighting the Final Boss!");
                 managerScript.currentPhase = GameManager.TurnPhases.BATTLE;
                 managerScript.currentBattlePhase = GameManager.BattlePhases.INITIAL;
             }

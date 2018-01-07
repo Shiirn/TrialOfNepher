@@ -59,8 +59,7 @@ public class PanelMonster : Panel {
 
             managerScript.monsterScript = activeMonsterScript;
 
-            Debug.Log("Spsipco");
-
+            managerScript.CreateFadingSystemText("Fighting a Small Monster!");
             managerScript.currentPhase = GameManager.TurnPhases.BATTLE;
             managerScript.currentBattlePhase = GameManager.BattlePhases.INITIAL;
         }
@@ -110,6 +109,7 @@ public class PanelMonster : Panel {
                     managerScript.SetCard("activePlayer", activePlayerCard);
                 }
 
+                managerScript.CreateFadingSystemText("Fighting the Final Boss!");
                 managerScript.finalBossScript = activeFinalBossScript;
                 managerScript.currentPhase = GameManager.TurnPhases.BATTLE;
                 managerScript.currentBattlePhase = GameManager.BattlePhases.INITIAL;

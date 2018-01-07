@@ -10,6 +10,7 @@ public class PanelCardLoss : Panel {
 
         if (managerScript.characterScript.itemsOwned.Count > 0)
         {
+            managerScript.CreateFadingSystemText("You dropped one item card.");
             managerScript.characterScript.DiscardCardAt(Random.Range(0, managerScript.characterScript.itemsOwned.Count));
         }
 

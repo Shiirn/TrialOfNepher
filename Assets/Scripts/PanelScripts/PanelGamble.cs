@@ -7,6 +7,7 @@ public class PanelGamble : Panel {
     public override void PanelEffect()
     {
         GameManager managerScript = GameObject.Find("Manager").GetComponent<GameManager>();
+        managerScript.CreateFadingSystemText("Roll for a Gamble");
 
         if (!managerScript.wasDiceRolled)
         {

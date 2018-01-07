@@ -60,11 +60,14 @@ public class CharacterCard : FighterCard
 
     public void LevelUp(int count) //count is how many times you leveled up in a single go
     {
+        int levelsGained = 0;
+
         for (int i = 0; i < count; i++)
         {
             if (level < 3)
             {
                 level++;
+                levelsGained++;
                 switch (level)
                 {
                     case 1:
@@ -79,15 +82,19 @@ public class CharacterCard : FighterCard
                 }
             }
         }
+        GameObject.Find("Manager").GetComponent<GameManager>().CreateFadingSystemText(fighterName + " gained " + levelsGained + "level(s).");
     }
 
     public void LevelDown(int count)
     {
+        int levelsDropped = 0;
+
         for (int i = 0; i < count; i++)
         {
             if (level > 0)
             {
                 level--;
+                levelsDropped++;
                 switch (level)
                 {
                     case 0:
@@ -101,6 +108,10 @@ public class CharacterCard : FighterCard
                         break;
                 }
             }
+        }
+        if (levelsDropped > 0)
+        {
+            GameObject.Find("Manager").GetComponent<GameManager>().CreateFadingSystemText(fighterName + " dropped " + levelsDropped + "level(s).");
         }
     }
 

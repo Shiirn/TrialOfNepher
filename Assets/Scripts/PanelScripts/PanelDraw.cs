@@ -12,6 +12,7 @@ public class PanelDraw : Panel {
         GameObject itemPile = GameObject.Find("ItemCardPile");
         ItemPile itemPileScript = itemPile.GetComponent<ItemPile>();
 
+        managerScript.CreateFadingSystemText("You obtained one Item Card.");
         managerScript.characterScript.DrawItemCards(1);
 
         managerScript.currentPhase = GameManager.TurnPhases.END;
