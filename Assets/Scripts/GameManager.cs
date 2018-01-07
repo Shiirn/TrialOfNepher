@@ -2591,7 +2591,7 @@ public class GameManager : MonoBehaviour {
             textToDraw = card.fighterName + " " + "LV" + "<color=purple>" + card.level + "</color>" 
                                 + "\n" + "HP" + "<color=red>" + card.hp + "</color>" + "\n"
                                 + "ATK" + "<color=orange>" + card.GetCurrentStats().attack + "</color>" + "/"
-                                + "DEF" + "<color=blue>" + card.GetCurrentStats().defense + "</color>" + "/"
+                                + "DEF" + "<color=cyan>" + card.GetCurrentStats().defense + "</color>" + "/"
                                 + "EVS" + "<color=green>" + card.GetCurrentStats().evasion + "</color>";
         }
         else
@@ -2599,7 +2599,7 @@ public class GameManager : MonoBehaviour {
             textToDraw = card.fighterName
                                 + "\n" + "HP" + "<color=red>" + card.hp + "</color>" + "\n"
                                 + "ATK" + "<color=orange>" + card.GetCurrentStats().attack + "</color>" + "/"
-                                + "DEF" + "<color=blue>" + card.GetCurrentStats().defense + "</color>" + "/"
+                                + "DEF" + "<color=cyan>" + card.GetCurrentStats().defense + "</color>" + "/"
                                 + "EVS" + "<color=green>" + card.GetCurrentStats().evasion + "</color>";
         }
 
