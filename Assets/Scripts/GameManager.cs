@@ -46,7 +46,8 @@ public class GameManager : MonoBehaviour {
         PANEL,
         BATTLE,
         END,
-        ROLLINGDIE
+        ROLLINGDIE,
+        GAMEOVER
     }
 
     public enum BattlePhases
@@ -464,6 +465,10 @@ public class GameManager : MonoBehaviour {
         {
             monsterScript.monsterCard.GetDamaged(1);
         }
+        if (Input.GetKeyDown("l"))
+        {
+            finalBossScript.finalBossCard.GetDamaged(1);
+        }
         if (Input.GetKeyDown("a"))
         {
             characterScript.card.GetDamaged(1);
@@ -496,6 +501,10 @@ public class GameManager : MonoBehaviour {
         {
             CreateFadingSystemText("sesso");
         }
+        if(Input.GetKeyDown("z"))
+        {
+            currentPhase = TurnPhases.GAMEOVER;
+        }
         //DEBUGGING
 
         if(currentPhase != TurnPhases.BATTLE)
@@ -519,6 +528,49 @@ public class GameManager : MonoBehaviour {
         if(currentPhase != TurnPhases.BATTLE)
         {
             currentPlayerPickingCards = activePlayer;
+        }
+
+        if(currentPhase == TurnPhases.GAMEOVER)
+        {
+            CreateFadingSystemText("");
+
+            canvasInBattle.gameObject.SetActive(false);
+            canvasArtifactCards.gameObject.SetActive(false);
+            canvasFightChoice.gameObject.SetActive(false);
+            canvasInitial.gameObject.SetActive(false);
+            canvasItemCards.gameObject.SetActive(false);
+            canvasInPlay.gameObject.SetActive(false);
+
+            opponentScript.gameObject.transform.Translate(Vector3.down * 0.02f);
+            characterScript.gameObject.transform.Translate(Vector3.up * 0.01f);
+            
+
+            if (characterScript.transform.position.y > 2 && characterScript.transform.position.y <= 4)
+            {
+                foreach (GameObject panel in boardMap.board)
+                {
+                    panel.transform.Translate(Random.onUnitSphere * 0.02f);
+                    //panel.gameObject.transform.Translate(Vector3.down * 0.02f);
+                }
+                foreach (GameObject arrow in boardMap.arrows)
+                {
+                    arrow.transform.Translate(Random.onUnitSphere * 0.02f);
+                    //arrow.gameObject.transform.Translate(Vector3.down * 0.08f);
+                }
+            }
+            else if (characterScript.transform.position.y > 4)
+            {
+                foreach (GameObject panel in boardMap.board)
+                {
+                    panel.transform.Translate(Random.onUnitSphere * 0.02f);
+                    panel.gameObject.transform.Translate(Vector3.down * 0.05f);
+                }
+                foreach (GameObject arrow in boardMap.arrows)
+                {
+                    arrow.transform.Translate(Random.onUnitSphere * 0.02f);
+                    arrow.gameObject.transform.Translate(Vector3.down * 0.08f);
+                }
+            }
         }
 
         if (canRollDice)
@@ -868,11 +920,6 @@ public class GameManager : MonoBehaviour {
 
                 case BattlePhases.ENDOFBATTLE:
 
-                    if (!finalBossScript.finalBossCard.isAlive)
-                    {
-                        Debug.Log("ZOMG U WONNE");
-                    }
-
                     ResetInitialObjects();
                     ResetBattleCounters();
 
@@ -901,6 +948,12 @@ public class GameManager : MonoBehaviour {
 
                     currentPhase = TurnPhases.END;
                     currentEndSubPhase = EndSubPhases.DISCARD;
+
+                    if (!finalBossScript.finalBossCard.isAlive)
+                    {
+                        currentPhase = TurnPhases.GAMEOVER;
+                    }
+
                     break;
             }
         }
