@@ -76,6 +76,8 @@ public class FunctionScript {
 
     static void LuckyRoll(int modifier)
     {
+        managerScript.CreateFadingSystemText("Try a Lucky Roll! " + modifier + " or higher wins.");
+
         if (!managerScript.wasDiceRolled)
         {
             managerScript.rollingForItem = true;
@@ -85,12 +87,12 @@ public class FunctionScript {
         }
         else
         {
-            if(managerScript.diceRoll >= 4)
+            if(managerScript.diceRoll >= modifier)
             {
                 if(GameObject.Find("ArtifactCardPile").GetComponent<ArtifactPile>().cards.Count > 0)
                 {
-                    managerScript.CreateFadingSystemText("You succesfully obtained " + modifier + "artifact(s)!");
-                    managerScript.characterScript.DrawArtifactCards(modifier);
+                    managerScript.CreateFadingSystemText("You succesfully obtained 1 artifact(s)!");
+                    managerScript.characterScript.DrawArtifactCards(1);
                     managerScript.ShowArtifacts();
                 }
                 else
@@ -99,6 +101,10 @@ public class FunctionScript {
                     managerScript.characterScript.DrawItemCards(1);
                     managerScript.ShowItems(managerScript.characterScript);
                 }
+            }
+            else
+            {
+                managerScript.CreateFadingSystemText("Better luck next time!");
             }
 
             managerScript.canRollDice = true;

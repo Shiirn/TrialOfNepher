@@ -456,7 +456,7 @@ public class GameManager : MonoBehaviour {
 
                 break;
         }
-        //DEBUGGING
+        /*//DEBUGGING
         if (Input.GetKeyDown("j"))
         {
             bossScript.bossCard.GetDamaged(1);
@@ -487,6 +487,9 @@ public class GameManager : MonoBehaviour {
         if (Input.GetKeyDown("r"))
         {
             characterScript.DrawItemCards(1);
+        }
+        if (Input.GetKeyDown("t"))
+        {
             characterScript.DrawArtifactCards(1);
         }
         if (Input.GetKeyDown("1"))
@@ -497,15 +500,11 @@ public class GameManager : MonoBehaviour {
         {
             diceRoll -= 1;
         }
-        if(Input.GetKeyDown("t"))
-        {
-            CreateFadingSystemText("sesso");
-        }
         if(Input.GetKeyDown("z"))
         {
             currentPhase = TurnPhases.GAMEOVER;
         }
-        //DEBUGGING
+        //DEBUGGING*/
 
         if(currentPhase != TurnPhases.BATTLE)
         {
@@ -540,6 +539,7 @@ public class GameManager : MonoBehaviour {
             canvasInitial.gameObject.SetActive(false);
             canvasItemCards.gameObject.SetActive(false);
             canvasInPlay.gameObject.SetActive(false);
+            canvasSystemText.gameObject.SetActive(false);
 
             opponentScript.gameObject.transform.Translate(Vector3.down * 0.02f);
             characterScript.gameObject.transform.Translate(Vector3.up * 0.01f);
@@ -2380,7 +2380,9 @@ public class GameManager : MonoBehaviour {
                     GameObject currentCard = Instantiate(artifactCard);
                     currentCard.transform.SetParent(canvasArtifactCards.transform, false);
                     currentCard.GetComponent<InHandCardScript>().inHandIndex = i;
-                    currentCard.transform.Translate(135 * i, 0, 0);
+                    Vector3 tempVector = new Vector3((currentCard.GetComponent<RectTransform>().rect.width + 10) * i, 0, 0);
+                    tempVector *= currentCard.GetComponentInParent<Canvas>().scaleFactor;
+                    currentCard.transform.Translate(tempVector);
 
                     if (characterScript.equippedArtifact != null)
                     {
@@ -2453,7 +2455,9 @@ public class GameManager : MonoBehaviour {
                         GameObject currentCard = Instantiate(itemCard);
                         currentCard.transform.SetParent(canvasItemCards.transform, false);
                         currentCard.GetComponent<InHandCardScript>().inHandIndex = i;
-                        currentCard.transform.Translate(135 * i, 0, 0);
+                        Vector3 tempVector = new Vector3((currentCard.GetComponent<RectTransform>().rect.width + 10) * i, 0, 0);
+                        tempVector *= currentCard.GetComponentInParent<Canvas>().scaleFactor;
+                        currentCard.transform.Translate(tempVector);
                     }
                 }
             }

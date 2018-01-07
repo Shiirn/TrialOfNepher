@@ -58,6 +58,8 @@ public class Character : Fighter
         card.artifactCounters.evasion -= artifactCard.stats.evasion;
         card.artifactCounters.maxHp -= artifactCard.stats.maxHp;
         card.GetDamaged(artifactCard.stats.maxHp);
+
+        equippedArtifact = null;
     }
 
     public void SetCurrentPanel(GameObject _currentPanel)

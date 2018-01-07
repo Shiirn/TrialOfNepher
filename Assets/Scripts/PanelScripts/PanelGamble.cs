@@ -7,7 +7,7 @@ public class PanelGamble : Panel {
     public override void PanelEffect()
     {
         GameManager managerScript = GameObject.Find("Manager").GetComponent<GameManager>();
-        managerScript.CreateFadingSystemText("Roll for a Gamble");
+        managerScript.CreateFadingSystemText("Roll for a Gamble! Test your luck.");
 
         if (!managerScript.wasDiceRolled)
         {
@@ -30,6 +30,10 @@ public class PanelGamble : Panel {
                 {
                     managerScript.StealArtifactFromOpponent();
                 }
+            }
+            else
+            {
+                managerScript.CreateFadingSystemText("Nothing happened.");
             }
             managerScript.currentPhase = GameManager.TurnPhases.END;
         }

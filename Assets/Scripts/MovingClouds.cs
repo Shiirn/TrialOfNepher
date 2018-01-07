@@ -21,9 +21,9 @@ public class MovingClouds : MonoBehaviour {
         objectPositionZ = Random.Range(-0.8f, 7.2f);
         gameObject.transform.position = new Vector3(gameObject.transform.position.x - horizontalOffset, gameObject.transform.position.y, objectPositionZ);
 
-        travelSpeedValue = Random.Range(0.01f, 0.013f);
+        travelSpeedValue = Random.Range(0.01f, 0.018f);
 
-        alphaValue = Random.Range(0.1f, 0.3f);
+        alphaValue = Random.Range(0.25f, 0.5f);
         Color newColor = gameObject.GetComponent<SpriteRenderer>().color;
         newColor.a = alphaValue;
         gameObject.GetComponent<SpriteRenderer>().color = newColor;
