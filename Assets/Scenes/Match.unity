@@ -580,6 +580,9 @@ MonoBehaviour:
   IgnoreFightButton: {fileID: 1906627618}
   selectedItemCard: {fileID: 0}
   selectedArtifactCard: {fileID: 0}
+  artifactIndicators:
+  - {fileID: 1786163773606920, guid: e0e424030749f894ca414694f433364c, type: 2}
+  - {fileID: 1902675607279208, guid: ac213e82d2db59440a7e7499fea973aa, type: 2}
   hoveringOntoCard: 0
   monsterSprites:
   - {fileID: 1019287582543584, guid: 68e18fd34aec3a149a6a283966617c8d, type: 2}

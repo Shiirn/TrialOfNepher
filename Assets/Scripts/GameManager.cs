@@ -143,6 +143,11 @@ public class GameManager : MonoBehaviour {
     //UI Surrogate Vars
     public GameObject selectedItemCard;
     public GameObject selectedArtifactCard;
+    public GameObject[] artifactIndicators;
+    GameObject equippedArtifactIndicator;
+    bool equippedArtifactIndicatorShown = false;
+    GameObject passiveArtifactIndicator;
+    bool passiveArtifactIndicatorShown = false;
     public bool hoveringOntoCard = false;
 
     //Cards
@@ -371,6 +376,8 @@ public class GameManager : MonoBehaviour {
 
                 if (currentBattlePhase == BattlePhases.INITIAL)
                 {
+                    canvasItemCards.enabled = true;
+
                     if (mustFightOpponent)
                     {
                         if (currentPlayerPickingCards == activePlayer)
@@ -422,6 +429,10 @@ public class GameManager : MonoBehaviour {
                             currentBattlePhase = BattlePhases.PLAYERATTACK;
                         }
                     }
+                }
+                else if (currentBattlePhase != BattlePhases.INITIAL)
+                {
+                    canvasItemCards.enabled = false;
                 }
                 break;
 
@@ -686,6 +697,7 @@ public class GameManager : MonoBehaviour {
 
                     if (!wasDiceRolled && !rollingInBattle)
                     {
+                        RollButton.GetComponentInChildren<Text>().text = "Attack";
                         DieRollState();
                     }
                     else if (wasDiceRolled || rollingInBattle)
@@ -783,17 +795,19 @@ public class GameManager : MonoBehaviour {
 
                             if (isDefending)
                             {
-                                //TODO: Change Roll button Text to "Defend"
+                                RollButton.GetComponentInChildren<Text>().text = "Defend";
                             }
                             else
                             {
-                                //TODO: Change Roll button Text to "Evade"
+                                RollButton.GetComponentInChildren<Text>().text = "Defend";
                             }
 
                             DieRollState();
                         }
                         else
                         {
+                            RollButton.GetComponentInChildren<Text>().text = "Roll";
+
                             if (isDefending)
                             {
                                 currentDefense = characterScript.card.GetCurrentStats().defense + diceRoll;
@@ -904,6 +918,7 @@ public class GameManager : MonoBehaviour {
 
                     if (!wasDiceRolled && !rollingInBattle)
                     {
+                        RollButton.GetComponentInChildren<Text>().text = "Attack";
                         DieRollState();
                     }
                     else if (wasDiceRolled || rollingInBattle)
@@ -1014,16 +1029,18 @@ public class GameManager : MonoBehaviour {
 
                             if (isDefending)
                             {
-                                //TODO: SAME
+                                RollButton.GetComponentInChildren<Text>().text = "Defend";
                             }
                             else
                             {
-                                //TODO: SAME
+                                RollButton.GetComponentInChildren<Text>().text = "Evade";
                             }
                             DieRollState();
                         }
                         else
                         {
+                            RollButton.GetComponentInChildren<Text>().text = "Roll";
+
                             if (isDefending)
                             {
                                 currentDefense = characterScript.card.GetCurrentStats().defense + diceRoll;
@@ -1145,6 +1162,7 @@ public class GameManager : MonoBehaviour {
 
                     if (!wasDiceRolled && !rollingInBattle)
                     {
+                        RollButton.GetComponentInChildren<Text>().text = "Attack";
                         DieRollState();
                     }
                     else if (wasDiceRolled || rollingInBattle)
@@ -1256,17 +1274,19 @@ public class GameManager : MonoBehaviour {
                         {
                             if (isDefending)
                             {
-                                //TODO: SAME
+                                RollButton.GetComponentInChildren<Text>().text = "Defend";
                             }
                             else
                             {
-                                //TODO: SAME
+                                RollButton.GetComponentInChildren<Text>().text = "Evade";
                             }
 
                             DieRollState();
                         }
                         else
                         {
+                            RollButton.GetComponentInChildren<Text>().text = "Roll";
+
                             if (isDefending)
                             {
                                 currentDefense = characterScript.card.GetCurrentStats().defense + diceRoll;
@@ -1400,6 +1420,7 @@ public class GameManager : MonoBehaviour {
 
                     if (!wasDiceRolled && !rollingInBattle)
                     {
+                        RollButton.GetComponentInChildren<Text>().text = "Attack";
                         DieRollState();
                     }
 
@@ -1425,17 +1446,19 @@ public class GameManager : MonoBehaviour {
 
                             if (isDefending)
                             {
-                                //TODO: SAME
+                                RollButton.GetComponentInChildren<Text>().text = "Defend";
                             }
                             else
                             {
-                                //TODO: SAME
+                                RollButton.GetComponentInChildren<Text>().text = "Evade";
                             }
 
                             DieRollState();
                         }
                         else
                         {
+                            RollButton.GetComponentInChildren<Text>().text = "Roll";
+
                             if (isDefending)
                             {
                                 currentDefense = opponentScript.card.GetCurrentStats().defense + diceRoll;
@@ -1491,6 +1514,7 @@ public class GameManager : MonoBehaviour {
 
                     if (!wasDiceRolled)
                     {
+                        RollButton.GetComponentInChildren<Text>().text = "Attack";
                         DieRollState();
                     }
                     else
@@ -1524,16 +1548,18 @@ public class GameManager : MonoBehaviour {
                             CreateFadingSystemText("Pick Defend or Evade");
                             if (isDefending)
                             {
-                                //TODO: SAME
+                                RollButton.GetComponentInChildren<Text>().text = "Defend";
                             }
                             else
                             {
-                                //TODO: SAME
+                                RollButton.GetComponentInChildren<Text>().text = "Evade";
                             }
                             DieRollState();
                         }
                         else
                         {
+                            RollButton.GetComponentInChildren<Text>().text = "Roll";
+
                             if (isDefending)
                             {
                                 currentDefense = characterScript.card.GetCurrentStats().defense + diceRoll;
@@ -2265,6 +2291,18 @@ public class GameManager : MonoBehaviour {
                     currentCard.GetComponent<InHandCardScript>().inHandIndex = i;
                     currentCard.transform.Translate(135 * i, 0, 0);
 
+                    if (characterScript.equippedArtifact != null)
+                    {
+                        if (characterScript.artifactsOwned[i].spriteName == characterScript.equippedArtifact.spriteName)
+                        {
+                            ShowEquippedArtifactIndicator(currentCard);
+                        }
+                    }
+
+                    if (characterScript.artifactsOwned[i].nature == ArtifactNature.Passive)
+                    {
+                        ShowPassiveCardIndicator(currentCard);
+                    }
                 }
             }
 
@@ -2274,7 +2312,7 @@ public class GameManager : MonoBehaviour {
 
     void EquipSelectedArtifact()
     {
-        if(selectedArtifactCard != null)
+        if (selectedArtifactCard != null)
         {
             int selectedArtifactIndex = selectedArtifactCard.GetComponent<InHandCardScript>().inHandIndex;
 
@@ -2306,6 +2344,8 @@ public class GameManager : MonoBehaviour {
 
                 CreateFadingSystemText("You equipped the " + characterScript.artifactsOwned[selectedArtifactIndex].artifactName + ".");
             }
+
+            ShowEquippedArtifactIndicator(selectedArtifactCard);            
         }
     }
 
@@ -2455,10 +2495,24 @@ public class GameManager : MonoBehaviour {
 
     public void DisplayStats(FighterCard card, string textToEdit)
     {
-        string textToDraw = card.fighterName + "\n" + "HP" + "<color=red>" + card.hp + "</color>" + "\n"
-                                + "ATK" + "<color=orange>" + card.GetCurrentStats().attack+ "</color>" + "/"
+        string textToDraw = "";
+
+        if (card.GetType() == typeof(CharacterCard))
+        {
+            textToDraw = card.fighterName + " " + "LV" + "<color=purple>" + card.level + "</color>" 
+                                + "\n" + "HP" + "<color=red>" + card.hp + "</color>" + "\n"
+                                + "ATK" + "<color=orange>" + card.GetCurrentStats().attack + "</color>" + "/"
                                 + "DEF" + "<color=blue>" + card.GetCurrentStats().defense + "</color>" + "/"
                                 + "EVS" + "<color=green>" + card.GetCurrentStats().evasion + "</color>";
+        }
+        else
+        {
+            textToDraw = card.fighterName
+                                + "\n" + "HP" + "<color=red>" + card.hp + "</color>" + "\n"
+                                + "ATK" + "<color=orange>" + card.GetCurrentStats().attack + "</color>" + "/"
+                                + "DEF" + "<color=blue>" + card.GetCurrentStats().defense + "</color>" + "/"
+                                + "EVS" + "<color=green>" + card.GetCurrentStats().evasion + "</color>";
+        }
 
         switch (textToEdit)
         {
@@ -2807,7 +2861,7 @@ public class GameManager : MonoBehaviour {
             }
             else if (currentPhase == TurnPhases.BATTLE)
             {
-                if (characterScript.itemsOwned[selectedItemCard.GetComponent<InHandCardScript>().inHandIndex].nature == ItemNature.Battle)
+                if (characters[currentPlayerPickingCards % 2].GetComponent<Character>().itemsOwned[selectedItemCard.GetComponent<InHandCardScript>().inHandIndex].nature == ItemNature.Battle)
                 {
                     UseItemInBattleButton.gameObject.SetActive(true);
                 }
@@ -2840,6 +2894,50 @@ public class GameManager : MonoBehaviour {
             systemTexts.Add(Instantiate(fadingSystemTextPrefab));
             systemTexts[systemTexts.Count - 1].GetComponent<FadingSystemText>().SetText(_text);
             systemTexts[systemTexts.Count - 1].transform.SetParent(canvasSystemText.transform, false);
+        }
+    }
+
+    public void ShowEquippedArtifactIndicator(GameObject card)
+    {
+        foreach (GameObject indicator in artifactIndicators)
+        {
+            if (indicator.name.Contains("Equipped"))
+            {
+                if (equippedArtifactIndicator == null)
+                {
+                    equippedArtifactIndicator = Instantiate(indicator);
+                    equippedArtifactIndicator.transform.SetParent(canvasArtifactCards.transform, false);
+                    equippedArtifactIndicator.transform.position = new Vector3(card.transform.position.x, card.transform.position.y, card.transform.position.z);
+                    equippedArtifactIndicator.transform.SetAsLastSibling();
+                }
+                else
+                {
+                    equippedArtifactIndicator.transform.position = new Vector3(card.transform.position.x, card.transform.position.y, card.transform.position.z);
+                    equippedArtifactIndicator.transform.SetAsLastSibling();
+                }
+            }
+        }
+    }
+
+    public void ShowPassiveCardIndicator(GameObject card)
+    {
+        foreach (GameObject indicator in artifactIndicators)
+        {
+            if (indicator.name.Contains("Passive"))
+            {
+                if (passiveArtifactIndicator == null)
+                {
+                    passiveArtifactIndicator = Instantiate(indicator);
+                    passiveArtifactIndicator.transform.SetParent(canvasArtifactCards.transform, false);
+                    passiveArtifactIndicator.transform.position = new Vector3(card.transform.position.x, card.transform.position.y, card.transform.position.z);
+                    passiveArtifactIndicator.transform.SetAsLastSibling();
+                }
+                else
+                {
+                    passiveArtifactIndicator.transform.position = new Vector3(card.transform.position.x, card.transform.position.y, card.transform.position.z);
+                    passiveArtifactIndicator.transform.SetAsLastSibling();
+                }
+            }
         }
     }
 }

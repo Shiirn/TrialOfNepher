@@ -19,6 +19,7 @@ public class FighterCard
     public Stats stats;
     public int hp;
     public int id;
+    public int level;
     public string fighterName;
     public string type;
     public Nature nature;
@@ -53,7 +54,6 @@ public class FighterCard
 
 public class CharacterCard : FighterCard
 {
-    public int level;
     public Stats artifactCounters;
     public Stats buffCounters;
     public Stats levelCounters;

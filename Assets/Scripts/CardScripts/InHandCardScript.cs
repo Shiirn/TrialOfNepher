@@ -10,7 +10,7 @@ public class InHandCardScript : MonoBehaviour, IPointerEnterHandler, IPointerExi
     Color cardColor;
     GameManager managerScript;
     GameObject itemCanvas;
-    GameObject artifactCanvas;
+    GameObject artifactCanvas;    
 
     private void Start()
     {
@@ -25,8 +25,15 @@ public class InHandCardScript : MonoBehaviour, IPointerEnterHandler, IPointerExi
         transform.localScale *= 1.5f;
         transform.SetAsLastSibling();
         gameObject.GetComponentInParent<Canvas>().transform.SetAsLastSibling();
+        foreach (Transform child in artifactCanvas.transform)
+        {
+            if (child.gameObject.name.Contains("Indicator"))
+            {
+                child.gameObject.transform.SetAsLastSibling();
+            }
+        }
 
-        if(managerScript.selectedItemCard == null && managerScript.selectedArtifactCard == null)
+        if (managerScript.selectedItemCard == null && managerScript.selectedArtifactCard == null)
         {
             managerScript.hoveringOntoCard = true;
             Character characterChoosingCards = managerScript.characters[managerScript.currentPlayerPickingCards % 2].GetComponent<Character>();
@@ -79,7 +86,10 @@ public class InHandCardScript : MonoBehaviour, IPointerEnterHandler, IPointerExi
     {
         foreach (Transform child in artifactCanvas.transform)
         {
-            child.gameObject.GetComponent<Image>().color = new Color(cardColor.r, cardColor.g, cardColor.b, cardColor.a / 5);
+            if (!child.gameObject.name.Contains("Indicator"))
+            {
+                child.gameObject.GetComponent<Image>().color = new Color(cardColor.r, cardColor.g, cardColor.b, cardColor.a / 5);
+            }            
         }
         foreach (Transform child in itemCanvas.transform)
         {
