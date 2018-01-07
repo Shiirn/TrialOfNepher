@@ -3792,9 +3792,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buttonName: Jump
-  forceAmount: 4000
+  forceAmount: 8000
   forceMode: 0
-  torque: 6000
+  torque: 15000
   manager: {fileID: 235550752}
 --- !u!4 &1374172164 stripped
 Transform:
@@ -3975,6 +3975,10 @@ Prefab:
     - target: {fileID: 4890771955397022, guid: 04d22919619a5af4197c67190aca0bf5, type: 2}
       propertyPath: m_LocalScale.y
       value: 2.6658993
+      objectReference: {fileID: 0}
+    - target: {fileID: 4890771955397022, guid: 04d22919619a5af4197c67190aca0bf5, type: 2}
+      propertyPath: m_LocalScale.z
+      value: 0.7433079
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 04d22919619a5af4197c67190aca0bf5, type: 2}
