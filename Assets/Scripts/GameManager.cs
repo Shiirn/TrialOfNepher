@@ -1448,12 +1448,12 @@ public class GameManager : MonoBehaviour {
                 if (characterScript.card.fighterName == "White Hood")
                 {
                     blackHoodSpriteInBattle.SetActive(true);
-                    blackHoodSpriteInBattle.transform.Translate(+285, 0, 0);
+                    blackHoodSpriteInBattle.transform.Translate(+285 * blackHoodSpriteInBattle.GetComponentInParent<Canvas>().scaleFactor, 0, 0) ;
                 }
                 else
                 {
                     whiteHoodSpriteInBattle.SetActive(true);
-                    whiteHoodSpriteInBattle.transform.Translate(+285, 0, 0);
+                    whiteHoodSpriteInBattle.transform.Translate(+285 * whiteHoodSpriteInBattle.GetComponentInParent<Canvas>().scaleFactor, 0, 0);
                 }
                 
                 attackerCard = characterScript.card;
@@ -1720,15 +1720,15 @@ public class GameManager : MonoBehaviour {
 
                     if (characterScript.card.fighterName == "White Hood")
                     {
-                        blackHoodSpriteInBattle.transform.Translate(-285, 0, 0);
+                        blackHoodSpriteInBattle.transform.Translate(-285 * blackHoodSpriteInBattle.GetComponentInParent<Canvas>().scaleFactor, 0, 0);
                     }
                     else
                     {
-                        whiteHoodSpriteInBattle.transform.Translate(-285, 0, 0);
+                        whiteHoodSpriteInBattle.transform.Translate(-285 * whiteHoodSpriteInBattle.GetComponentInParent<Canvas>().scaleFactor, 0, 0);
                     }
                     pvpCardsAreSet = false;
-                    whiteHoodSpriteInBattle.SetActive(false);
-                    blackHoodSpriteInBattle.SetActive(false);
+                    whiteHoodSpriteInBattle.SetActive(false);                    
+                    blackHoodSpriteInBattle.SetActive(false);                    
                     attackerStats.SetActive(true);
                     enemyStats.SetActive(true);
 
