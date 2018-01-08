@@ -33,8 +33,6 @@ public class FadingSystemText : MonoBehaviour {
             textScript.color = new Color(240, 240, 240, 255);
         }
 
-        Debug.Log(gameObject.GetComponentInParent<Canvas>().scaleFactor);
-
         gameObject.transform.position = new Vector3(gameObject.transform.position.x,
                                                     gameObject.transform.position.y + 100 * gameObject.GetComponentInParent<Canvas>().scaleFactor,
                                                     gameObject.transform.position.z);
